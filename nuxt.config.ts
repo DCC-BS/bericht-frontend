@@ -1,6 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     compatibilityDate: '2024-11-01',
+    runtimeConfig: {
+        public: {
+            apiUrl: process.env.API_URL,
+        },
+    },
     // Define app head configuration
     app: {
         head: {
@@ -24,11 +29,13 @@ export default defineNuxtConfig({
         },
     },
     modules: [
-        '@nuxt/ui',
-        '@nuxtjs/i18n',
-        '@dcc-bs/common-ui.bs.js',
-        '@dcc-bs/logger.bs.js',
-        '@nuxt/eslint',
+      '@nuxt/ui',
+      '@nuxtjs/i18n',
+      '@dcc-bs/common-ui.bs.js',
+      '@dcc-bs/logger.bs.js',
+      '@nuxt/eslint',
+      '@vite-pwa/nuxt',
+      '@pinia/nuxt',
     ],
     devtools: { enabled: true },
     css: ['~/assets/css/main.css'],
@@ -41,5 +48,13 @@ export default defineNuxtConfig({
         defaultLocale: 'de',
         vueI18n: './i18n.config.ts',
         lazy: true,
+    },
+    // routeRules: {
+    //     '**': { proxy: 'https://robust-nationally-lacewing.ngrok-free.app/' },
+    // },
+    vite: {
+        server: {
+            allowedHosts: ['robust-nationally-lacewing.ngrok-free.app'],
+        },
     },
 });

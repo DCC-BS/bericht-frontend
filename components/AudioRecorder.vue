@@ -177,28 +177,28 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="audio-recorder">
-        <div class="recorder-controls">
-            <button v-if="!isRecording && !audioBlob" @click="startRecording" :disabled="isLoading"
-                class="record-button">
+    <UCard class="flex flex-col items-center gap-2">
+        <div class="flex flex-col items-center gap-2 m-2">
+            <UButton icon="i-heroicons-microphone" color="primary" v-if="!isRecording && !audioBlob"
+                @click="startRecording" :disabled="isLoading">
                 Start Recording
-            </button>
-            <button v-if="isRecording" @click="stopRecording" class="stop-button">
+            </UButton>
+            <UButton icon="i-heroicons-stop" color="secondary" v-if="isRecording" @click="stopRecording">
                 Stop Recording
-            </button>
-            <button v-if="audioBlob" @click="resetRecording" class="reset-button">
+            </UButton>
+            <UButton icon="i-heroicons-x-mark" color="error" v-if="audioBlob" @click="resetRecording">
                 Reset
-            </button>
+            </UButton>
         </div>
 
-        <div v-if="isRecording" class="recording-indicator">
+        <div v-if="isRecording" class="recording-indicator m-2">
             Recording in progress...
             <div class="recording-time">{{ formattedRecordingTime }}</div>
         </div>
 
-        <div v-if="audioBlob" class="audio-preview">
+        <div v-if="audioBlob" class="flex flex-col items-center gap-2 m-2">
             <audio :src="audioUrl" controls></audio>
-            <button @click="emitAudio" class="submit-button">Use this recording</button>
+            <UButton icon="i-heroicons-arrow-down-tray" @click="emitAudio">Use this recording</UButton>
         </div>
 
         <div v-if="errorMessage" class="error-message">
@@ -210,82 +210,10 @@ onMounted(async () => {
                 <li>Restart your device if the issue persists</li>
             </ul>
         </div>
-    </div>
+    </UCard>
 </template>
 
 <style scoped>
-.audio-recorder {
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-.recorder-controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-button {
-    padding: 8px 16px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.record-button {
-    background-color: #f44336;
-    color: white;
-}
-
-.stop-button {
-    background-color: #2196F3;
-    color: white;
-}
-
-.reset-button {
-    background-color: #9e9e9e;
-    color: white;
-}
-
-.submit-button {
-    background-color: #4CAF50;
-    color: white;
-    margin-top: 10px;
-}
-
-button:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-.recording-indicator {
-    color: #f44336;
-    text-align: center;
-    margin-bottom: 15px;
-    animation: pulse 1.5s infinite;
-}
-
-.recording-time {
-    font-family: monospace;
-    font-size: 1.2rem;
-    margin-top: 5px;
-}
-
-.audio-preview {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.audio-preview audio {
-    width: 100%;
-    margin-bottom: 10px;
-}
-
 .error-message {
     color: #f44336;
     margin-top: 10px;
