@@ -3,10 +3,8 @@ export default defineI18nConfig(() => ({
     availableLocales: ['en', 'de'],
     locale: 'de',
     messages: {
-        en: {
-        },
+        en: {},
 
-        de: {
-        },
-    }
+        de: {},
+    },
 }));

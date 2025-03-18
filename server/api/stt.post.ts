@@ -1,5 +1,5 @@
-import { TranscriptionResponse } from "~/models/transcription_response";
-import { verboseFetch } from "../utils/verboseFetch";
+import type { TranscriptionResponse } from '~/models/transcription_response';
+import { verboseFetch } from '../utils/verboseFetch';
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig();
@@ -28,4 +28,4 @@ export default defineEventHandler(async (event) => {
     );
 
     return response;
-})
+});

@@ -1,13 +1,20 @@
 <script lang="ts" setup>
-// Function to handle the captured photo
-const handlePhotoCaptured = (photoData: string) => {
-    console.log('Photo received from CameraCapture component:', photoData);
-    // Process the captured photo data here
-};
+import { UButton } from '#components';
+import { useReportNote } from '~/composables/reportNote';
+
+const { createNewReportNote } = useReportNote();
+
+async function createNewNote() {
+    const note = await createNewReportNote({
+        createdAt: new Date(),
+    });
+
+    navigateTo(`/notes/${note.uid}`);
+}
 </script>
 
 <template>
-    <SpeechToText />
-    <!-- Add the new CameraCapture component -->
-    <CameraCapture @photo-captured="handlePhotoCaptured" />
+    <UContainer class="flex justify-center mt-20">
+        <UButton @click="createNewNote">Create New Note</UButton>
+    </UContainer>
 </template>

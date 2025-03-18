@@ -33,17 +33,19 @@ const formattedRecordingTime = computed(() => {
 async function checkMicrophoneAvailability(): Promise<boolean> {
     try {
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const hasAudioInput = devices.some(device => device.kind === 'audioinput');
+        const hasAudioInput = devices.some(
+            (device) => device.kind === 'audioinput',
+        );
 
         if (!hasAudioInput) {
-            errorMessage.value = "No microphone detected on your device.";
+            errorMessage.value = 'No microphone detected on your device.';
             return false;
         }
 
         return true;
     } catch (error) {
-        console.error("Error checking microphone availability:", error);
-        errorMessage.value = "Unable to check for microphone devices.";
+        console.error('Error checking microphone availability:', error);
+        errorMessage.value = 'Unable to check for microphone devices.';
         return false;
     }
 }
@@ -53,18 +55,34 @@ async function checkMicrophoneAvailability(): Promise<boolean> {
  */
 function handleMicrophoneError(error: Error): void {
     isLoading.value = false;
-    console.error("Microphone access error:", error);
+    console.error('Microphone access error:', error);
 
-    if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-        errorMessage.value = "No microphone found. Please connect a microphone and try again.";
-    } else if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-        errorMessage.value = "Microphone access denied. Please allow microphone access in your browser settings.";
-    } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-        errorMessage.value = "Your microphone is in use by another application.";
-    } else if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
-        errorMessage.value = "Microphone constraints cannot be satisfied.";
+    if (
+        error.name === 'NotFoundError' ||
+        error.name === 'DevicesNotFoundError'
+    ) {
+        errorMessage.value =
+            'No microphone found. Please connect a microphone and try again.';
+    } else if (
+        error.name === 'NotAllowedError' ||
+        error.name === 'PermissionDeniedError'
+    ) {
+        errorMessage.value =
+            'Microphone access denied. Please allow microphone access in your browser settings.';
+    } else if (
+        error.name === 'NotReadableError' ||
+        error.name === 'TrackStartError'
+    ) {
+        errorMessage.value =
+            'Your microphone is in use by another application.';
+    } else if (
+        error.name === 'OverconstrainedError' ||
+        error.name === 'ConstraintNotSatisfiedError'
+    ) {
+        errorMessage.value = 'Microphone constraints cannot be satisfied.';
     } else if (error.name === 'TypeError') {
-        errorMessage.value = "No microphone found or it's not compatible with your browser.";
+        errorMessage.value =
+            "No microphone found or it's not compatible with your browser.";
     } else {
         errorMessage.value = `Microphone error: ${error.message}`;
     }
@@ -89,7 +107,9 @@ async function startRecording(): Promise<void> {
 
     // Request access to the microphone
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+        });
 
         isLoading.value = false;
         isRecording.value = true;
@@ -113,7 +133,7 @@ async function startRecording(): Promise<void> {
             audioUrl.value = URL.createObjectURL(blob);
 
             // Stop all tracks in the stream to release the microphone
-            stream.getTracks().forEach(track => track.stop());
+            stream.getTracks().forEach((track) => track.stop());
 
             // Clear the recording timer
             if (recordingInterval.value) {
@@ -129,7 +149,9 @@ async function startRecording(): Promise<void> {
 
         // Start the timer to display recording duration
         recordingInterval.value = setInterval(() => {
-            recordingTime.value = Math.floor((Date.now() - recordingStartTime.value) / 1000);
+            recordingTime.value = Math.floor(
+                (Date.now() - recordingStartTime.value) / 1000,
+            );
         }, 1000);
     } catch (error) {
         handleMicrophoneError(error as Error);
@@ -165,6 +187,7 @@ function resetRecording(): void {
 function emitAudio(): void {
     if (audioBlob.value) {
         emit('recording-complete', audioBlob.value);
+        resetRecording();
     }
 }
 
@@ -179,14 +202,29 @@ onMounted(async () => {
 <template>
     <UCard class="flex flex-col items-center gap-2">
         <div class="flex flex-col items-center gap-2 m-2">
-            <UButton icon="i-heroicons-microphone" color="primary" v-if="!isRecording && !audioBlob"
-                @click="startRecording" :disabled="isLoading">
+            <UButton
+                v-if="!isRecording && !audioBlob"
+                icon="i-heroicons-microphone"
+                color="primary"
+                :disabled="isLoading"
+                @click="startRecording"
+            >
                 Start Recording
             </UButton>
-            <UButton icon="i-heroicons-stop" color="secondary" v-if="isRecording" @click="stopRecording">
+            <UButton
+                v-if="isRecording"
+                icon="i-heroicons-stop"
+                color="secondary"
+                @click="stopRecording"
+            >
                 Stop Recording
             </UButton>
-            <UButton icon="i-heroicons-x-mark" color="error" v-if="audioBlob" @click="resetRecording">
+            <UButton
+                v-if="audioBlob"
+                icon="i-heroicons-x-mark"
+                color="error"
+                @click="resetRecording"
+            >
                 Reset
             </UButton>
         </div>
@@ -197,13 +235,20 @@ onMounted(async () => {
         </div>
 
         <div v-if="audioBlob" class="flex flex-col items-center gap-2 m-2">
-            <audio :src="audioUrl" controls></audio>
-            <UButton icon="i-heroicons-arrow-down-tray" @click="emitAudio">Use this recording</UButton>
+            <audio :src="audioUrl" controls />
+            <UButton icon="i-heroicons-arrow-down-tray" @click="emitAudio"
+                >Use this recording</UButton
+            >
         </div>
 
         <div v-if="errorMessage" class="error-message">
             <p>{{ errorMessage }}</p>
-            <ul v-if="errorMessage.includes('No microphone found') || errorMessage.includes('access denied')">
+            <ul
+                v-if="
+                    errorMessage.includes('No microphone found') ||
+                    errorMessage.includes('access denied')
+                "
+            >
                 <li>Make sure your microphone is properly connected</li>
                 <li>Check browser permissions for microphone access</li>
                 <li>Try using a different browser</li>

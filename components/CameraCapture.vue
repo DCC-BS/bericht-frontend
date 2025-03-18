@@ -17,7 +17,10 @@ const isSwitchingCamera = ref(false);
 // Detect if the device is mobile
 onMounted(() => {
     // Check if the device is mobile using userAgent
-    isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    isMobile.value =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent,
+        );
 });
 
 // Open camera or file dialog based on device type
@@ -37,7 +40,7 @@ const capturePhoto = () => {
 // Start camera with current camera settings
 const startCamera = () => {
     // Set the camera facing mode based on the selected camera
-    const facingMode = usingFrontCamera.value ? "user" : "environment";
+    const facingMode = usingFrontCamera.value ? 'user' : 'environment';
 
     // Set loading state to prevent multiple attempts
     isSwitchingCamera.value = true;
@@ -45,35 +48,41 @@ const startCamera = () => {
     // Properly stop any existing stream before starting a new one
     if (currentStream.value) {
         const tracks = currentStream.value.getTracks();
-        tracks.forEach(track => track.stop());
+        tracks.forEach((track) => track.stop());
         currentStream.value = null;
     }
 
     // Clear video source before requesting new stream
-    const videoElement = document.getElementById('camera-preview') as HTMLVideoElement;
+    const videoElement = document.getElementById(
+        'camera-preview',
+    ) as HTMLVideoElement;
     if (videoElement && videoElement.srcObject) {
         videoElement.srcObject = null;
     }
 
     // Access camera with specified constraints
-    navigator.mediaDevices.getUserMedia({
-        video: {
-            facingMode: facingMode
-        }
-    })
-        .then(stream => {
+    navigator.mediaDevices
+        .getUserMedia({
+            video: {
+                facingMode: facingMode,
+            },
+        })
+        .then((stream) => {
             currentStream.value = stream;
 
             // Make sure the video element still exists (user might have navigated away)
-            const videoElement = document.getElementById('camera-preview') as HTMLVideoElement;
+            const videoElement = document.getElementById(
+                'camera-preview',
+            ) as HTMLVideoElement;
             if (videoElement) {
                 videoElement.srcObject = stream;
-                videoElement.play()
+                videoElement
+                    .play()
                     .then(() => {
                         // Camera started successfully
                         isSwitchingCamera.value = false;
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         console.error('Error playing video stream:', err);
                         isSwitchingCamera.value = false;
                     });
@@ -83,7 +92,7 @@ const startCamera = () => {
                 isSwitchingCamera.value = false;
             }
         })
-        .catch(err => {
+        .catch((err) => {
             console.error('Error accessing camera:', err);
             // If back camera fails, try falling back to any available camera
             if (!usingFrontCamera.value) {
@@ -129,7 +138,9 @@ const takePhoto = () => {
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas
+        .getContext('2d')
+        ?.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     // Convert canvas to data URL
     canvas.toBlob((blob) => {
@@ -146,7 +157,7 @@ const stopCameraStream = () => {
     // Only attempt to stop if there's an active stream
     if (currentStream.value) {
         const tracks = currentStream.value.getTracks();
-        tracks.forEach(track => track.stop());
+        tracks.forEach((track) => track.stop());
         currentStream.value = null;
     }
 
@@ -184,11 +195,17 @@ const emit = defineEmits<(e: 'photo-captured', data: Blob) => void>();
         <div v-if="!capturedImage" class="capture-section">
             <!-- Camera view on mobile devices -->
             <div v-if="showCamera" class="camera-view">
-                <video id="camera-preview" autoplay playsinline></video>
-                <button @click="takePhoto" class="capture-button">Take Photo</button>
+                <video id="camera-preview" autoplay playsinline />
+                <button class="capture-button" @click="takePhoto">
+                    Take Photo
+                </button>
                 <!-- Add camera toggle button with loading state -->
-                <button @click="toggleCamera" class="switch-camera-button" :disabled="isSwitchingCamera">
-                    {{ isSwitchingCamera ? 'Switching...' : `Switch Camera (${usingFrontCamera ? 'Front' : 'Back'})` }}
+                <button class="switch-camera-button" :disabled="isSwitchingCamera" @click="toggleCamera">
+                    {{
+                        isSwitchingCamera
+                            ? 'Switching...'
+                            : `Switch Camera (${usingFrontCamera ? 'Front' : 'Back'})`
+                    }}
                 </button>
                 <!-- Add loading indicator when switching cameras -->
                 <div v-if="isSwitchingCamera" class="camera-loading">
@@ -197,21 +214,25 @@ const emit = defineEmits<(e: 'photo-captured', data: Blob) => void>();
             </div>
 
             <!-- Capture/upload button when no camera is shown -->
-            <button v-else @click="capturePhoto" class="start-button">
+            <button v-else class="start-button" @click="capturePhoto">
                 {{ isMobile ? 'Take a Photo' : 'Upload a Photo' }}
             </button>
 
             <!-- Hidden file input for desktop -->
-            <input ref="fileInput" type="file" accept="image/*" @change="handleFileUpload" style="display: none;" />
+            <input ref="fileInput" type="file" accept="image/*" style="display: none" @change="handleFileUpload">
         </div>
 
         <!-- Preview captured image -->
         <div v-else class="preview-section">
-            <img :src="capturedImage" alt="Captured" class="preview-image" />
+            <img :src="capturedImage" alt="Captured" class="preview-image">
 
             <div class="action-buttons">
-                <button @click="retakePhoto" class="retake-button">Retake</button>
-                <button @click="submitPhoto" class="submit-button">Submit</button>
+                <button class="retake-button" @click="retakePhoto">
+                    Retake
+                </button>
+                <button class="submit-button" @click="submitPhoto">
+                    Submit
+                </button>
             </div>
         </div>
     </div>

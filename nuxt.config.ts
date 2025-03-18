@@ -36,6 +36,7 @@ export default defineNuxtConfig({
       '@nuxt/eslint',
       '@vite-pwa/nuxt',
       '@pinia/nuxt',
+      'nuxt-viewport',
     ],
     devtools: { enabled: true },
     css: ['~/assets/css/main.css'],

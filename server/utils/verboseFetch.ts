@@ -1,5 +1,6 @@
 import type { NitroFetchOptions, NitroFetchRequest } from 'nitropack';
-import { createError, H3Event } from 'h3'; // Import createError from h3
+import type { H3Event } from 'h3';
+import { createError } from 'h3'; // Import createError from h3
 export type Methods = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
 // Update the generic type parameters to handle the response type correctly
@@ -33,7 +34,9 @@ export async function verboseFetch<T>(
             method: init?.method ?? 'GET',
             errorMessage: fetchError.message,
             status: fetchError.response?.status,
-            headers: fetchError.response?.headers ? Object.fromEntries(fetchError.response.headers.entries()) : undefined,
+            headers: fetchError.response?.headers
+                ? Object.fromEntries(fetchError.response.headers.entries())
+                : undefined,
             errorData: fetchError.data,
         };
 
