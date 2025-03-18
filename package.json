@@ -1,0 +1,34 @@
+{
+    "name": "bericht-frontend",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "nuxt dev",
+        "build": "nuxt build",
+        "start": "nuxt start",
+        "generate": "nuxt generate",
+        "lint:js": "eslint --ext \".ts,.js,.vue\" .",
+        "lint": "bun lint:js",
+        "prettier": "prettier --write \"**/*.{js,ts,vue,json,css,scss,md}\""
+    },
+    "dependencies": {
+        "@dcc-bs/common-ui.bs.js": "^0.1.2",
+        "@dcc-bs/logger.bs.js": "^1.0.0",
+        "@nuxt/eslint": "1.2.0",
+        "@nuxt/ui": "^3.0.0",
+        "@nuxtjs/i18n": "^9.2.1",
+        "nuxt": "^3.15.4",
+        "vue": "latest",
+        "vue-router": "latest"
+    },
+    "devDependencies": {
+        "@nuxtjs/eslint-module": "4.1.0",
+        "eslint-plugin-prettier": "^5.2.3",
+        "@types/bun": "latest",
+        "jiti": "^2.4.2",
+        "prettier": "^3.5.2",
+        "sass": "1.85.1",
+        "sass-loader": "^16.0.5",
+        "typescript": "^5.7.3"
+    }
+}
