@@ -54,8 +54,15 @@ export default defineNuxtConfig({
     //     '**': { proxy: 'https://robust-nationally-lacewing.ngrok-free.app/' },
     // },
     vite: {
+        optimizeDeps: {
+            exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],
+        },
         server: {
             allowedHosts: ['robust-nationally-lacewing.ngrok-free.app'],
+            headers: {
+                "Cross-Origin-Opener-Policy": "same-origin",
+                "Cross-Origin-Embedder-Policy": "require-corp",
+            },
         },
     },
 });

@@ -1,46 +1,29 @@
-import type { ReportNote, ReportNoteEntry } from '../models/report_note';
+import { type IReport, type ReportDto, createReport } from "~/models/report";
+import { type IComplaint, type ComplaintDto, createComplaint } from "~/models/complaint";
 
 // Database constants
-const DB_NAME = 'ReportNotesDatabase';
-const DB_VERSION = 2; // Increased version for schema migration
-const REPORTS_STORE = 'report_notes';
-const IMAGES_STORE = 'report_images'; // New store for images
+const DB_NAME = 'ReportsDatabase';
+const DB_VERSION = 1; // Increased version for schema migration
+const REPORTS_STORE = 'reports';
+const IMAGES_STORE = 'complaint_images'; // New store for images
 
-/**
- * Internal representation of a report note entry with image references instead of blobs
- */
-interface InternalReportNoteEntry {
-    uid: string;
-    timestamp: Date;
-    notes?: string;
-    audioFile?: Blob;
-    text?: string;
+type InternalReport = Omit<ReportDto, "complaints"> & { complaints: InternalComplaint[] };
+
+type InternalComplaint = Omit<ComplaintDto, 'images'> & {
     imageIds: number[]; // Store image IDs instead of blobs
-}
-
-/**
- * Internal representation of a report note with image references
- */
-interface InternalReportNote {
-    id?: number;
-    uid: string;
-    name: string;
-    createdAt: Date;
-    lastModified: Date;
-    entries: InternalReportNoteEntry[];
-}
+};
 
 /**
  * Image object to be stored in the images store
  */
-interface StoredImage {
+type StoredImage = {
     id?: number; // Auto-generated ID
     blob: Blob;
-    reportId?: number; // Optional reference to the report
+    reportId?: string; // Optional reference to the report
     createdAt: Date;
 }
 
-export class ReportNotesDBService {
+export class ReportsDB {
     private db: IDBDatabase | null = null;
 
     /**
@@ -59,7 +42,6 @@ export class ReportNotesDBService {
             // Handle database upgrade or creation
             request.onupgradeneeded = (event) => {
                 const db = (event.target as IDBOpenDBRequest).result;
-                const oldVersion = event.oldVersion;
 
                 // Create reports store if it doesn't exist
                 if (!db.objectStoreNames.contains(REPORTS_STORE)) {
@@ -67,17 +49,11 @@ export class ReportNotesDBService {
                         keyPath: 'id',
                         autoIncrement: true,
                     });
-                    // Create indexes for faster queries
-                    store.createIndex('name', 'name', { unique: false });
-                    store.createIndex('createdAt', 'createdAt', {
-                        unique: false,
-                    });
-                    store.createIndex('lastModified', 'lastModified', {
-                        unique: false,
-                    });
-                    store.createIndex('uid', 'uid', { unique: true });
-                }
 
+                    // Create indexes for faster queries
+                    store.createIndex('id', 'id', { unique: true });
+
+                }
                 // Create images store if it doesn't exist
                 if (!db.objectStoreNames.contains(IMAGES_STORE)) {
                     const imagesStore = db.createObjectStore(IMAGES_STORE, {
@@ -87,14 +63,9 @@ export class ReportNotesDBService {
                     imagesStore.createIndex('reportId', 'reportId', {
                         unique: false,
                     });
-                    imagesStore.createIndex('createdAt', 'createdAt', {
-                        unique: false,
+                    imagesStore.createIndex('id', 'id', {
+                        unique: true,
                     });
-                }
-
-                // Migration logic for existing data if needed
-                if (oldVersion === 1 && event.newVersion === 2) {
-                    this.migrateDataToV2(db);
                 }
             };
 
@@ -114,34 +85,12 @@ export class ReportNotesDBService {
     }
 
     /**
-     * Migrate data from version 1 to version 2
-     * @param db Database instance
-     */
-    private async migrateDataToV2(db: IDBDatabase): Promise<void> {
-        // This function will migrate existing data to the new schema
-        // Get all reports from old schema and convert them to new schema
-        const transaction = db.transaction([REPORTS_STORE], 'readonly');
-        const store = transaction.objectStore(REPORTS_STORE);
-        const request = store.getAll();
-
-        request.onsuccess = async () => {
-            const oldReports = request.result as ReportNote[];
-            if (!oldReports.length) return;
-
-            // Process each report to extract images and update report entries
-            for (const report of oldReports) {
-                await this.saveReportWithSeparateImages(report);
-            }
-        };
-    }
-
-    /**
      * Save an image to the database
      * @param image The image blob to save
      * @param reportId Optional ID of the report this image belongs to
      * @returns The ID of the saved image
      */
-    private async saveImage(image: Blob, reportId?: number): Promise<number> {
+    private async saveImage(image: Blob, reportId?: string): Promise<number> {
         if (!this.db) {
             await this.initialize();
         }
@@ -201,60 +150,21 @@ export class ReportNotesDBService {
     }
 
     /**
-     * Convert an external report to internal format with image IDs
-     * @param report External report with image blobs
-     * @returns Internal report with image references
-     */
-    private async externalToInternalReport(
-        report: ReportNote,
-    ): Promise<InternalReportNote> {
-        const internalReport: InternalReportNote = {
-            ...report,
-            entries: await Promise.all(
-                report.entries.map(async (entry) => {
-                    // Save each image and collect their IDs
-                    const imageIds: number[] = [];
-                    if (entry.images && entry.images.length > 0) {
-                        for (const imageBlob of entry.images) {
-                            const imageId = await this.saveImage(
-                                imageBlob,
-                                report.id,
-                            );
-                            imageIds.push(imageId);
-                        }
-                    }
-
-                    return {
-                        uid: entry.uid,
-                        timestamp: entry.timestamp,
-                        notes: entry.notes,
-                        audioFile: entry.audioFile,
-                        text: entry.text,
-                        imageIds,
-                    };
-                }),
-            ),
-        };
-
-        return internalReport;
-    }
-
-    /**
      * Convert an internal report to external format with image blobs
      * @param internalReport Internal report with image references
      * @returns External report with image blobs
      */
     private async internalToExternalReport(
-        internalReport: InternalReportNote,
-    ): Promise<ReportNote> {
-        const externalReport: ReportNote = {
+        internalReport: InternalReport,
+    ): Promise<IReport> {
+        const reportDto: ReportDto = {
             ...internalReport,
-            entries: await Promise.all(
-                internalReport.entries.map(async (entry) => {
+            complaints: await Promise.all(
+                internalReport.complaints.map(async (complain) => {
                     // Retrieve all images for this entry
                     const images: Blob[] = [];
-                    if (entry.imageIds && entry.imageIds.length > 0) {
-                        for (const imageId of entry.imageIds) {
+                    if (complain.imageIds && complain.imageIds.length > 0) {
+                        for (const imageId of complain.imageIds) {
                             const imageBlob = await this.getImageById(imageId);
                             if (imageBlob) {
                                 images.push(imageBlob);
@@ -263,18 +173,43 @@ export class ReportNotesDBService {
                     }
 
                     return {
-                        uid: entry.uid,
-                        timestamp: entry.timestamp,
-                        notes: entry.notes,
-                        audioFile: entry.audioFile,
-                        text: entry.text,
+                        ...complain,
                         images,
-                    } as ReportNoteEntry;
+                    } as ComplaintDto;
                 }),
             ),
         };
 
-        return externalReport;
+        return createReport(reportDto);
+    }
+
+    private async externalToInternalReport(
+        report: IReport,
+    ): Promise<InternalReport> {
+        const reportDto: ReportDto = report.toDto();
+
+        // Convert complaints to internal format
+        const internalComplaints: InternalComplaint[] = await Promise.all(
+            reportDto.complaints.map(async (complaint) => {
+                const imageIds: number[] = [];
+
+                // Save each image and store its ID
+                for (const image of complaint.images) {
+                    const imageId = await this.saveImage(image, reportDto.id);
+                    imageIds.push(imageId);
+                }
+
+                return {
+                    ...complaint,
+                    imageIds,
+                } as InternalComplaint;
+            }),
+        );
+
+        return {
+            ...reportDto,
+            complaints: internalComplaints,
+        } as InternalReport;
     }
 
     /**
@@ -282,7 +217,7 @@ export class ReportNotesDBService {
      * @param report The report to save
      * @returns Promise with the ID of the saved report
      */
-    async saveReport(report: ReportNote): Promise<number> {
+    async saveReport(report: IReport): Promise<number> {
         // Make sure the database is initialized
         if (!this.db) {
             await this.initialize();
@@ -300,7 +235,7 @@ export class ReportNotesDBService {
      * @returns Promise with the ID of the saved report
      */
     private async saveInternalReport(
-        internalReport: InternalReportNote,
+        internalReport: InternalReport,
     ): Promise<number> {
         return new Promise((resolve, reject) => {
             // Start a transaction
@@ -327,22 +262,10 @@ export class ReportNotesDBService {
     }
 
     /**
-     * Special method for migrating an old report with embedded images to the new format
-     * @param report The old format report to save
-     * @returns Promise with the ID of the saved report
-     */
-    private async saveReportWithSeparateImages(
-        report: ReportNote,
-    ): Promise<number> {
-        const internalReport = await this.externalToInternalReport(report);
-        return this.saveInternalReport(internalReport);
-    }
-
-    /**
      * Get all reports from the database
      * @returns Promise with an array of all reports
      */
-    async getAll(): Promise<ReportNote[]> {
+    async getAll(): Promise<IReport[]> {
         // Make sure the database is initialized
         if (!this.db) {
             await this.initialize();
@@ -357,8 +280,8 @@ export class ReportNotesDBService {
             const request = store.getAll();
 
             request.onsuccess = async () => {
-                const internalReports = request.result as InternalReportNote[];
-                const externalReports: ReportNote[] = [];
+                const internalReports = request.result as InternalReport[];
+                const externalReports: IReport[] = [];
 
                 // Convert each report to external format
                 for (const internalReport of internalReports) {
@@ -377,51 +300,12 @@ export class ReportNotesDBService {
     }
 
     /**
-     * Get a specific report by ID
-     * @param id The ID of the report to retrieve
-     * @returns Promise with the requested report or null if not found
-     */
-    async getById(id: number): Promise<ReportNote | null> {
-        // Make sure the database is initialized
-        if (!this.db) {
-            await this.initialize();
-        }
-
-        return new Promise((resolve, reject) => {
-            const transaction = this.db!.transaction(
-                [REPORTS_STORE],
-                'readonly',
-            );
-            const store = transaction.objectStore(REPORTS_STORE);
-            const request = store.get(id);
-
-            request.onsuccess = async () => {
-                const internalReport = request.result as
-                    | InternalReportNote
-                    | undefined;
-                if (!internalReport) {
-                    resolve(null);
-                    return;
-                }
-
-                const externalReport =
-                    await this.internalToExternalReport(internalReport);
-                resolve(externalReport);
-            };
-
-            request.onerror = () => {
-                reject(`Failed to get report: ${request.error}`);
-            };
-        });
-    }
-
-    /**
      * Get a report note by its unique identifier
      * @param uid - The unique identifier of the report note
      * @returns The report note with the specified UID
      * @throws Error if the report note is not found
      */
-    async getByUid(uid: string): Promise<ReportNote> {
+    async getById(id: string): Promise<IReport> {
         // Make sure the database is initialized
         if (!this.db) {
             await this.initialize();
@@ -434,16 +318,16 @@ export class ReportNotesDBService {
                     'readonly',
                 );
                 const store = transaction.objectStore(REPORTS_STORE);
-                const index = store.index('uid');
-                const request = index.get(uid);
+                const index = store.index('id');
+                const request = index.get(id);
 
                 request.onsuccess = async () => {
                     const internalReport = request.result as
-                        | InternalReportNote
+                        | InternalReport
                         | undefined;
                     if (!internalReport) {
                         reject(
-                            new Error(`Report note with UID ${uid} not found`),
+                            new Error(`Report note with id ${id} not found`),
                         );
                         return;
                     }
@@ -454,11 +338,11 @@ export class ReportNotesDBService {
                 };
 
                 request.onerror = () => {
-                    reject(`Failed to get report by UID: ${request.error}`);
+                    reject(`Failed to get report by id: ${request.error}`);
                 };
             });
         } catch (err) {
-            console.error(`Error getting report note by UID ${uid}:`, err);
+            console.error(`Error getting report note by id ${id}:`, err);
             throw err;
         }
     }
@@ -475,7 +359,7 @@ export class ReportNotesDBService {
         }
 
         // First get the report to find associated images
-        const report = (await this.getById(id)) as ReportNote;
+        const report = (await this.getById(id)) as IReport;
         if (!report) {
             return; // Nothing to delete
         }
@@ -539,7 +423,7 @@ export class ReportNotesDBService {
      * @param searchTerm The term to search for in report names
      * @returns Promise with array of matching reports
      */
-    async searchReportsByName(searchTerm: string): Promise<ReportNote[]> {
+    async searchReportsByName(searchTerm: string): Promise<IReport[]> {
         const allReports = await this.getAll();
         const lowercaseTerm = searchTerm.toLowerCase();
 
@@ -556,7 +440,7 @@ export class ReportNotesDBService {
      */
     async getReportsSortedByModifiedDate(
         ascending: boolean = false,
-    ): Promise<ReportNote[]> {
+    ): Promise<IReport[]> {
         const allReports = await this.getAll();
 
         return allReports.sort((a, b) => {
@@ -568,4 +452,4 @@ export class ReportNotesDBService {
 }
 
 // Export a singleton instance
-export const reportsDBService = new ReportNotesDBService();
+export const reportsDBService = new ReportsDB();

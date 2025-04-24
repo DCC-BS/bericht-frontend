@@ -1,15 +1,11 @@
 <script lang="ts" setup>
 import { UButton } from '#components';
-import { useReportNote } from '~/composables/reportNote';
 
-const { createNewReportNote } = useReportNote();
+const reportService = useReportService();
 
 async function createNewNote() {
-    const note = await createNewReportNote({
-        createdAt: new Date(),
-    });
-
-    navigateTo(`/notes/${note.uid}`);
+    const note = await reportService.createReport("new Report");
+    navigateTo(`/notes/${note.id}`);
 }
 </script>
 
