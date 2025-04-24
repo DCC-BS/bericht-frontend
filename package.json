@@ -27,7 +27,8 @@
         "nuxt-viewport": "2.2.0",
         "pinia": "^3.0.1",
         "vue": "latest",
-        "vue-router": "latest"
+        "vue-router": "latest",
+        "vuedraggable": "^4.1.0"
     },
     "devDependencies": {
         "@nuxtjs/eslint-module": "4.1.0",

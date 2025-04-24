@@ -49,27 +49,22 @@ function removeImage(index: number): void {
         <!-- Speech to text component -->
         <SpeechToText @transcription-complete="onTranscriptionComplete" />
 
+        <!-- Text input area -->
+        <div v-if="entry" class="p-2">
+            <UTextarea class="w-full" v-model="entry.text" />
+        </div>
+
         <!-- Camera capture component -->
         <CameraCapture @photo-captured="handlePhotoCaptured" />
 
-        <!-- Text input area -->
-        <div v-if="entry" class="form-field">
-            <label for="entry-text">Text</label>
-            <UTextarea id="entry-text" v-model="entry.text" />
-        </div>
-
-        <!-- Notes input area -->
-        <div v-if="entry" class="form-field">
-            <label for="entry-notes">Notes</label>
-            <UTextarea id="entry-notes" v-model="entry.notes" />
-        </div>
-
         <!-- Image preview section -->
-        <div v-if="entry?.images && entry.images.length > 0" class="images-preview">
+        <div v-if="entry?.images && entry.images.length > 0">
             <h3>Captured Images:</h3>
-            <div v-for="(image, index) in entry.images" :key="index" class="image-container">
-                <img :src="getImageUrl(image)" alt="Captured Image">
-                <UButton @click="removeImage(index)">Remove</UButton>
+            <div class="flex flex-wrap">
+                <div v-for="(image, index) in entry.images" :key="index" class="image-container">
+                    <img :src="getImageUrl(image)" alt="Captured Image">
+                    <UButton @click="removeImage(index)">Remove</UButton>
+                </div>
             </div>
         </div>
         <div v-else>
