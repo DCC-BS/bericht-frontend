@@ -1,0 +1,176 @@
+export default defineI18nConfig(() => ({
+    legacy: false,
+    availableLocales: ["en", "de"],
+    locale: "de",
+    messages: {
+        en: {
+            report: {
+                title: "Title",
+                updateAt: "Updated at",
+                createdAt: "Created at",
+                notFound: "Report not found",
+                noComplaints: "No complaints added yet",
+                addComplaint: "Add complaint",
+                loading: "Loading report...",
+                saved: "Report saved"
+            },
+
+            // Camera component translations
+            camera: {
+                takePhoto: "Take Photo",
+                switching: "Switching...",
+                switchCamera: "Switch Camera ({0})",
+                front: "Front",
+                back: "Back",
+                takeAPhoto: "Take a Photo",
+                uploadAPhoto: "Upload a Photo",
+                retake: "Retake",
+                submit: "Submit",
+                switchingCamera: "Switching camera...",
+                capturedImageAlt: "Captured"
+            },
+            
+            // Audio recorder component translations
+            audio: {
+                startRecording: "Start Recording",
+                stopRecording: "Stop Recording",
+                recordingInProgress: "Recording in progress...",
+                errors: {
+                    noMicrophoneDetected: "No microphone detected on your device.",
+                    noMicrophoneFound: "No microphone found. Please connect a microphone and try again.",
+                    accessDenied: "Microphone access denied. Please allow microphone access in your browser settings.",
+                    inUse: "Your microphone is in use by another application.",
+                    constraints: "Microphone constraints cannot be satisfied.",
+                    notCompatible: "No microphone found or it's not compatible with your browser.",
+                    troubleshooting: {
+                        properlyConnected: "Make sure your microphone is properly connected",
+                        checkPermissions: "Check browser permissions for microphone access",
+                        differentBrowser: "Try using a different browser",
+                        restart: "Restart your device if the issue persists"
+                    }
+                }
+            },
+            
+            // Complaint view component translations
+            complaint: {
+                removeMemo: "Remove Memo",
+                removeImage: "Remove Image",
+                noImages: "No images captured yet.",
+                capturedImages: "Captured Images:"
+            },
+            
+            // Speech to text component translations
+            speechToText: {
+                converting: "Converting speech to text..."
+            },
+            
+            // Index page translations
+            home: {
+                createNewReport: "Create New report",
+                creatingReport: "Creating your report..."
+            },
+            
+            // Common buttons
+            buttons: {
+                add: "Add"
+            },
+            
+            // Loading states
+            loading: {
+                loading: "Loading..."
+            },
+            
+            // Confirm button component translations
+            confirmButton: {
+                confirmQuestion: "Are you sure?",
+                cancel: "Cancel",
+                confirm: "Confirm"
+            }
+        },
+
+        de: {
+            report: {
+                title: "Titel",
+                updateAt: "Aktualisiert am",
+                createdAt: "Erstellt am",
+                notFound: "Bericht nicht gefunden",
+                noComplaints: "Noch keine Beschwerden hinzugefügt",
+                addComplaint: "Beschwerde hinzufügen",
+                loading: "Bericht wird geladen...",
+                saved: "Bericht gespeichert"
+            },
+
+            // Camera component translations
+            camera: {
+                takePhoto: "Foto aufnehmen",
+                switching: "Wechsle...",
+                switchCamera: "Kamera wechseln ({0})",
+                front: "Vorne",
+                back: "Hinten",
+                takeAPhoto: "Foto aufnehmen",
+                uploadAPhoto: "Foto hochladen",
+                retake: "Neu aufnehmen",
+                submit: "Bestätigen",
+                switchingCamera: "Kamera wird gewechselt...",
+                capturedImageAlt: "Aufgenommenes Bild"
+            },
+            
+            // Audio recorder component translations
+            audio: {
+                startRecording: "Aufnahme starten",
+                stopRecording: "Aufnahme beenden",
+                recordingInProgress: "Aufnahme läuft...",
+                errors: {
+                    noMicrophoneDetected: "Kein Mikrofon an Ihrem Gerät erkannt.",
+                    noMicrophoneFound: "Kein Mikrofon gefunden. Bitte schließen Sie ein Mikrofon an und versuchen Sie es erneut.",
+                    accessDenied: "Mikrofonzugriff verweigert. Bitte erlauben Sie den Mikrofonzugriff in Ihren Browsereinstellungen.",
+                    inUse: "Ihr Mikrofon wird von einer anderen Anwendung verwendet.",
+                    constraints: "Mikrofoneinschränkungen können nicht erfüllt werden.",
+                    notCompatible: "Kein Mikrofon gefunden oder es ist nicht mit Ihrem Browser kompatibel.",
+                    troubleshooting: {
+                        properlyConnected: "Stellen Sie sicher, dass Ihr Mikrofon richtig angeschlossen ist",
+                        checkPermissions: "Überprüfen Sie die Browserberechtigungen für den Mikrofonzugriff",
+                        differentBrowser: "Versuchen Sie einen anderen Browser",
+                        restart: "Starten Sie Ihr Gerät neu, wenn das Problem weiterhin besteht"
+                    }
+                }
+            },
+            
+            // Complaint view component translations
+            complaint: {
+                removeMemo: "Notiz entfernen",
+                removeImage: "Bild entfernen",
+                noImages: "Noch keine Bilder aufgenommen.",
+                capturedImages: "Aufgenommene Bilder:"
+            },
+            
+            // Speech to text component translations
+            speechToText: {
+                converting: "Konvertiere Sprache zu Text..."
+            },
+            
+            // Index page translations
+            home: {
+                createNewReport: "Neuen Bericht erstellen",
+                creatingReport: "Bericht wird erstellt..."
+            },
+            
+            // Common buttons
+            buttons: {
+                add: "Hinzufügen"
+            },
+            
+            // Loading states
+            loading: {
+                loading: "Wird geladen..."
+            },
+            
+            // Confirm button component translations
+            confirmButton: {
+                confirmQuestion: "Sind Sie sicher?",
+                cancel: "Abbrechen",
+                confirm: "Bestätigen"
+            }
+        },
+    },
+}));

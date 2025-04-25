@@ -65,4 +65,9 @@ export default defineNuxtConfig({
             },
         },
     },
+    $development: {
+        "logger.bs.js": {
+            loglevel: "debug",
+        }
+    }
 });

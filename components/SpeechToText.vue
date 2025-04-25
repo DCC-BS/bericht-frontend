@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import type { TranscriptionResponse } from '~/models/transcription_response';
 
+// Import i18n composable
+const { t } = useI18n();
+
 const emit =
     defineEmits<
         (e: 'transcription-complete', file: Blob, text: string) => void
@@ -30,7 +33,7 @@ async function onRecordingComplete(file: Blob) {
             <div class="circle circle-2" />
             <div class="circle circle-3" />
         </div>
-        <p class="processing-text">Converting speech to text...</p>
+        <p class="processing-text">{{ t('speechToText.converting') }}</p>
     </div>
 </template>
 

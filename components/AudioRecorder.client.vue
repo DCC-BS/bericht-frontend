@@ -11,6 +11,7 @@ const emit = defineEmits<{
 const logger = useLogger();
 const { convertWebmToMp3 } = useAudioConvertion();
 const app = useNuxtApp();
+const { t } = useI18n();
 
 // ------------- State variables -------------
 // UI state
@@ -147,6 +148,9 @@ async function handleStopRecording(stream: MediaStream): Promise<void> {
         clearInterval(recordingInterval.value);
         recordingInterval.value = undefined;
     }
+
+    emitAudio();
+    resetRecording();
 }
 
 // ------------- Microphone Management -------------
@@ -161,14 +165,14 @@ async function checkMicrophoneAvailability(): Promise<boolean> {
         );
 
         if (!hasAudioInput) {
-            errorMessage.value = "No microphone detected on your device.";
+            errorMessage.value = t('audio.errors.noMicrophoneDetected');
             return false;
         }
 
         return true;
     } catch (error) {
         logger.error("Error checking microphone availability:", error);
-        errorMessage.value = "Unable to check for microphone devices.";
+        errorMessage.value = t('audio.errors.notCompatible');
         return false;
     }
 }
@@ -185,30 +189,26 @@ function handleMicrophoneError(error: Error): void {
         error.name === "NotFoundError" ||
         error.name === "DevicesNotFoundError"
     ) {
-        errorMessage.value =
-            "No microphone found. Please connect a microphone and try again.";
+        errorMessage.value = t('audio.errors.noMicrophoneFound');
     } else if (
         error.name === "NotAllowedError" ||
         error.name === "PermissionDeniedError"
     ) {
-        errorMessage.value =
-            "Microphone access denied. Please allow microphone access in your browser settings.";
+        errorMessage.value = t('audio.errors.accessDenied');
     } else if (
         error.name === "NotReadableError" ||
         error.name === "TrackStartError"
     ) {
-        errorMessage.value =
-            "Your microphone is in use by another application.";
+        errorMessage.value = t('audio.errors.inUse');
     } else if (
         error.name === "OverconstrainedError" ||
         error.name === "ConstraintNotSatisfiedError"
     ) {
-        errorMessage.value = "Microphone constraints cannot be satisfied.";
+        errorMessage.value = t('audio.errors.constraints');
     } else if (error.name === "TypeError") {
-        errorMessage.value =
-            "No microphone found or it's not compatible with your browser.";
+        errorMessage.value = t('audio.errors.notCompatible');
     } else {
-        errorMessage.value = `Microphone error: ${error.message}`;
+        errorMessage.value = `${t('audio.errors.notCompatible')}: ${error.message}`;
     }
 
     emit("recording-error", error);
@@ -356,7 +356,7 @@ function emitAudio(): void {
                 :disabled="isLoading"
                 @click="startRecording"
             >
-                Start Recording
+                {{ t('audio.startRecording') }}
             </UButton>
             <UButton
                 v-if="isRecording"
@@ -364,15 +364,12 @@ function emitAudio(): void {
                 icon="i-heroicons-stop"
                 @click="stopRecording"
             >
-                Stop Recording
-            </UButton>
-            <UButton v-if="audioBlob" color="neutral" @click="resetRecording">
-                Reset
+                {{ t('audio.stopRecording') }}
             </UButton>
         </div>
 
         <div v-if="isRecording" class="recording-indicator">
-            Recording in progress...
+            {{ t('audio.recordingInProgress') }}
             <div class="recording-time">{{ formattedRecordingTime }}</div>
             <div class="audio-visualization">
                 <div
@@ -384,23 +381,18 @@ function emitAudio(): void {
             </div>
         </div>
 
-        <div v-if="audioBlob" class="audio-preview">
-            <audio :src="audioUrl" controls />
-            <UButton @click="emitAudio">Use this recording</UButton>
-        </div>
-
         <div v-if="errorMessage" class="error-message">
             <p>{{ errorMessage }}</p>
             <ul
                 v-if="
-                    errorMessage.includes('No microphone found') ||
-                    errorMessage.includes('access denied')
+                    errorMessage.includes(t('audio.errors.noMicrophoneFound')) ||
+                    errorMessage.includes(t('audio.errors.accessDenied'))
                 "
             >
-                <li>Make sure your microphone is properly connected</li>
-                <li>Check browser permissions for microphone access</li>
-                <li>Try using a different browser</li>
-                <li>Restart your device if the issue persists</li>
+                <li>{{ t('audio.errors.troubleshooting.properlyConnected') }}</li>
+                <li>{{ t('audio.errors.troubleshooting.checkPermissions') }}</li>
+                <li>{{ t('audio.errors.troubleshooting.differentBrowser') }}</li>
+                <li>{{ t('audio.errors.troubleshooting.restart') }}</li>
             </ul>
         </div>
     </div>

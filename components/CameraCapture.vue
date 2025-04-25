@@ -1,10 +1,14 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+// Import i18n composable
+const { t } = useI18n();
+
+// Define emits
+const emit = defineEmits<(e: 'photo-captured', data: Blob) => void>();
 
 // State variables
 const isMobile = ref(false);
 const showCamera = ref(false);
-const capturedImage = ref<string>();
+const capturedImage = ref<string | undefined>(undefined);
 const capturedBlob = ref<Blob | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 // Track which camera is active (true = front camera, false = back camera)
@@ -19,12 +23,14 @@ onMounted(() => {
     // Check if the device is mobile using userAgent
     isMobile.value =
         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-            navigator.userAgent,
+            navigator.userAgent
         );
 });
 
-// Open camera or file dialog based on device type
-const capturePhoto = () => {
+/**
+ * Open camera or file dialog based on device type
+ */
+function capturePhoto(): void {
     if (isMobile.value) {
         showCamera.value = true;
         // Access camera on mobile devices with specific camera preference
@@ -35,10 +41,12 @@ const capturePhoto = () => {
             fileInput.value.click();
         }
     }
-};
+}
 
-// Start camera with current camera settings
-const startCamera = () => {
+/**
+ * Start camera with current camera settings
+ */
+function startCamera(): void {
     // Set the camera facing mode based on the selected camera
     const facingMode = usingFrontCamera.value ? 'user' : 'environment';
 
@@ -54,7 +62,7 @@ const startCamera = () => {
 
     // Clear video source before requesting new stream
     const videoElement = document.getElementById(
-        'camera-preview',
+        'camera-preview'
     ) as HTMLVideoElement;
     if (videoElement && videoElement.srcObject) {
         videoElement.srcObject = null;
@@ -72,7 +80,7 @@ const startCamera = () => {
 
             // Make sure the video element still exists (user might have navigated away)
             const videoElement = document.getElementById(
-                'camera-preview',
+                'camera-preview'
             ) as HTMLVideoElement;
             if (videoElement) {
                 videoElement.srcObject = stream;
@@ -101,15 +109,18 @@ const startCamera = () => {
                 isSwitchingCamera.value = false;
                 startCamera();
             } else {
-                alert('Could not access camera. Please check permissions.');
+                // Use translated alert message
+                alert(t('camera.permissionsError'));
                 isSwitchingCamera.value = false;
                 showCamera.value = false;
             }
         });
-};
+}
 
-// Toggle between front and back cameras
-const toggleCamera = () => {
+/**
+ * Toggle between front and back cameras
+ */
+function toggleCamera(): void {
     // Prevent multiple simultaneous camera switches
     if (isSwitchingCamera.value) return;
 
@@ -118,22 +129,32 @@ const toggleCamera = () => {
 
     // Restart camera with new setting
     startCamera();
-};
+}
 
-// Handle file upload for desktop
-const handleFileUpload = (event: Event) => {
+/**
+ * Handle file upload for desktop
+ * @param event - File input change event
+ */
+function handleFileUpload(event: Event): void {
     const target = event.target as HTMLInputElement;
-    if (target.files && target.files[0]) {
+    if (target.files?.[0]) {
         const reader = new FileReader();
         reader.onload = (e) => {
+            if (!target.files?.[0]) {
+                return;
+            }
+            
+            capturedBlob.value = target.files[0];
             capturedImage.value = e.target?.result as string;
         };
         reader.readAsDataURL(target.files[0]);
     }
-};
+}
 
-// Take photo from video stream on mobile
-const takePhoto = () => {
+/**
+ * Take photo from video stream on mobile
+ */
+function takePhoto(): void {
     const video = document.getElementById('camera-preview') as HTMLVideoElement;
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
@@ -144,16 +165,20 @@ const takePhoto = () => {
 
     // Convert canvas to data URL
     canvas.toBlob((blob) => {
-        capturedBlob.value = blob;
+        if (blob) {
+            capturedBlob.value = blob;
+        }
     }, 'image/jpeg');
     capturedImage.value = canvas.toDataURL('image/jpeg');
 
     // Stop camera stream
     stopCameraStream();
-};
+}
 
-// Stop camera stream
-const stopCameraStream = () => {
+/**
+ * Stop camera stream
+ */
+function stopCameraStream(): void {
     // Only attempt to stop if there's an active stream
     if (currentStream.value) {
         const tracks = currentStream.value.getTracks();
@@ -168,25 +193,26 @@ const stopCameraStream = () => {
     }
 
     showCamera.value = false;
-};
+}
 
-// Retake photo function
-const retakePhoto = () => {
+/**
+ * Retake photo function
+ */
+function retakePhoto(): void {
     capturedImage.value = undefined;
     capturePhoto();
-};
+}
 
-// Submit photo to parent component
-const submitPhoto = () => {
+/**
+ * Submit photo to parent component
+ */
+function submitPhoto(): void {
     if (capturedBlob.value) {
         // Emit event with captured image to parent component
         emit('photo-captured', capturedBlob.value);
     }
     capturedImage.value = undefined;
-};
-
-// Define emits
-const emit = defineEmits<(e: 'photo-captured', data: Blob) => void>();
+}
 </script>
 
 <template>
@@ -197,25 +223,25 @@ const emit = defineEmits<(e: 'photo-captured', data: Blob) => void>();
             <div v-if="showCamera" class="camera-view">
                 <video id="camera-preview" autoplay playsinline />
                 <button class="capture-button" @click="takePhoto">
-                    Take Photo
+                    {{ t('camera.takePhoto') }}
                 </button>
                 <!-- Add camera toggle button with loading state -->
                 <button class="switch-camera-button" :disabled="isSwitchingCamera" @click="toggleCamera">
                     {{
                         isSwitchingCamera
-                            ? 'Switching...'
-                            : `Switch Camera (${usingFrontCamera ? 'Front' : 'Back'})`
+                            ? t('camera.switching')
+                            : t('camera.switchCamera', [t(usingFrontCamera ? 'camera.front' : 'camera.back')])
                     }}
                 </button>
                 <!-- Add loading indicator when switching cameras -->
                 <div v-if="isSwitchingCamera" class="camera-loading">
-                    Switching camera...
+                    {{ t('camera.switchingCamera') }}
                 </div>
             </div>
 
             <!-- Capture/upload button when no camera is shown -->
             <button v-else class="start-button" @click="capturePhoto">
-                {{ isMobile ? 'Take a Photo' : 'Upload a Photo' }}
+                {{ isMobile ? t('camera.takeAPhoto') : t('camera.uploadAPhoto') }}
             </button>
 
             <!-- Hidden file input for desktop -->
@@ -224,14 +250,14 @@ const emit = defineEmits<(e: 'photo-captured', data: Blob) => void>();
 
         <!-- Preview captured image -->
         <div v-else class="preview-section">
-            <img :src="capturedImage" alt="Captured" class="preview-image">
+            <img :src="capturedImage" :alt="t('camera.capturedImageAlt')" class="preview-image">
 
             <div class="action-buttons">
                 <button class="retake-button" @click="retakePhoto">
-                    Retake
+                    {{ t('camera.retake') }}
                 </button>
                 <button class="submit-button" @click="submitPhoto">
-                    Submit
+                    {{ t('camera.submit') }}
                 </button>
             </div>
         </div>

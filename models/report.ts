@@ -1,4 +1,4 @@
-import type { ComplaintDto, IComplaint } from "./complaint";
+import { createComplaint, type ComplaintDto, type IComplaint } from "./complaint";
 
 export interface IReport {
     readonly id: string;
@@ -39,7 +39,7 @@ class Report implements IReport {
         this.createdAt = dto.createdAt ?? new Date();
         this._name = dto.name ?? `New Report ${this.createdAt.toLocaleString()}`;
         this.lastModified = dto.lastModified ?? new Date();
-        this.complaints = dto.complaints ?? [];
+        this.complaints = dto.complaints?.map(c => createComplaint(c)) ?? [];
     }
 
     get name(): string {

@@ -1,15 +1,19 @@
 import type { ILogger } from "@dcc-bs/logger.bs.js";
 import type { ReportsDB } from "./reports_db";
 import { type IReport, createReport } from "~/models/report";
+import type { TitleResponse } from "~/models/title_response";
 
 export class ReportService {
-    constructor(private readonly db: ReportsDB, private readonly logger: ILogger) { }
+    constructor(
+        private readonly db: ReportsDB,
+        private readonly logger: ILogger,
+    ) {}
 
-    async getAllReports(): Promise<any[]> {
+    async getAllReports(): Promise<IReport[]> {
         return this.db.getAll();
     }
 
-    async getReport(reportId: string): Promise<any> {
+    async getReport(reportId: string): Promise<IReport> {
         return this.db.getById(reportId);
     }
 
@@ -24,5 +28,24 @@ export class ReportService {
 
     async updateReport(report: IReport): Promise<void> {
         await this.db.saveReport(report);
+    }
+
+    async generateTitles(report: IReport): Promise<void> {
+        for (const complaint of report.complaints) {
+            const text = complaint.memos.map((m) => m.text).join(" ");
+
+            const response = await $fetch<TitleResponse>("/api/title", {
+                body: {
+                    text: text,
+                },
+                method: "POST",
+            });
+
+            if (response) {
+                complaint.title = response.title;
+            } else {
+                this.logger.error("Failed to generate title");
+            }
+        }
     }
 }

@@ -1,38 +1,58 @@
 import { type IReport, type ReportDto, createReport } from "~/models/report";
-import { type IComplaint, type ComplaintDto, createComplaint } from "~/models/complaint";
+import type { IComplaint, ComplaintDto} from "~/models/complaint";
+import type { IPicture, PictureDto } from "~/models/pictures";
+import type { IMemo, MemoDto } from "~/models/memo";
 
 // Database constants
 const DB_NAME = 'ReportsDatabase';
 const DB_VERSION = 1; // Increased version for schema migration
 const REPORTS_STORE = 'reports';
 const IMAGES_STORE = 'complaint_images'; // New store for images
+const MEMOS_STORE = 'complaint_memos'; // New store for memos
 
 type InternalReport = Omit<ReportDto, "complaints"> & { complaints: InternalComplaint[] };
 
-type InternalComplaint = Omit<ComplaintDto, 'images'> & {
+type InternalComplaint = Omit<ComplaintDto, 'images' | 'memos'> & {
     imageIds: number[]; // Store image IDs instead of blobs
+    memoIds: number[]; // Store memo IDs instead of blobs
+    order: number; // Order of the complaint
 };
 
 /**
  * Image object to be stored in the images store
  */
 type StoredImage = {
-    id?: number; // Auto-generated ID
+    id: string;
     blob: Blob;
     reportId?: string; // Optional reference to the report
     createdAt: Date;
 }
 
+type StoredMemos = {
+    id: string;
+    reportId?: string; // Optional reference to the report
+    order: number;
+    text: string;
+    audio: Blob;
+}
+
 export class ReportsDB {
     private db: IDBDatabase | null = null;
+
+    private async getDb(): Promise<IDBDatabase> {
+        if (!this.db) {
+            return await this.initialize();
+        }
+        return this.db;
+    }
 
     /**
      * Initialize the IndexedDB database
      * @returns Promise that resolves when the database is initialized
      */
-    async initialize(): Promise<void> {
+    async initialize(): Promise<IDBDatabase> {
         if (this.db) {
-            return;
+            this.db; // Return existing database instance
         }
 
         return new Promise((resolve, reject) => {
@@ -67,12 +87,26 @@ export class ReportsDB {
                         unique: true,
                     });
                 }
+
+                // Create memos store if it doesn't exist
+                if (!db.objectStoreNames.contains(MEMOS_STORE)) {
+                    const memosStore = db.createObjectStore(MEMOS_STORE, {
+                        keyPath: 'id',
+                        autoIncrement: true,
+                    });
+                    memosStore.createIndex('reportId', 'reportId', {
+                        unique: false,
+                    });
+                    memosStore.createIndex('id', 'id', {
+                        unique: true,
+                    });
+                }
             };
 
             // Success handler
             request.onsuccess = (event) => {
-                this.db = (event.target as IDBOpenDBRequest).result;
-                resolve();
+                const db = (event.target as IDBOpenDBRequest).result;
+                resolve(db);
             };
 
             // Error handler
@@ -90,25 +124,24 @@ export class ReportsDB {
      * @param reportId Optional ID of the report this image belongs to
      * @returns The ID of the saved image
      */
-    private async saveImage(image: Blob, reportId?: string): Promise<number> {
-        if (!this.db) {
-            await this.initialize();
-        }
+    private async saveImage(image: IPicture, reportId: string): Promise<number> {
+        const db = await this.getDb();
 
         return new Promise((resolve, reject) => {
-            const transaction = this.db!.transaction(
+            const transaction = db.transaction(
                 [IMAGES_STORE],
                 'readwrite',
             );
             const store = transaction.objectStore(IMAGES_STORE);
 
             const storedImage: StoredImage = {
-                blob: image,
+                id: image.id,
+                blob: image.image,
                 reportId,
                 createdAt: new Date(),
             };
 
-            const request = store.add(storedImage);
+            const request = store.put(storedImage);
 
             request.onsuccess = () => {
                 resolve(request.result as number);
@@ -120,18 +153,72 @@ export class ReportsDB {
         });
     }
 
+    private async saveMemo(memo: IMemo, reportId: string, order: number): Promise<number> {
+        const db = await this.getDb();
+
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(
+                [MEMOS_STORE],
+                'readwrite',
+            );
+            const store = transaction.objectStore(MEMOS_STORE);
+
+            const storedMemo: StoredMemos = {
+                id: memo.id,
+                text: memo.text,
+                audio: memo.audio,
+                order,
+                reportId,
+            };
+
+            const request = store.put(storedMemo);
+
+            request.onsuccess = () => {
+                resolve(request.result as number);
+            };
+
+            request.onerror = () => {
+                reject(`Failed to save memo: ${request.error}`);
+            };
+        });
+    }
+
+    private async getMemoById(id: number): Promise<StoredMemos> {
+        const db = await this.getDb();
+
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(
+                [MEMOS_STORE],
+                'readonly',
+            );
+            const store = transaction.objectStore(MEMOS_STORE);
+            const request = store.get(id);
+
+            request.onsuccess = () => {
+                const result = request.result as StoredMemos | undefined;
+                if (result) {
+                    resolve(result);
+                } else {
+                    reject(`Memo with ID ${id} not found`);
+                }
+            };
+
+            request.onerror = () => {
+                reject(`Failed to get memo: ${request.error}`);
+            };
+        });
+    }
+
     /**
      * Get an image by ID
      * @param id The ID of the image
      * @returns The image blob or undefined if not found
      */
     private async getImageById(id: number): Promise<Blob | undefined> {
-        if (!this.db) {
-            await this.initialize();
-        }
+        const db = await this.getDb();
 
         return new Promise((resolve, reject) => {
-            const transaction = this.db!.transaction(
+            const transaction = db.transaction(
                 [IMAGES_STORE],
                 'readonly',
             );
@@ -162,12 +249,31 @@ export class ReportsDB {
             complaints: await Promise.all(
                 internalReport.complaints.map(async (complain) => {
                     // Retrieve all images for this entry
-                    const images: Blob[] = [];
+                    const images: PictureDto[] = [];
                     if (complain.imageIds && complain.imageIds.length > 0) {
                         for (const imageId of complain.imageIds) {
                             const imageBlob = await this.getImageById(imageId);
                             if (imageBlob) {
-                                images.push(imageBlob);
+                                images.push({
+                                    id: imageId.toString(),
+                                    image: imageBlob,
+                                });
+                            }
+                        }
+                    }
+
+                    // Retrive all memos for this entry
+                    const memos: MemoDto[] = [];
+                    if (complain.memoIds && complain.memoIds.length > 0) {
+                        for (const memoId of complain.memoIds) {
+                            const memo = await this.getMemoById(memoId);
+                            if (memo) {
+                                memos.push({
+                                    id: memo.id,
+                                    order: memo.order,
+                                    audio: memo.audio,
+                                    text: memo.text,
+                                } as MemoDto);
                             }
                         }
                     }
@@ -175,10 +281,13 @@ export class ReportsDB {
                     return {
                         ...complain,
                         images,
+                        memos: memos.sort((a, b) => a.order - b.order),
                     } as ComplaintDto;
                 }),
             ),
         };
+
+        reportDto.complaints.sort((a, b) => a.order - b.order);
 
         return createReport(reportDto);
     }
@@ -190,7 +299,7 @@ export class ReportsDB {
 
         // Convert complaints to internal format
         const internalComplaints: InternalComplaint[] = await Promise.all(
-            reportDto.complaints.map(async (complaint) => {
+            reportDto.complaints.map(async (complaint, index) => {
                 const imageIds: number[] = [];
 
                 // Save each image and store its ID
@@ -199,9 +308,23 @@ export class ReportsDB {
                     imageIds.push(imageId);
                 }
 
+                const memoIds: number[] = [];
+                // Save each memo and store its ID
+                for (const memo of complaint.memos) {
+                    const memoId = await this.saveMemo(
+                        memo,
+                        reportDto.id,
+                        complaint.memos.indexOf(memo),
+                    );
+                    memoIds.push(memoId);
+                }
+
                 return {
-                    ...complaint,
+                    id: complaint.id,
+                    title: complaint.title,
                     imageIds,
+                    memoIds,
+                    order: index,
                 } as InternalComplaint;
             }),
         );
@@ -237,9 +360,11 @@ export class ReportsDB {
     private async saveInternalReport(
         internalReport: InternalReport,
     ): Promise<number> {
+        const db = await this.getDb();
+
         return new Promise((resolve, reject) => {
             // Start a transaction
-            const transaction = this.db!.transaction(
+            const transaction = db.transaction(
                 [REPORTS_STORE],
                 'readwrite',
             );
@@ -267,12 +392,10 @@ export class ReportsDB {
      */
     async getAll(): Promise<IReport[]> {
         // Make sure the database is initialized
-        if (!this.db) {
-            await this.initialize();
-        }
+        const db = await this.getDb();
 
         return new Promise((resolve, reject) => {
-            const transaction = this.db!.transaction(
+            const transaction = db.transaction(
                 [REPORTS_STORE],
                 'readonly',
             );
@@ -306,14 +429,11 @@ export class ReportsDB {
      * @throws Error if the report note is not found
      */
     async getById(id: string): Promise<IReport> {
-        // Make sure the database is initialized
-        if (!this.db) {
-            await this.initialize();
-        }
+        const db = await this.getDb();
 
         try {
             return new Promise((resolve, reject) => {
-                const transaction = this.db!.transaction(
+                const transaction = db.transaction(
                     [REPORTS_STORE],
                     'readonly',
                 );
@@ -352,11 +472,8 @@ export class ReportsDB {
      * @param id The ID of the report to delete
      * @returns Promise that resolves when the report is deleted
      */
-    async delete(id: number): Promise<void> {
-        // Make sure the database is initialized
-        if (!this.db) {
-            await this.initialize();
-        }
+    async delete(id: string): Promise<void> {
+        const db = await this.getDb();
 
         // First get the report to find associated images
         const report = (await this.getById(id)) as IReport;
@@ -366,7 +483,7 @@ export class ReportsDB {
 
         // Delete the report
         await new Promise<void>((resolve, reject) => {
-            const transaction = this.db!.transaction(
+            const transaction = db.transaction(
                 [REPORTS_STORE],
                 'readwrite',
             );
@@ -390,9 +507,11 @@ export class ReportsDB {
      * Delete all images associated with a specific report
      * @param reportId The ID of the report whose images should be deleted
      */
-    private async deleteImagesByReportId(reportId: number): Promise<void> {
+    private async deleteImagesByReportId(reportId: string): Promise<void> {
+        const db = await this.getDb();
+
         return new Promise((resolve, reject) => {
-            const transaction = this.db!.transaction(
+            const transaction = db.transaction(
                 [IMAGES_STORE],
                 'readwrite',
             );
@@ -431,23 +550,6 @@ export class ReportsDB {
         return allReports.filter((report) =>
             report.name.toLowerCase().includes(lowercaseTerm),
         );
-    }
-
-    /**
-     * Get reports sorted by last modified date
-     * @param ascending Whether to sort in ascending order (oldest first)
-     * @returns Promise with sorted array of reports
-     */
-    async getReportsSortedByModifiedDate(
-        ascending: boolean = false,
-    ): Promise<IReport[]> {
-        const allReports = await this.getAll();
-
-        return allReports.sort((a, b) => {
-            const dateA = new Date(a.lastModified).getTime();
-            const dateB = new Date(b.lastModified).getTime();
-            return ascending ? dateA - dateB : dateB - dateA;
-        });
     }
 }
 

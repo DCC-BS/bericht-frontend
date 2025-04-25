@@ -7,9 +7,11 @@
         "build": "nuxt build",
         "start": "nuxt start",
         "generate": "nuxt generate",
-        "lint:js": "eslint --ext \".ts,.js,.vue\" .",
-        "lint": "bun lint:js",
-        "prettier": "prettier --write \"**/*.{js,ts,vue,json,css,scss,md}\""
+        "lint": "biome format --write",
+        "check": "biome check --fix",
+        "test": "vitest",
+        "test:watch": "vitest --watch",
+        "test:coverage": "vitest run --coverage"
     },
     "dependencies": {
         "@dcc-bs/common-ui.bs.js": "^0.1.6",
@@ -23,6 +25,7 @@
         "@pinia/nuxt": "0.10.1",
         "@vite-pwa/nuxt": "0.10.6",
         "date-fns": "^4.1.0",
+        "docx": "^9.4.1",
         "nuxt": "^3.15.4",
         "nuxt-viewport": "2.2.0",
         "pinia": "^3.0.1",
