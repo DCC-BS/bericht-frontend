@@ -16,9 +16,9 @@ export default defineEventHandler(async (event) => {
 
     const formData = new FormData();
     formData.append("audio_file", fileContent, fileContent.name);
-    formData.append("to_email ", to);
+    formData.append("to_email", to);
     formData.append("subject", subject);
-    formData.append("body", body);
+    formData.append("email_body", body);
 
     // Attempt to make the API request
     const response = await verboseFetch(
