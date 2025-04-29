@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const formData = new FormData();
-    formData.append("file", fileContent, fileContent.name);
+    formData.append("file", fileContent, "report.docx");
     formData.append("to_email", to);
     formData.append("subject", subject);
     formData.append("email_body", body);

@@ -74,10 +74,6 @@ function removeComplaint(id: string): void {
     saveReport();
 }
 
-async function sendEmaol() {
-    sendEmail()
-}
-
 async function exportReport(){
     if(!currentReport.value) {
         logger.error('Report not found');
@@ -165,7 +161,7 @@ async function exportReport(){
                     </UButton>
                 </div>
 
-                <EmailExport :report="currentReport"/>
+                <EmailExport :report="currentReport" :reportService="reportService" />
             </div>
         </div>
     </div>

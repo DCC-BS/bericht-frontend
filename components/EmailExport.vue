@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import type { IReport } from '~/models/report';
+import type { ReportService } from '~/services/report.service';
 
 interface InputProps {
     report: IReport;
+    reportService: ReportService;
 }
 
 const props = defineProps<InputProps>();
@@ -24,6 +26,7 @@ async function sendMail() {
         return;
     }
 
+    await props.reportService.generateTitles(props.report);
     await sendEmail(to.value, props.report);
 
     toast.add({
