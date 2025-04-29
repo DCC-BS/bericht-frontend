@@ -98,15 +98,15 @@ function onSave(): void {
 </script>
 
 <template>
-    <UContainer class="pb-10">
+    <div class="pb-10 w-full">
         <!-- Speech to text component -->
         <SpeechToText @transcription-complete="onTranscriptionComplete" />
 
         <!-- Text input area -->
-        <div v-if="complaint" class="p-2 flex flex-col gap-2">
+        <div v-if="complaint" class="p-1 flex flex-col gap-2">
             <div v-for="(memo, index) in complaint.memos" :key="index"
-                class="flex flex-col gap-2 justify-stretch border-2 border-gray-200 rounded-2xl p-2">
-                <UTextarea v-model="memo.text" @blur="onSave" />
+                class="flex flex-col gap-2 justify-stretch border-2 border-gray-200 rounded-2xl p-1">
+                <UTextarea v-model="memo.text" @blur="onSave" class="w-full" />
                 <audio :src="audioUrl(memo.audio)" controls class="w-full"></audio>
                 <ConfirmButton @confirm="removeMemo(index)">
                     <UButton class="w-full flex items-center justify-center gap-2"
@@ -123,12 +123,12 @@ function onSave(): void {
 
         <!-- Image preview section -->
         <div v-if="complaint?.images && complaint.images.length > 0">
-            <h3>{{ t('complaint.capturedImages') }}</h3>
+            <h3 class="text-lg font-bold">{{ t('complaint.capturedImages') }}</h3>
             <div class="flex flex-wrap gap-2 justify-between">
-                <div v-for="(image, index) in complaint.images" :key="index" class="image-container w-[45%]">
+                <div v-for="(image, index) in complaint.images" :key="index" class="w-full p-1">
                     <img :src="getImageUrl(image.image)" :alt="t('camera.capturedImageAlt')">
                     <ConfirmButton @confirm="removeImage(index)">
-                        <UButton class="w-full flex items-center justify-center gap-2"
+                        <UButton class="w-full flex items-center justify-center gap-2 my-1"
                             icon="i-heroicons-trash" color="error">
                             {{ t('complaint.removeImage') }}
                         </UButton>
@@ -139,5 +139,5 @@ function onSave(): void {
         <div v-else>
             <p>{{ t('complaint.noImages') }}</p>
         </div>
-    </UContainer>
+    </div>
 </template>

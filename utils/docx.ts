@@ -1,5 +1,5 @@
-import { Document, ImageRun, Packer, Paragraph, TextRun } from "docx";
-import type { ComplaintDto, IComplaint } from "~/models/complaint";
+import { Document, Footer, ImageRun, NumberFormat, Packer, PageNumber, Paragraph, TextRun } from "docx";
+import type { IComplaint } from "~/models/complaint";
 import type { IReport } from "~/models/report";
 
 export async function createDoxf(report: IReport) {
@@ -8,23 +8,18 @@ export async function createDoxf(report: IReport) {
     const asycComplainParagraphs = report.complaints.map(async (complaint) => {
         return [
             new Paragraph({
-                children: [
-                    new TextRun({
-                        text: complaint.title,
-                        bold: true,
-                    }),
-                ],
+                text: complaint.title,
+                heading: "Heading1",
+                keepLines: true,
+                keepNext: true,
             }),
             new Paragraph({
                 children: (await getImages(complaint))
             }),
             ...complaint.memos.map((memo) => {
                 return new Paragraph({
-                    children: [
-                        new TextRun({
-                            text: memo.text,
-                        }),
-                    ],
+                    text: memo.text,
+
                 });
             }),
         ];
@@ -35,29 +30,36 @@ export async function createDoxf(report: IReport) {
     const doc = new Document({
         sections: [
             {
-                properties: {},
+                properties: {
+                    page: {
+                        pageNumbers: {
+                            start: 1,
+                            formatType: NumberFormat.DECIMAL,
+                        }
+                    }
+                },
+                footers: {
+                    default: new Footer({
+                        children: [
+                            new Paragraph({ children: [
+                                new TextRun("Seite "),
+                                new TextRun(PageNumber.CURRENT),
+                                new TextRun(" von "),
+                                new TextRun(PageNumber.TOTAL_PAGES),
+                            ]}),
+                        ]
+                    })
+                },
                 children: [
                     new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: report.name,
-                                bold: true,
-                            }),
-                        ],
+                        text: report.name,
+                        heading: "Title",
                     }),
                     new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: `Created at: ${report.createdAt.toLocaleString()}`,
-                            }),
-                        ],
+                        text: `Created at: ${report.createdAt.toLocaleString()}`,
                     }),
                     new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: `Last modified: ${report.lastModified.toLocaleString()}`,
-                            }),
-                        ],
+                        text: `Last modified: ${report.lastModified.toLocaleString()}`,
                     }),
                     ...complainParagraphs,
                 ],

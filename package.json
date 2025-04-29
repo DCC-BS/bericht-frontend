@@ -34,6 +34,7 @@
         "vuedraggable": "^4.1.0"
     },
     "devDependencies": {
+        "@iconify-json/lucide": "^1.2.39",
         "@nuxtjs/eslint-module": "4.1.0",
         "@types/bun": "latest",
         "biome": "^0.3.3",

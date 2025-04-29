@@ -45,10 +45,20 @@ export default defineNuxtConfig({
     },
     // localization
     i18n: {
-        locales: ['en', 'de'],
+        locales: [
+            {
+                code: "en",
+                name: "English",
+            },
+            {
+                code: "de",
+                name: "Deutsch",
+            },
+        ],
         defaultLocale: 'de',
         vueI18n: './i18n.config.ts',
         lazy: true,
+        strategy: 'prefix_except_default',
     },
     // routeRules: {
     //     '**': { proxy: 'https://robust-nationally-lacewing.ngrok-free.app/' },

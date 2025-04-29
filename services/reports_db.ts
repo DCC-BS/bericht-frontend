@@ -1,5 +1,5 @@
 import { type IReport, type ReportDto, createReport } from "~/models/report";
-import type { IComplaint, ComplaintDto} from "~/models/complaint";
+import type { IComplaint, ComplaintDto } from "~/models/complaint";
 import type { IPicture, PictureDto } from "~/models/pictures";
 import type { IMemo, MemoDto } from "~/models/memo";
 
@@ -300,24 +300,11 @@ export class ReportsDB {
         // Convert complaints to internal format
         const internalComplaints: InternalComplaint[] = await Promise.all(
             reportDto.complaints.map(async (complaint, index) => {
-                const imageIds: number[] = [];
-
-                // Save each image and store its ID
-                for (const image of complaint.images) {
-                    const imageId = await this.saveImage(image, reportDto.id);
-                    imageIds.push(imageId);
-                }
-
-                const memoIds: number[] = [];
-                // Save each memo and store its ID
-                for (const memo of complaint.memos) {
-                    const memoId = await this.saveMemo(
-                        memo,
-                        reportDto.id,
-                        complaint.memos.indexOf(memo),
-                    );
-                    memoIds.push(memoId);
-                }
+                // Process images and memos in parallel for better performance
+                const [imageIds, memoIds] = await Promise.all([
+                    this.processComplaintImages(complaint.images, reportDto.id),
+                    this.processComplaintMemos(complaint.memos, reportDto.id),
+                ]);
 
                 return {
                     id: complaint.id,
@@ -336,6 +323,49 @@ export class ReportsDB {
     }
 
     /**
+     * Process complaint images by saving them to the database
+     * @param images - Array of images to process
+     * @param reportId - ID of the parent report
+     * @returns Array of image IDs
+     */
+    private async processComplaintImages(
+        images: IPicture[],
+        reportId: string
+    ): Promise<number[]> {
+        const imageIds: number[] = [];
+
+        // Save each image and collect its ID
+        for (const image of images) {
+            const imageId = await this.saveImage(image, reportId);
+            imageIds.push(imageId);
+        }
+
+        return imageIds;
+    }
+
+    /**
+     * Process complaint memos by saving them to the database
+     * @param memos - Array of memos to process
+     * @param reportId - ID of the parent report
+     * @returns Array of memo IDs
+     */
+    private async processComplaintMemos(
+        memos: IMemo[],
+        reportId: string
+    ): Promise<number[]> {
+        const memoIds: number[] = [];
+
+        // Save each memo with its order and collect its ID
+        for (let i = 0; i < memos.length; i++) {
+            const memo = memos[i];
+            const memoId = await this.saveMemo(memo, reportId, i);
+            memoIds.push(memoId);
+        }
+
+        return memoIds;
+    }
+
+    /**
      * Save a new report or update an existing one with separate image storage
      * @param report The report to save
      * @returns Promise with the ID of the saved report
@@ -346,10 +376,170 @@ export class ReportsDB {
             await this.initialize();
         }
 
+        // If this is an update, clean up orphaned resources
+        if (report.id) {
+            await this.cleanupOrphanedResources(report);
+        }
+
         // Convert to internal format
         const internalReport = await this.externalToInternalReport(report);
 
         return this.saveInternalReport(internalReport);
+    }
+
+    /**
+     * Cleans up orphaned images and memos that are no longer referenced by the report
+     * @param updatedReport - The updated report that will be saved
+     */
+    private async cleanupOrphanedResources(updatedReport: IReport): Promise<void> {
+        try {
+            // Get the current version of the report from the database
+            const currentReport = await this.getById(updatedReport.id);
+            if (!currentReport) {
+                return; // Report doesn't exist yet, nothing to clean up
+            }
+
+            // Extract IDs from current and updated reports
+            const currentImageIds = this.extractImageIds(currentReport);
+            const updatedImageIds = this.extractImageIds(updatedReport);
+            const currentMemoIds = this.extractMemoIds(currentReport);
+            const updatedMemoIds = this.extractMemoIds(updatedReport);
+
+            // Find orphaned resources (in current but not in updated)
+            const orphanedImageIds = currentImageIds.filter(id => !updatedImageIds.includes(id));
+            const orphanedMemoIds = currentMemoIds.filter(id => !updatedMemoIds.includes(id));
+
+            // Delete orphaned resources
+            await Promise.all([
+                this.deleteOrphanedImages(orphanedImageIds),
+                this.deleteOrphanedMemos(orphanedMemoIds)
+            ]);
+        } catch (error) {
+            console.error('Error during cleanup of orphaned resources:', error);
+            // Continue with the save operation even if cleanup fails
+        }
+    }
+
+    /**
+     * Extracts all image IDs from a report
+     * @param report - The report to extract image IDs from
+     * @returns Array of image IDs
+     */
+    private extractImageIds(report: IReport): string[] {
+        const ids: string[] = [];
+
+        report.complaints.forEach(complaint => {
+            complaint.images.forEach(image => {
+                ids.push(image.id);
+            });
+        });
+
+        return ids;
+    }
+
+    /**
+     * Extracts all memo IDs from a report
+     * @param report - The report to extract memo IDs from
+     * @returns Array of memo IDs
+     */
+    private extractMemoIds(report: IReport): string[] {
+        const ids: string[] = [];
+
+        report.complaints.forEach(complaint => {
+            complaint.memos.forEach(memo => {
+                ids.push(memo.id);
+            });
+        });
+
+        return ids;
+    }
+
+    /**
+     * Deletes orphaned images by their IDs
+     * @param imageIds - Array of image IDs to delete
+     */
+    private async deleteOrphanedImages(imageIds: string[]): Promise<void> {
+        if (imageIds.length === 0) {
+            return;
+        }
+
+        const db = await this.getDb();
+
+        return new Promise<void>((resolve, reject) => {
+            const transaction = db.transaction([IMAGES_STORE], 'readwrite');
+            const store = transaction.objectStore(IMAGES_STORE);
+            let completed = 0;
+            let errors = 0;
+
+            // Delete each image one by one
+            imageIds.forEach(id => {
+                const request = store.delete(id);
+
+                request.onsuccess = () => {
+                    completed++;
+                    if (completed + errors === imageIds.length) {
+                        resolve();
+                    }
+                };
+
+                request.onerror = () => {
+                    console.error(`Failed to delete orphaned image ${id}:`, request.error);
+                    errors++;
+                    if (completed + errors === imageIds.length) {
+                        resolve(); // Still resolve to continue with the save operation
+                    }
+                };
+            });
+
+            // Handle empty array case
+            if (imageIds.length === 0) {
+                resolve();
+            }
+        });
+    }
+
+    /**
+     * Deletes orphaned memos by their IDs
+     * @param memoIds - Array of memo IDs to delete
+     */
+    private async deleteOrphanedMemos(memoIds: string[]): Promise<void> {
+        if (memoIds.length === 0) {
+            return;
+        }
+
+        const db = await this.getDb();
+
+        return new Promise<void>((resolve, reject) => {
+            const transaction = db.transaction([MEMOS_STORE], 'readwrite');
+            const store = transaction.objectStore(MEMOS_STORE);
+            let completed = 0;
+            let errors = 0;
+
+            // Delete each memo one by one
+            memoIds.forEach(id => {
+                const request = store.delete(id);
+
+                request.onsuccess = () => {
+                    completed++;
+                    if (completed + errors === memoIds.length) {
+                        resolve();
+                    }
+                };
+
+                request.onerror = () => {
+                    console.error(`Failed to delete orphaned memo ${id}:`, request.error);
+                    errors++;
+                    if (completed + errors === memoIds.length) {
+                        resolve(); // Still resolve to continue with the save operation
+                    }
+                };
+            });
+
+            // Handle empty array case
+            if (memoIds.length === 0) {
+                resolve();
+            }
+        });
     }
 
     /**
@@ -501,6 +691,43 @@ export class ReportsDB {
 
         // Delete associated images
         await this.deleteImagesByReportId(id);
+
+        // Delete associated memos
+        await this.deleteMemosByReportId(id);
+    }
+
+    /**
+     * Delete all memos associated with a specific report
+     * @param reportId The ID of the report whose memos should be deleted
+     */
+    private async deleteMemosByReportId(reportId: string): Promise<void> {
+        const db = await this.getDb();
+
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(
+                [MEMOS_STORE],
+                'readwrite',
+            );
+            const store = transaction.objectStore(MEMOS_STORE);
+            const index = store.index('reportId');
+            const request = index.openCursor(IDBKeyRange.only(reportId));
+
+            request.onsuccess = (event) => {
+                const cursor = (event.target as IDBRequest).result;
+                if (cursor) {
+                    // Delete this memo
+                    cursor.delete();
+                    cursor.continue();
+                } else {
+                    // No more memos to delete
+                    resolve();
+                }
+            };
+
+            request.onerror = () => {
+                reject(`Failed to delete memos: ${request.error}`);
+            };
+        });
     }
 
     /**

@@ -22,8 +22,18 @@ export class ReportService {
             name: title,
         });
 
-        this.db.saveReport(report);
+        await this.db.saveReport(report);
         return report;
+    }
+
+    async deleteReport(reportId: string): Promise<void> {
+        const report = await this.db.getById(reportId);
+        if (!report) {
+            this.logger.error("Report not found");
+            return;
+        }
+
+        await this.db.delete(reportId);
     }
 
     async updateReport(report: IReport): Promise<void> {

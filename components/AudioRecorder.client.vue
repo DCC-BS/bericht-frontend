@@ -347,7 +347,7 @@ function emitAudio(): void {
 </script>
 
 <template>
-    <div class="p-2 min-w-[400px] max-w-[500px] mx-auto">
+    <div class="p-2 max-w-[500px] mx-auto">
         <div class="flex justify-center gap-2 mb-2">
             <UButton
                 v-if="!isRecording && !audioBlob"

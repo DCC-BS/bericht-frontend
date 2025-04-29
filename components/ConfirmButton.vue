@@ -28,6 +28,11 @@ function onCancel(): void {
     emit('cancel');
 }
 
+function onConfim(): void {
+    isOpen.value = false;
+    emit('confirm');
+}
+
 </script>
 
 <template>
@@ -38,10 +43,10 @@ function onCancel(): void {
             <div class="p-4">
                 <div>{{ t('confirmButton.confirmQuestion') }}</div>
                 <div class="flex justify-end mt-2">
-                    <UButton variant="soft" @click="onCancel()" class="mr-2" size="lg">
+                    <UButton variant="soft" color="error" @click="onCancel()" class="mr-2" size="lg">
                         {{ t('confirmButton.cancel') }}
                     </UButton>
-                    <UButton variant="soft" color="error" @click="emit('confirm')" size="lg">
+                    <UButton variant="soft" @click="onConfim()" size="lg">
                         {{ t('confirmButton.confirm') }}
                     </UButton>
                 </div>

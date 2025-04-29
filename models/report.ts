@@ -3,6 +3,7 @@ import { createComplaint, type ComplaintDto, type IComplaint } from "./complaint
 export interface IReport {
     readonly id: string;
     name: string;
+    customer: string;
     readonly createdAt: Date;
     readonly lastModified: Date;
 
@@ -17,6 +18,7 @@ export interface IReport {
 export type ReportDto = {
     id: string;
     name: string;
+    customer: string;
     createdAt: Date;
     lastModified: Date;
     complaints: ComplaintDto[];
@@ -30,6 +32,7 @@ class Report implements IReport {
     readonly id: string;
     readonly createdAt: Date;
     complaints: IComplaint[];
+    customer: string;
 
     private _name: string;
     lastModified: Date;
@@ -37,6 +40,7 @@ class Report implements IReport {
     constructor(dto: Partial<ReportDto>) {
         this.id = dto.id ?? generateUUID();
         this.createdAt = dto.createdAt ?? new Date();
+        this.customer = dto.customer ?? "";
         this._name = dto.name ?? `New Report ${this.createdAt.toLocaleString()}`;
         this.lastModified = dto.lastModified ?? new Date();
         this.complaints = dto.complaints?.map(c => createComplaint(c)) ?? [];
@@ -67,6 +71,7 @@ class Report implements IReport {
         return {
             id: this.id,
             name: this.name,
+            customer: this.customer,
             createdAt: this.createdAt,
             lastModified: this.lastModified,
             complaints: this.complaints.map((complaint) => complaint.toDto()),

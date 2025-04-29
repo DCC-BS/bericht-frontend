@@ -4,15 +4,32 @@ export default defineI18nConfig(() => ({
     locale: "de",
     messages: {
         en: {
+            // Navigation menu translations
+            navigation: {
+                home: "Home",
+                languages: "Languages"
+            },
+            
             report: {
                 title: "Title",
+                customer: "Customer",
                 updateAt: "Updated at",
                 createdAt: "Created at",
                 notFound: "Report not found",
                 noComplaints: "No complaints added yet",
                 addComplaint: "Add complaint",
                 loading: "Loading report...",
-                saved: "Report saved"
+                saved: "Report saved",
+                export: "Export Report",
+                exported: "Report exported"
+            },
+
+            // Email export translations
+            email: {
+                enterEmail: "Enter email address",
+                send: "Send Email",
+                validEmail: "Please enter a valid email address",
+                sent: "Email sent successfully"
             },
 
             // Camera component translations
@@ -89,15 +106,32 @@ export default defineI18nConfig(() => ({
         },
 
         de: {
+            // Navigation menu translations
+            navigation: {
+                home: "Startseite",
+                languages: "Sprachen"
+            },
+            
             report: {
                 title: "Titel",
+                customer: "Kunde",
                 updateAt: "Aktualisiert am",
                 createdAt: "Erstellt am",
                 notFound: "Bericht nicht gefunden",
                 noComplaints: "Noch keine Beschwerden hinzugefügt",
                 addComplaint: "Beschwerde hinzufügen",
                 loading: "Bericht wird geladen...",
-                saved: "Bericht gespeichert"
+                saved: "Bericht gespeichert",
+                export: "Bericht exportieren",
+                exported: "Bericht exportiert"
+            },
+
+            // Email export translations
+            email: {
+                enterEmail: "E-Mail-Adresse eingeben",
+                send: "E-Mail senden",
+                validEmail: "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+                sent: "E-Mail erfolgreich gesendet"
             },
 
             // Camera component translations

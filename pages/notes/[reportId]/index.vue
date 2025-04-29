@@ -36,9 +36,7 @@ onMounted(() => {
 });
 
 watch(currentReport, (newValue) => {
-    if (newValue) {
-        logger.debug('Report updated:', newValue);
-        
+    if (newValue) {        
         reportService.updateReport(newValue);
     }
 }, { deep: true });
@@ -66,14 +64,18 @@ function saveReport(): void {
     });
 }
 
-function removeComplaint(index: number): void {
+function removeComplaint(id: string): void {
     if(!currentReport.value) {
         logger.error('Report not found');
         return;
     }
 
-    currentReport.value.complaints.splice(index, 1);
+    currentReport.value.removeComplaint(id);
     saveReport();
+}
+
+async function sendEmaol() {
+    sendEmail()
 }
 
 async function exportReport(){
@@ -103,12 +105,15 @@ async function exportReport(){
 </script>
 
 <template>
-    <div v-if="currentReport" class="text-center p-2">
-        <div class="bg-gray-400 p-2">
+    <div v-if="currentReport" class="text-center p-1">
+        <div class="bg-gray-400 p-1">
             <h1 class="text-xl font-bold mb-2">
-                <UInput v-model="currentReport.name"></UInput>
+                <UInput v-model="currentReport.name" class="w-full" @blur="saveReport"></UInput>
             </h1>
             <div class="grid grid-cols-2">
+                <div class="text-left font-bold">{{ t('report.customer') }}</div>
+                <UInput v-model="currentReport.customer" class="w-full" @blur="saveReport"></UInput>
+
                 <div class="text-left font-bold">{{ t('report.createdAt') }}</div>
                 <div class="text-left">{{ currentReport.createdAt.toLocaleDateString('de-CH') }}</div>
                 <div class="text-left font-bold">{{ t('report.updateAt') }}</div>
@@ -128,37 +133,39 @@ async function exportReport(){
                 item-key="id"
             >
                 <template #item="{ index }">
-                    <div class="flex items-stretch align-middle justify-stretch self-stretch border-2 border-gray-300 rounded-lg m-2">
-                        <div class="bg-gray-100 drag-handle w-[50px]">
-                            <UIcon
-                                name="i-heroicons-bars-3"
-                                size="26"
-                            />
-                        </div>
-                        <ComplaintView v-model="currentReport.complaints[index]" @on-save="saveReport" />
-                        <div class="bg-gray-100 w-[50px] flex items-center justify-center">
-                            <ConfirmButton @confirm="removeComplaint(index)">
+                    <div class="border-2 border-gray-300 rounded-lg my-2">
+                        <div class="flex items-stretch align-imddle justify-stretch self-stretch">
+                            <div class="bg-gray-100 drag-handle w-[50px]">
                                 <UIcon
-                                    name="i-heroicons-trash"
+                                    name="i-heroicons-bars-3"
                                     size="26"
-                                    class="cursor-pointer text-red-500"
                                 />
-                            </ConfirmButton>
+                            </div>
+                            <div class="w-full">
+                                <ComplaintView v-model="currentReport.complaints[index]" @on-save="saveReport" />
+                            </div>
                         </div>
+                        <div class="bg-gray-100 w-ful flex items-center justify-center p-2">
+                                <ConfirmButton @confirm="removeComplaint(currentReport.complaints[index].id)">
+                                    <UIcon
+                                        name="i-heroicons-trash"
+                                        size="26"
+                                        class="cursor-pointer text-red-500"
+                                    />
+                                </ConfirmButton>
+                            </div>
                     </div>
                 </template>
             </Draggable>
 
-            <div class="m-auto w-2/3">
-                <UButton @click="onAddClicked" class="w-full flex items-center justify-center gap-2" icon="i-heroicons-plus-circle">
-                    {{ t('report.addComplaint') }}
-                </UButton>
-            </div>
+            <div class="flex flex-col gap-2">
+                <div class="m-auto w-2/3">
+                    <UButton @click="onAddClicked" class="w-full flex items-center justify-center gap-2" icon="i-heroicons-plus-circle">
+                        {{ t('report.addComplaint') }}
+                    </UButton>
+                </div>
 
-            <div class="m-auto w-2/3">
-                <UButton @click="exportReport" class="w-full flex items-center justify-center gap-2" icon="i-heroicons-save">
-                    {{ t('report.export') }}
-                </UButton>
+                <EmailExport :report="currentReport"/>
             </div>
         </div>
     </div>
