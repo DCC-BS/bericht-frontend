@@ -40,8 +40,8 @@ async function sendMail() {
 
 <template>
     <div>
-        <UInput v-model="to" type="email" :placeholder="t('email.enterEmail')" class="mb-4" />
-        <UButton @click="sendMail" color="primary" class="w-full">
+        <UInput v-model="to" type="email" :placeholder="t('email.enterEmail')" class="mb-2 mt-4 w-full" />
+        <UButton @click="sendMail" color="primary" class="w-full flex items-center justify-center gap-2" icon="i-heroicons-paper-airplane">
             {{ t('email.send') }}
         </UButton>
     </div>

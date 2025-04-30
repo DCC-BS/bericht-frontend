@@ -33,8 +33,6 @@ function formatDate(date: Date | unknown): string {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
     hour12: false
   });
 }
@@ -88,7 +86,24 @@ const columns: TableColumn<IReport>[] = [
     accessorKey: 'name',
     header: 'Report Name',
     cell: ({ row }) => {
-      return h('div', { class: 'font-medium' }, getStringValue(row.getValue('name')));
+      /**
+       * Get report name and create a component with truncation and tooltip
+       */
+      const name = getStringValue(row.getValue('name'));
+      
+      // Create a container div with truncation styles
+      return h('div', { 
+        class: 'max-w-[100px] truncate'
+      }, [
+        // Wrap text in UTooltip component
+        h(resolveComponent('UTooltip'), {
+          text: name,
+          popper: { placement: 'top' }
+        }, () => [
+          // The actual text that will be truncated
+          h('span', { class: 'cursor-help' }, name)
+        ])
+      ]);
     }
   },
   {

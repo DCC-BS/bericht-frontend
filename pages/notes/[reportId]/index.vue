@@ -161,7 +161,9 @@ async function exportReport(){
                     </UButton>
                 </div>
 
-                <EmailExport :report="currentReport" :reportService="reportService" />
+                <div class="m-auto w-2/3">
+                    <EmailExport :report="currentReport" :reportService="reportService" />
+                </div>
             </div>
         </div>
     </div>

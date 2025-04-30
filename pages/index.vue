@@ -38,7 +38,7 @@ async function deleteReport(id: string): Promise<void> {
 </script>
 
 <template>
-    <UContainer class="flex justify-center mt-20">
+    <UContainer class="flex mt-20 w-full">
         <div v-if="!isCreatingReport">
             <UButton @click="createNewReport">{{ t('home.createNewReport') }}</UButton>
 
