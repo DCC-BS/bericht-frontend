@@ -10,6 +10,18 @@ export default defineI18nConfig(() => ({
                 languages: "Languages"
             },
             
+            // Reports table translations
+            reportsTable: {
+                title: "Reports",
+                reportName: "Report Name",
+                lastModified: "Last Modified",
+                complaints: "Complaints",
+                deleteSelected: "Delete Selected",
+                reportsSelected: "{0} of {1} report(s) selected.",
+                view: "View report",
+                delete: "Delete report",
+            },
+            
             report: {
                 title: "Title",
                 customer: "Customer",
@@ -110,6 +122,18 @@ export default defineI18nConfig(() => ({
             navigation: {
                 home: "Startseite",
                 languages: "Sprachen"
+            },
+            
+            // Reports table translations
+            reportsTable: {
+                title: "Berichte",
+                reportName: "Berichtname",
+                lastModified: "Zuletzt geändert",
+                complaints: "Beschwerden",
+                deleteSelected: "Ausgewählte löschen",
+                reportsSelected: "{0} von {1} Bericht(en) ausgewählt.",
+                view: "Bericht anzeigen",
+                delete: "Bericht löschen",
             },
             
             report: {

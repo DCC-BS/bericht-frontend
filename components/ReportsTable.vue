@@ -25,6 +25,9 @@ const emit = defineEmits<{
 const table = useTemplateRef('table');
 const rowSelection = ref<Record<string, boolean>>({});
 
+// Get i18n composable for translations
+const { t } = useI18n();
+
 /**
  * Format date to a readable string
  */
@@ -37,7 +40,7 @@ function formatDate(date: Date | unknown): string {
   });
 }
 
-/*
+/**
  * Count complaints in a report
  */
 function getComplaintCount(report: IReport): number {
@@ -51,7 +54,10 @@ function getStringValue(value: unknown): string {
   return String(value);
 }
 
-function deleteSelected() {
+/**
+ * Delete selected reports
+ */
+function deleteSelected(): void {
     const rowIdx = Object.keys(rowSelection.value);
 
     for(const idx of rowIdx) {
@@ -73,18 +79,18 @@ const columns: TableColumn<IReport>[] = [
           : table.getIsAllPageRowsSelected(),
         'onUpdate:modelValue': (value: boolean | 'indeterminate') =>
           table.toggleAllPageRowsSelected(!!value),
-        'aria-label': 'Select all reports'
+        'aria-label': t('reportsTable.title')
       }),
     cell: ({ row }) =>
       h(UCheckbox, {
         modelValue: row.getIsSelected(),
         'onUpdate:modelValue': (value: boolean | 'indeterminate') => row.toggleSelected(!!value),
-        'aria-label': `Select reports ${row.getValue('name')}`
+        'aria-label': `${t('reportsTable.title')} ${row.getValue('name')}`
       })
   },
   {
     accessorKey: 'name',
-    header: 'Report Name',
+    header: t('reportsTable.reportName'),
     cell: ({ row }) => {
       /**
        * Get report name and create a component with truncation and tooltip
@@ -108,14 +114,14 @@ const columns: TableColumn<IReport>[] = [
   },
   {
     accessorKey: 'lastModified',
-    header: 'Last Modified',
+    header: t('reportsTable.lastModified'),
     cell: ({ row }) => {
       return formatDate(row.getValue('lastModified'));
     }
   },
   {
     id: 'complaints',
-    header: 'Complaints',
+    header: t('reportsTable.complaints'),
     cell: ({ row }) => {
       const count = getComplaintCount(row.original);
       return h(UBadge, {
@@ -137,12 +143,12 @@ const columns: TableColumn<IReport>[] = [
           icon: 'i-heroicons-eye',
           size: 'sm',
           onClick: () => emit('view-report', row.original.id),
-          ariaLabel: 'View report'
+          ariaLabel: t('reportsTable.view')
         }),
         h(ConfirmButton, {
           onConfirm: () => emit('delete-report', row.original.id),
           class: 'flex items-center',
-          ariaLabel: 'Delete report'
+          ariaLabel: t('reportsTable.delete')
         }, () => [
           h(UButton, {
             color: 'error',
@@ -160,13 +166,13 @@ const columns: TableColumn<IReport>[] = [
 <template>
   <div class="flex flex-col gap-4 w-full">
     <div class="flex justify-between items-center">
-      <h2 class="text-xl font-semibold">Reports</h2>
+      <h2 class="text-xl font-semibold">{{ $t('reportsTable.title') }}</h2>
 
       <div v-if="Object.values(rowSelection).length > 0" class="flex items-center gap-2">
         <ConfirmButton
           @confirm="deleteSelected"
           class="flex items-center"
-          aria-label="Delete selected reports"
+          :aria-label="$t('reportsTable.deleteSelected')"
           >
             <UButton
             color="error"
@@ -174,7 +180,7 @@ const columns: TableColumn<IReport>[] = [
             icon="i-heroicons-trash"
             size="sm"
             >
-            Delete Selected
+            {{ $t('reportsTable.deleteSelected') }}
             </UButton>
         </ConfirmButton>
 
@@ -186,8 +192,9 @@ const columns: TableColumn<IReport>[] = [
         :sort="{ column: 'lastModified', direction: 'desc' }" />
 
       <div class="px-4 py-3.5 border-t border-accented text-sm text-muted">
-        {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} of
-        {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} report(s) selected.
+        {{ $t('reportsTable.reportsSelected', 
+          [table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0,
+           table?.tableApi?.getFilteredRowModel().rows.length || 0]) }}
       </div>
     </div>
   </div>
