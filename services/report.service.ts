@@ -41,21 +41,24 @@ export class ReportService {
     }
 
     async generateTitles(report: IReport): Promise<void> {
+        let i = 0;
         for (const complaint of report.complaints) {
-            const text = complaint.memos.map((m) => m.text).join(" ");
+            complaint.title = `Be­an­stan­dung ${i++}`;
 
-            const response = await $fetch<TitleResponse>("/api/title", {
-                body: {
-                    text: text,
-                },
-                method: "POST",
-            });
+            // const text = complaint.memos.map((m) => m.text).join(" ");
 
-            if (response) {
-                complaint.title = response.title;
-            } else {
-                this.logger.error("Failed to generate title");
-            }
+            // const response = await $fetch<TitleResponse>("/api/title", {
+            //     body: {
+            //         text: text,
+            //     },
+            //     method: "POST",
+            // });
+
+            // if (response) {
+            //     complaint.title = response.title;
+            // } else {
+            //     this.logger.error("Failed to generate title");
+            // }
         }
     }
 }
