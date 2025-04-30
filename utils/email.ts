@@ -3,7 +3,7 @@ import type { IReport } from "~/models/report";
 export async function sendEmail(to: string, report: IReport) {
     const docx = await createDoxf(report);
 
-    downloadBlob(docx, `${report.name}.docx`);
+    // downloadBlob(docx, `${report.name}.docx`);
 
     const data = new FormData();
     data.append("file", docx, `${report.name}.docx`);
