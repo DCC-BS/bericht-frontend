@@ -161,8 +161,14 @@ async function exportReport(){
                     </UButton>
                 </div>
 
-                <div class="m-auto mb-5 w-2/3">
+                <div class="m-auto w-2/3">
                     <EmailExport :report="currentReport" :reportService="reportService" />
+                </div>
+
+                <div class="m-auto mb-5 w-2/3">
+                    <UButton @click="exportReport" class="w-full flex items-center justify-center gap-2" icon="i-heroicons-document-text">
+                        {{ t('report.export') }}
+                    </UButton>
                 </div>
             </div>
         </div>
