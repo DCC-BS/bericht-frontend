@@ -13,9 +13,10 @@ export async function createDoxf(report: IReport) {
                 keepLines: true,
                 keepNext: true,
             }),
-            new Paragraph({
-                children: (await getImages(complaint))
-            }),
+            ...(await getImages(complaint)),
+            // new Paragraph({
+            //     children: 
+            // }),
             ...complaint.memos.map((memo) => {
                 return new Paragraph({
                     text: memo.text,
@@ -30,14 +31,14 @@ export async function createDoxf(report: IReport) {
     const doc = new Document({
         sections: [
             {
-                properties: {
-                    page: {
-                        pageNumbers: {
-                            start: 1,
-                            formatType: NumberFormat.DECIMAL,
-                        }
-                    }
-                },
+                // properties: {
+                //     page: {
+                //         pageNumbers: {
+                //             start: 1,
+                //             formatType: NumberFormat.DECIMAL,
+                //         }
+                //     }
+                // },
                 // footers: {
                 //     default: new Footer({
                 //         children: [
@@ -62,10 +63,7 @@ export async function createDoxf(report: IReport) {
                         heading: "Title",
                     }),
                     new Paragraph({
-                        text: `Created at: ${report.createdAt.toLocaleString()}`,
-                    }),
-                    new Paragraph({
-                        text: `Last modified: ${report.lastModified.toLocaleString()}`,
+                        text: `Erstellt am: ${report.createdAt.toLocaleString()}`,
                     }),
                     ...complainParagraphs,
                 ],

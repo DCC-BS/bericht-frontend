@@ -26,14 +26,30 @@ async function sendMail() {
         return;
     }
 
-    await props.reportService.generateTitles(props.report);
-    await sendEmail(to.value, props.report);
+    try{
+        await props.reportService.generateTitles(props.report);
+        await sendEmail(to.value, props.report);
 
-    toast.add({
-        title: t('email.sent'),
-        icon: 'i-heroicons-check-circle',
-        color: 'success',
-    });
+        toast.add({
+            title: t('email.sent'),
+            icon: 'i-heroicons-check-circle',
+            color: 'success',
+        });
+    } catch (error) {
+        if(error instanceof Error) {
+            toast.add({
+                title: error.message,
+                icon: 'i-heroicons-exclamation-circle',
+                color: 'error',
+            });
+        } else {
+            toast.add({
+                title: t('email.error'),
+                icon: 'i-heroicons-exclamation-circle',
+                color: 'error',
+            });
+        }
+    }
 }
 
 </script>
