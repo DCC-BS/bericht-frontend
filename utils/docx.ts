@@ -100,9 +100,6 @@ export async function createDoxf(report: IReport) {
                 keepNext: true,
             }),
             ...(await getImages(complaint)),
-            // new Paragraph({
-            //     children: 
-            // }),
             ...complaint.memos.map((memo) => {
                 return new Paragraph({
                     text: memo.text,
@@ -150,6 +147,9 @@ export async function createDoxf(report: IReport) {
                     }),
                     new Paragraph({
                         text: `Erstellt am: ${report.createdAt.toLocaleString()}`,
+                    }),
+                    new Paragraph({
+                        text: `Kunde: ${report.customer}`,
                     }),
                     ...complainParagraphs,
                 ],

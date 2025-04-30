@@ -1,3 +1,5 @@
+import pwaIcons from "./public/icons.json";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     compatibilityDate: '2024-11-01',
@@ -73,6 +75,30 @@ export default defineNuxtConfig({
                 "Cross-Origin-Opener-Policy": "same-origin",
                 "Cross-Origin-Embedder-Policy": "require-corp",
             },
+        },
+    },
+    pwa: {
+        devOptions: {
+            enabled: true,
+        },
+        registerType: "autoUpdate",
+        workbox: {
+            globPatterns: ["**/*.{js,css,html,png,jpg,jpeg,svg}"],
+            globIgnores: ["dev-sw-dist/**/*"],
+            navigateFallback: "/",
+            clientsClaim: true,
+            skipWaiting: true,
+        },
+        client: {
+            periodicSyncForUpdates: 60 * 10, // 10 minutes
+        },
+        manifest: {
+            name: "Bericht Generator BS",
+            short_name: "Bericht Generator BS",
+            description: "Bericht Generator BS",
+            theme_color: "#000000",
+            background_color: "#000000",
+            icons: pwaIcons.icons,
         },
     },
     $development: {
