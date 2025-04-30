@@ -41,9 +41,9 @@ export class ReportService {
     }
 
     async generateTitles(report: IReport): Promise<void> {
-        let i = 0;
+        let i = 1;
         for (const complaint of report.complaints) {
-            complaint.title = `Be­an­stan­dung ${i++}`;
+            complaint.title = `Beanstandung ${i++}`;
 
             // const text = complaint.memos.map((m) => m.text).join(" ");
 

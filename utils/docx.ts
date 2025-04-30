@@ -4,7 +4,7 @@ import type { IReport } from "~/models/report";
 
 export async function createDoxf(report: IReport) {
     console.log(report.complaints.map(c => toRaw(c.toDto())));
-    
+
     const asycComplainParagraphs = report.complaints.map(async (complaint) => {
         return [
             new Paragraph({
@@ -19,7 +19,7 @@ export async function createDoxf(report: IReport) {
             ...complaint.memos.map((memo) => {
                 return new Paragraph({
                     text: memo.text,
-
+                    spacing: { after: 6 * 20 },
                 });
             }),
         ];
@@ -38,18 +38,24 @@ export async function createDoxf(report: IReport) {
                         }
                     }
                 },
-                footers: {
-                    default: new Footer({
-                        children: [
-                            new Paragraph({ children: [
-                                new TextRun("Seite "),
-                                new TextRun(PageNumber.CURRENT),
-                                new TextRun(" von "),
-                                new TextRun(PageNumber.TOTAL_PAGES),
-                            ]}),
-                        ]
-                    })
-                },
+                // footers: {
+                //     default: new Footer({
+                //         children: [
+                //             new Paragraph({
+                //                 children: [
+                //                     new TextRun({
+                //                         children: [
+                //                             "Seite ",
+                //                             PageNumber.CURRENT,
+                //                             " von ",
+                //                             PageNumber.TOTAL_PAGES,
+                //                         ]
+                //                     }),
+                //                 ],
+                //             }),
+                //         ]
+                //     })
+                // },
                 children: [
                     new Paragraph({
                         text: report.name,
@@ -73,13 +79,19 @@ export async function createDoxf(report: IReport) {
 async function getImages(complaint: IComplaint) {
     return Promise.all(
         complaint.images.map(async (image) => {
-            return new ImageRun({
-                type: "png",
-                data: await image.image.arrayBuffer(),
-                transformation: {
-                    width: 600,
-                    height: 400,
-                },
+            return new Paragraph({
+                children: [
+                    new ImageRun({
+                        type: "png",
+                        data: await image.image.arrayBuffer(),
+                        transformation: {
+                            width: 600,
+                            height: 400,
+                        },
+                    }),
+                ],
+                alignment: "center",
+                spacing: { after: 12 * 20 }
             });
         }),
     );
