@@ -35,11 +35,18 @@ export default defineNuxtConfig({
       '@nuxtjs/i18n',
       '@dcc-bs/common-ui.bs.js',
       '@dcc-bs/logger.bs.js',
+      '@dcc-bs/feedback-control.bs.js',
       '@nuxt/eslint',
       '@vite-pwa/nuxt',
       '@pinia/nuxt',
       'nuxt-viewport',
     ],
+    "feedback-control.bs.js": {
+        repo: "Feedback",
+        owner: "DCC-BS",
+        project: "bericht-frontend",
+        githubToken: process.env.GITHUB_TOKEN,
+    },
     devtools: { enabled: true },
     css: ['~/assets/css/main.css'],
     colorMode: {

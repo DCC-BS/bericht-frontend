@@ -1,5 +1,6 @@
 <template>
     <NuxtPwaManifest />
+    <FeedbackControl />
     <UApp>
         <NavigationMenu />
         <NuxtPage />
