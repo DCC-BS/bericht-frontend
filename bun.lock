@@ -4,10 +4,10 @@
     "": {
       "name": "bericht-frontend",
       "dependencies": {
-        "@dcc-bs/common-ui.bs.js": "^0.1.6",
-        "@dcc-bs/event-system.bs.js": "^1.1.1",
-        "@dcc-bs/feedback-control.bs.js": "^0.0.5",
-        "@dcc-bs/logger.bs.js": "^1.1.3",
+        "@dcc-bs/common-ui.bs.js": "git+https://github.com/DCC-BS/common-ui.bs.js.git#v0.2.0",
+        "@dcc-bs/event-system.bs.js": "git+https://github.com/DCC-BS/event-system.bs.js.git#v1.4.0",
+        "@dcc-bs/feedback-control.bs.js": "git+https://github.com/DCC-BS/feedback-control.bs.js.git#v0.1.0",
+        "@dcc-bs/logger.bs.js": "git+https://github.com/DCC-BS/logger.bs.js.git#v1.4.0",
         "@ffmpeg/ffmpeg": "^0.12.15",
         "@ffmpeg/util": "^0.12.2",
         "@nuxt/eslint": "1.2.0",
@@ -248,13 +248,13 @@
 
     "@dabh/diagnostics": ["@dabh/diagnostics@2.0.3", "", { "dependencies": { "colorspace": "1.1.x", "enabled": "2.0.x", "kuler": "^2.0.0" } }, "sha512-hrlQOIi7hAfzsMqlGSFyVucrx38O+j6wiGOf//H2ecvIEqYN4ADBSS2iLMh5UFyDunCNniUIPk/q3riFv45xRA=="],
 
-    "@dcc-bs/common-ui.bs.js": ["@dcc-bs/common-ui.bs.js@0.1.6", "https://npm.pkg.github.com/download/@dcc-bs/common-ui.bs.js/0.1.6/e0db96388e946cd69384730800606666a626f0c9", { "dependencies": { "@nuxt/kit": "^3.15.4", "tailwind-merge": "^3.0.1" } }, "sha512-1/xYwUY2fyPQqGgS/Vo3khuqDEbIAuleHu7ApWGa4oY8MTV5LKdZnMzucsoNsQKduXYn9kM/M9LEM4/Fv32/yA=="],
+    "@dcc-bs/common-ui.bs.js": ["@dcc-bs/common-ui.bs.js@github:DCC-BS/common-ui.bs.js#19e19dc", { "dependencies": { "@nuxt/kit": "^3.15.4", "tailwind-merge": "^3.0.1" } }, "DCC-BS-common-ui.bs.js-19e19dc"],
 
-    "@dcc-bs/event-system.bs.js": ["@dcc-bs/event-system.bs.js@1.1.1", "https://npm.pkg.github.com/download/@dcc-bs/event-system.bs.js/1.1.1/59d836425f00f3106b8c3b05dc640edd8bf483f6", { "dependencies": { "@nuxt/kit": "^3.15.4" } }, "sha512-mDo1sDBduJ4+uYmuEocEJOcS0eCw5zP3La69mLR5jvLacIa3PJVqX2VFVdZvL7OSbTQX8UG5jfO9LHXMt+gv+g=="],
+    "@dcc-bs/event-system.bs.js": ["@dcc-bs/event-system.bs.js@github:DCC-BS/event-system.bs.js#3df3815", { "dependencies": { "@nuxt/kit": "^3.15.4" } }, "DCC-BS-event-system.bs.js-3df3815"],
 
-    "@dcc-bs/feedback-control.bs.js": ["@dcc-bs/feedback-control.bs.js@0.0.5", "https://npm.pkg.github.com/download/@dcc-bs/feedback-control.bs.js/0.0.5/5dc503af5ccc5c166a13b889a60952276271e3aa", { "dependencies": { "@nuxt/kit": "^3.15.4", "reka-ui": "^2.2.0" } }, "sha512-VaC+3BCWv6vTM2ppG5qaHhLjMPyNcezCJswrZ0tJJr+jklwpgcdMwpNUmWPoI+ekZM11DV+KHS53QTZlrpEIOA=="],
+    "@dcc-bs/feedback-control.bs.js": ["@dcc-bs/feedback-control.bs.js@github:DCC-BS/feedback-control.bs.js#a343884", { "dependencies": { "@nuxt/kit": "^3.15.4", "reka-ui": "^2.2.0" } }, "DCC-BS-feedback-control.bs.js-a343884"],
 
-    "@dcc-bs/logger.bs.js": ["@dcc-bs/logger.bs.js@1.1.3", "https://npm.pkg.github.com/download/@dcc-bs/logger.bs.js/1.1.3/a32166bffd263e130dc6e71669f0f6182f45f0f8", { "dependencies": { "@nuxt/kit": "^3.15.4", "winston": "^3.17.0" } }, "sha512-oYFUJi7c1GpSbpJrspn3IjHnnwMnCA+AtPe9+o5rTm7AzMDYZc0iH/gIDlOH3UQN/QB6H3jRVEHXynNqhQLKVw=="],
+    "@dcc-bs/logger.bs.js": ["@dcc-bs/logger.bs.js@github:DCC-BS/logger.bs.js#189eddd", { "dependencies": { "@nuxt/kit": "^3.15.4", "winston": "^3.17.0" } }, "DCC-BS-logger.bs.js-189eddd"],
 
     "@emnapi/core": ["@emnapi/core@1.3.1", "", { "dependencies": { "@emnapi/wasi-threads": "1.0.1", "tslib": "^2.4.0" } }, "sha512-pVGjBIt1Y6gg3EJN8jTcfpP/+uuRksIo055oE/OBkDNcjZqVbfkWCksG1Jp4yZnj3iKWyWX8fdG/j6UDYPbFog=="],
 
@@ -2556,6 +2556,8 @@
 
     "@cloudflare/kv-asset-handler/mime": ["mime@3.0.0", "", { "bin": { "mime": "cli.js" } }, "sha512-jSCU7/VB1loIWBZe14aEYHU/+1UMEHoaO7qxCOVJOw9GgH72VAWppxNcjU+x9a2k3GSIBXNKxXQFqRvvZ7vr3A=="],
 
+    "@dcc-bs/common-ui.bs.js/@nuxt/kit": ["@nuxt/kit@3.16.2", "", { "dependencies": { "c12": "^3.0.2", "consola": "^3.4.2", "defu": "^6.1.4", "destr": "^2.0.3", "errx": "^0.1.0", "exsolve": "^1.0.4", "globby": "^14.1.0", "ignore": "^7.0.3", "jiti": "^2.4.2", "klona": "^2.0.6", "knitwork": "^1.2.0", "mlly": "^1.7.4", "ohash": "^2.0.11", "pathe": "^2.0.3", "pkg-types": "^2.1.0", "scule": "^1.3.0", "semver": "^7.7.1", "std-env": "^3.8.1", "ufo": "^1.5.4", "unctx": "^2.4.1", "unimport": "^4.1.3", "untyped": "^2.0.0" } }, "sha512-K1SAUo2vweTfudKZzjKsZ5YJoxPLTspR5qz5+G61xtZreLpsdpDYfBseqsIAl5VFLJuszeRpWQ01jP9LfQ6Ksw=="],
+
     "@dcc-bs/event-system.bs.js/@nuxt/kit": ["@nuxt/kit@3.16.2", "", { "dependencies": { "c12": "^3.0.2", "consola": "^3.4.2", "defu": "^6.1.4", "destr": "^2.0.3", "errx": "^0.1.0", "exsolve": "^1.0.4", "globby": "^14.1.0", "ignore": "^7.0.3", "jiti": "^2.4.2", "klona": "^2.0.6", "knitwork": "^1.2.0", "mlly": "^1.7.4", "ohash": "^2.0.11", "pathe": "^2.0.3", "pkg-types": "^2.1.0", "scule": "^1.3.0", "semver": "^7.7.1", "std-env": "^3.8.1", "ufo": "^1.5.4", "unctx": "^2.4.1", "unimport": "^4.1.3", "untyped": "^2.0.0" } }, "sha512-K1SAUo2vweTfudKZzjKsZ5YJoxPLTspR5qz5+G61xtZreLpsdpDYfBseqsIAl5VFLJuszeRpWQ01jP9LfQ6Ksw=="],
 
     "@dcc-bs/feedback-control.bs.js/@nuxt/kit": ["@nuxt/kit@3.16.2", "", { "dependencies": { "c12": "^3.0.2", "consola": "^3.4.2", "defu": "^6.1.4", "destr": "^2.0.3", "errx": "^0.1.0", "exsolve": "^1.0.4", "globby": "^14.1.0", "ignore": "^7.0.3", "jiti": "^2.4.2", "klona": "^2.0.6", "knitwork": "^1.2.0", "mlly": "^1.7.4", "ohash": "^2.0.11", "pathe": "^2.0.3", "pkg-types": "^2.1.0", "scule": "^1.3.0", "semver": "^7.7.1", "std-env": "^3.8.1", "ufo": "^1.5.4", "unctx": "^2.4.1", "unimport": "^4.1.3", "untyped": "^2.0.0" } }, "sha512-K1SAUo2vweTfudKZzjKsZ5YJoxPLTspR5qz5+G61xtZreLpsdpDYfBseqsIAl5VFLJuszeRpWQ01jP9LfQ6Ksw=="],
@@ -3049,6 +3051,10 @@
     "@apideck/better-ajv-errors/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
 
     "@babel/helper-compilation-targets/lru-cache/yallist": ["yallist@3.1.1", "", {}, "sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g=="],
+
+    "@dcc-bs/common-ui.bs.js/@nuxt/kit/pathe": ["pathe@2.0.3", "", {}, "sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w=="],
+
+    "@dcc-bs/common-ui.bs.js/@nuxt/kit/unimport": ["unimport@4.2.0", "", { "dependencies": { "acorn": "^8.14.1", "escape-string-regexp": "^5.0.0", "estree-walker": "^3.0.3", "local-pkg": "^1.1.1", "magic-string": "^0.30.17", "mlly": "^1.7.4", "pathe": "^2.0.3", "picomatch": "^4.0.2", "pkg-types": "^2.1.0", "scule": "^1.3.0", "strip-literal": "^3.0.0", "tinyglobby": "^0.2.12", "unplugin": "^2.2.2", "unplugin-utils": "^0.2.4" } }, "sha512-mYVtA0nmzrysnYnyb3ALMbByJ+Maosee2+WyE0puXl+Xm2bUwPorPaaeZt0ETfuroPOtG8jj1g/qeFZ6buFnag=="],
 
     "@dcc-bs/event-system.bs.js/@nuxt/kit/pathe": ["pathe@2.0.3", "", {}, "sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w=="],
 
