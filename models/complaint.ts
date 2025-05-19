@@ -1,8 +1,13 @@
 import type { IMemo, MemoDto } from "./memo";
 import type { IPicture, PictureDto } from "./pictures";
 
+export type ComplaintType = "finding" | "action";
+
+
 export interface IComplaint {
     readonly id: string;
+    
+    type: ComplaintType;
     memos: IMemo[];
     images: IPicture[];
 
@@ -22,6 +27,9 @@ export interface IComplaint {
 export type ComplaintDto = {
     id: string;
     title: string;
+    type: ComplaintType;
+    subtitle1: string;
+    subtitle2: string;
     memos: MemoDto[];
     images: PictureDto[];
     order: number;
@@ -33,16 +41,24 @@ export function createComplaint(dto: Partial<ComplaintDto>): IComplaint {
 
 class Complaint implements IComplaint {
     readonly id: string;
+    type: ComplaintType;
     memos: IMemo[];
     images: IPicture[];
+    order: number;
 
     private _title: string;
+    private _subtitle1: string;
+    private _subtitle2: string;
 
     constructor(dto: Partial<ComplaintDto>) {
         this.id = dto.id ?? generateUUID();
+        this.type = dto.type ?? "finding";
         this._title = dto.title ?? '';
         this.memos = dto.memos ?? [];
         this.images = dto.images ?? [];
+        this._subtitle1 = dto.subtitle1 ?? '';
+        this._subtitle2 = dto.subtitle2 ?? '';
+        this.order = dto.order ?? 0;
     }
 
     get title(): string {
@@ -51,6 +67,22 @@ class Complaint implements IComplaint {
 
     set title(value: string) {
         this._title = value;
+    }
+
+    get subtitle1(): string {
+        return this._subtitle1;
+    }
+
+    set subtitle1(value: string) {
+        this._subtitle1 = value;
+    }
+
+    get subtitle2(): string {
+        return this._subtitle2;
+    }
+
+    set subtitle2(value: string) {
+        this._subtitle2 = value;
     }
 
     addMemo(memo: Omit<IMemo, "id" | "order">): void {
@@ -79,6 +111,10 @@ class Complaint implements IComplaint {
             title: this.title,
             memos: this.memos,
             images: this.images,
+            type: this.type,
+            subtitle1: this.subtitle1,
+            subtitle2: this.subtitle2,
+            order: this.order,
         };
     }
 
