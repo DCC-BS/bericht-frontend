@@ -36,7 +36,6 @@ export default defineNuxtConfig({
       '@dcc-bs/common-ui.bs.js',
       '@dcc-bs/logger.bs.js',
       '@dcc-bs/feedback-control.bs.js',
-      '@nuxt/eslint',
       '@vite-pwa/nuxt',
       '@pinia/nuxt',
       'nuxt-viewport',

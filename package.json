@@ -20,7 +20,6 @@
         "@dcc-bs/logger.bs.js": "git+https://github.com/DCC-BS/logger.bs.js.git#v1.4.0",
         "@ffmpeg/ffmpeg": "^0.12.15",
         "@ffmpeg/util": "^0.12.2",
-        "@nuxt/eslint": "1.4.0",
         "@nuxt/ui": "3.1.2",
         "@nuxtjs/i18n": "9.5.4",
         "@pinia/nuxt": "0.11.0",
@@ -30,19 +29,16 @@
         "nuxt": "3.17.3",
         "nuxt-viewport": "2.3.1",
         "pinia": "3.0.2",
-        "vue": "3.5.14",
-        "vue-router": "4.5.1",
-        "vuedraggable": "2.24.3"
+        "vue": "latest",
+        "vue-router": "latest",
+        "vuedraggable": "^4.1.0"
     },
     "devDependencies": {
         "@iconify-json/heroicons": "^1.2.2",
         "@iconify-json/lucide": "1.2.44",
-        "@nuxtjs/eslint-module": "4.1.0",
         "@types/bun": "1.2.13",
         "biome": "^0.3.3",
-        "eslint-plugin-prettier": "5.4.0",
         "jiti": "^2.4.2",
-        "prettier": "^3.5.2",
         "sass": "1.89.0",
         "sass-loader": "^16.0.5",
         "typescript": "5.8.3"

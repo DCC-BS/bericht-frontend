@@ -1,20 +1,23 @@
 import type { ILogger } from "@dcc-bs/logger.bs.js";
 import type { ReportsDB } from "./reports_db";
 import { type IReport, createReport } from "~/models/report";
-import type { TitleResponse } from "~/models/title_response";
 
 export class ReportService {
     constructor(
         private readonly db: ReportsDB,
         private readonly logger: ILogger,
-    ) {}
+    ) { }
 
     async getAllReports(): Promise<IReport[]> {
-        return this.db.getAll();
+        return this.db.getAll().then((reports) =>
+            reports.map((report) => createReport(report))
+        );
     }
 
     async getReport(reportId: string): Promise<IReport> {
-        return this.db.getById(reportId);
+        return this.db.getById(reportId).then((report) =>
+            createReport(report)
+        );
     }
 
     async createReport(title: string): Promise<IReport> {
@@ -22,7 +25,7 @@ export class ReportService {
             name: title,
         });
 
-        await this.db.saveReport(report);
+        await this.db.storeReport(report.toDto());
         return report;
     }
 
@@ -37,7 +40,7 @@ export class ReportService {
     }
 
     async updateReport(report: IReport): Promise<void> {
-        await this.db.saveReport(report);
+        await this.db.storeReport(report.toDto());
     }
 
     async generateTitles(report: IReport): Promise<void> {

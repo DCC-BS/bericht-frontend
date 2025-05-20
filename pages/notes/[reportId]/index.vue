@@ -7,6 +7,7 @@ import Draggable from 'vuedraggable';
 const route = useRoute();
 const toast = useToast();
 const reportService = useReportService();
+const complaintService = useComplaintService();
 const logger = useLogger();
 const { t } = useI18n();
 
@@ -28,10 +29,6 @@ onMounted(() => {
         }
 
         currentReport.value = report;
-
-        if(currentReport.value?.complaints.length === 0) {
-            currentReport.value.addComplaint(createComplaint({}));
-        }
     });
 });
 
@@ -40,6 +37,21 @@ watch(currentReport, (newValue) => {
         reportService.updateReport(newValue);
     }
 }, { deep: true });
+
+async function onAdd(type: "finding" | "action"): Promise<void> {
+    if(!currentReport.value) {
+        logger.error('Report not found');
+        return;
+    }
+
+    const complaint = createComplaint({ type });
+    currentReport.value.addComplaint(complaint);
+
+    await complaintService.put(complaint);
+    await reportService.updateReport(currentReport.value);
+
+    navigateTo(`/notes/${currentReport.value.id}/complaints/${complaint.id}`);
+}
 
 function onAddClicked(): void {
     if(!currentReport.value) {
@@ -101,14 +113,27 @@ async function exportReport(){
 </script>
 
 <template>
+    <NavigationMenu
+        backUrl="/"
+        :items="[
+            {
+                icon: 'i-lucide-trash-2',
+                onSelect: () => {},
+            },
+        ]"
+    />
+
     <div v-if="currentReport" class="text-center p-1">
         <div class="bg-gray-400 p-1">
             <h1 class="text-xl font-bold mb-2">
                 <UInput v-model="currentReport.name" class="w-full" @blur="saveReport"></UInput>
             </h1>
-            <div class="grid grid-cols-2">
-                <div class="text-left font-bold">{{ t('report.customer') }}</div>
-                <UInput v-model="currentReport.customer" class="w-full" @blur="saveReport"></UInput>
+            <div class="grid grid-cols-2 gap-1">
+                <div class="text-left font-bold">{{ t('report.subtitle1') }}</div>
+                <UInput v-model="currentReport.subtitle1" class="w-full" @blur="saveReport"></UInput>
+
+                <div class="text-left font-bold">{{ t('report.subtitle2') }}</div>
+                <UInput v-model="currentReport.subtitle2" class="w-full" @blur="saveReport"></UInput>
 
                 <div class="text-left font-bold">{{ t('report.createdAt') }}</div>
                 <div class="text-left">{{ currentReport.createdAt.toLocaleDateString('de-CH') }}</div>
@@ -155,9 +180,12 @@ async function exportReport(){
             </Draggable>
 
             <div class="flex flex-col gap-2">
-                <div class="m-auto w-2/3">
-                    <UButton @click="onAddClicked" class="w-full flex items-center justify-center gap-2" icon="i-heroicons-plus-circle">
-                        {{ t('report.addComplaint') }}
+                <div class="flex gap-2 h-20">
+                    <UButton @click="onAddClicked" class="w-full flex items-center justify-center gap-2" icon="i-lucide-package-search">
+                        {{ t('report.addFinding') }}
+                    </UButton>
+                    <UButton @click="onAddClicked" class="w-full flex items-center justify-center gap-2" icon="i-lucide-gavel">
+                        {{ t('report.addAction') }}
                     </UButton>
                 </div>
 
@@ -172,6 +200,16 @@ async function exportReport(){
                 </div>
             </div>
         </div>
+        <AddButton :buttons="[
+            {
+                icon: 'i-lucide-gavel',
+                onClick: () => onAdd('action'),
+            },
+            {
+                icon: 'i-lucide-package-search',
+                onClick: () => onAdd('finding'),
+            }
+            ]"/>
     </div>
     <div v-else class="flex justify-center items-center h-screen">
         <UIcon name="i-heroicons-arrow-path" class="w-10 h-10 animate-spin text-primary" />

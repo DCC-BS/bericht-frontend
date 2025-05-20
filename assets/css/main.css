@@ -1,2 +1,6 @@
 @import "tailwindcss" theme(static);
 @import "@nuxt/ui";
+
+html {
+    font-size: 20px;
+}

@@ -1,239 +1,24 @@
-import { type IReport, type ReportDto, createReport } from "~/models/report";
-import type { IComplaint, ComplaintDto } from "~/models/complaint";
-import type { IPicture, PictureDto } from "~/models/pictures";
-import type { IMemo, MemoDto } from "~/models/memo";
+import { type ReportDto } from "~/models/report";
+import { complaintsDBService } from "./complaints_db";
+import { databaseService, REPORTS_STORE } from "./database_service";
 
-// Database constants
-const DB_NAME = 'ReportsDatabase';
-const DB_VERSION = 1; // Increased version for schema migration
-const REPORTS_STORE = 'reports';
-const IMAGES_STORE = 'complaint_images'; // New store for images
-const MEMOS_STORE = 'complaint_memos'; // New store for memos
-
-type InternalReport = Omit<ReportDto, "complaints"> & { complaints: InternalComplaint[] };
-
-type InternalComplaint = Omit<ComplaintDto, 'images' | 'memos'> & {
-    imageIds: number[]; // Store image IDs instead of blobs
-    memoIds: number[]; // Store memo IDs instead of blobs
-    order: number; // Order of the complaint
+/**
+ * Internal report representation for storage
+ */
+type InternalReport = Omit<ReportDto, "complaints"> & {
+    complaintIds: string[]
 };
 
 /**
- * Image object to be stored in the images store
+ * Service for managing reports in IndexedDB
  */
-type StoredImage = {
-    id: string;
-    blob: Blob;
-    reportId?: string; // Optional reference to the report
-    createdAt: Date;
-}
-
-type StoredMemos = {
-    id: string;
-    reportId?: string; // Optional reference to the report
-    order: number;
-    text: string;
-    audio: Blob;
-}
-
 export class ReportsDB {
-    private db: IDBDatabase | null = null;
-
+    /**
+     * Get the database instance from the centralized database service
+     * @returns Promise resolving to the database instance
+     */
     private async getDb(): Promise<IDBDatabase> {
-        if (!this.db) {
-            return await this.initialize();
-        }
-        return this.db;
-    }
-
-    /**
-     * Initialize the IndexedDB database
-     * @returns Promise that resolves when the database is initialized
-     */
-    async initialize(): Promise<IDBDatabase> {
-        if (this.db) {
-            this.db; // Return existing database instance
-        }
-
-        return new Promise((resolve, reject) => {
-            // Open or create the IndexedDB database
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-            // Handle database upgrade or creation
-            request.onupgradeneeded = (event) => {
-                const db = (event.target as IDBOpenDBRequest).result;
-
-                // Create reports store if it doesn't exist
-                if (!db.objectStoreNames.contains(REPORTS_STORE)) {
-                    const store = db.createObjectStore(REPORTS_STORE, {
-                        keyPath: 'id',
-                        autoIncrement: true,
-                    });
-
-                    // Create indexes for faster queries
-                    store.createIndex('id', 'id', { unique: true });
-
-                }
-                // Create images store if it doesn't exist
-                if (!db.objectStoreNames.contains(IMAGES_STORE)) {
-                    const imagesStore = db.createObjectStore(IMAGES_STORE, {
-                        keyPath: 'id',
-                        autoIncrement: true,
-                    });
-                    imagesStore.createIndex('reportId', 'reportId', {
-                        unique: false,
-                    });
-                    imagesStore.createIndex('id', 'id', {
-                        unique: true,
-                    });
-                }
-
-                // Create memos store if it doesn't exist
-                if (!db.objectStoreNames.contains(MEMOS_STORE)) {
-                    const memosStore = db.createObjectStore(MEMOS_STORE, {
-                        keyPath: 'id',
-                        autoIncrement: true,
-                    });
-                    memosStore.createIndex('reportId', 'reportId', {
-                        unique: false,
-                    });
-                    memosStore.createIndex('id', 'id', {
-                        unique: true,
-                    });
-                }
-            };
-
-            // Success handler
-            request.onsuccess = (event) => {
-                const db = (event.target as IDBOpenDBRequest).result;
-                resolve(db);
-            };
-
-            // Error handler
-            request.onerror = (event) => {
-                reject(
-                    `Database initialization failed: ${(event.target as IDBOpenDBRequest).error}`,
-                );
-            };
-        });
-    }
-
-    /**
-     * Save an image to the database
-     * @param image The image blob to save
-     * @param reportId Optional ID of the report this image belongs to
-     * @returns The ID of the saved image
-     */
-    private async saveImage(image: IPicture, reportId: string): Promise<number> {
-        const db = await this.getDb();
-
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [IMAGES_STORE],
-                'readwrite',
-            );
-            const store = transaction.objectStore(IMAGES_STORE);
-
-            const storedImage: StoredImage = {
-                id: image.id,
-                blob: image.image,
-                reportId,
-                createdAt: new Date(),
-            };
-
-            const request = store.put(storedImage);
-
-            request.onsuccess = () => {
-                resolve(request.result as number);
-            };
-
-            request.onerror = () => {
-                reject(`Failed to save image: ${request.error}`);
-            };
-        });
-    }
-
-    private async saveMemo(memo: IMemo, reportId: string, order: number): Promise<number> {
-        const db = await this.getDb();
-
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [MEMOS_STORE],
-                'readwrite',
-            );
-            const store = transaction.objectStore(MEMOS_STORE);
-
-            const storedMemo: StoredMemos = {
-                id: memo.id,
-                text: memo.text,
-                audio: memo.audio,
-                order,
-                reportId,
-            };
-
-            const request = store.put(storedMemo);
-
-            request.onsuccess = () => {
-                resolve(request.result as number);
-            };
-
-            request.onerror = () => {
-                reject(`Failed to save memo: ${request.error}`);
-            };
-        });
-    }
-
-    private async getMemoById(id: number): Promise<StoredMemos> {
-        const db = await this.getDb();
-
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [MEMOS_STORE],
-                'readonly',
-            );
-            const store = transaction.objectStore(MEMOS_STORE);
-            const request = store.get(id);
-
-            request.onsuccess = () => {
-                const result = request.result as StoredMemos | undefined;
-                if (result) {
-                    resolve(result);
-                } else {
-                    reject(`Memo with ID ${id} not found`);
-                }
-            };
-
-            request.onerror = () => {
-                reject(`Failed to get memo: ${request.error}`);
-            };
-        });
-    }
-
-    /**
-     * Get an image by ID
-     * @param id The ID of the image
-     * @returns The image blob or undefined if not found
-     */
-    private async getImageById(id: number): Promise<Blob | undefined> {
-        const db = await this.getDb();
-
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [IMAGES_STORE],
-                'readonly',
-            );
-            const store = transaction.objectStore(IMAGES_STORE);
-            const request = store.get(id);
-
-            request.onsuccess = () => {
-                const result = request.result as StoredImage | undefined;
-                resolve(result?.blob);
-            };
-
-            request.onerror = () => {
-                reject(`Failed to get image: ${request.error}`);
-            };
-        });
+        return await databaseService.getDatabase();
     }
 
     /**
@@ -243,303 +28,35 @@ export class ReportsDB {
      */
     private async internalToExternalReport(
         internalReport: InternalReport,
-    ): Promise<IReport> {
-        const reportDto: ReportDto = {
-            ...internalReport,
-            complaints: await Promise.all(
-                internalReport.complaints.map(async (complain) => {
-                    // Retrieve all images for this entry
-                    const images: PictureDto[] = [];
-                    if (complain.imageIds && complain.imageIds.length > 0) {
-                        for (const imageId of complain.imageIds) {
-                            const imageBlob = await this.getImageById(imageId);
-                            if (imageBlob) {
-                                images.push({
-                                    id: imageId.toString(),
-                                    image: imageBlob,
-                                });
-                            }
-                        }
-                    }
-
-                    // Retrive all memos for this entry
-                    const memos: MemoDto[] = [];
-                    if (complain.memoIds && complain.memoIds.length > 0) {
-                        for (const memoId of complain.memoIds) {
-                            const memo = await this.getMemoById(memoId);
-                            if (memo) {
-                                memos.push({
-                                    id: memo.id,
-                                    order: memo.order,
-                                    audio: memo.audio,
-                                    text: memo.text,
-                                } as MemoDto);
-                            }
-                        }
-                    }
-
-                    return {
-                        ...complain,
-                        images,
-                        memos: memos.sort((a, b) => a.order - b.order),
-                    } as ComplaintDto;
-                }),
-            ),
-        };
-
-        reportDto.complaints.sort((a, b) => a.order - b.order);
-
-        return createReport(reportDto);
-    }
-
-    private async externalToInternalReport(
-        report: IReport,
-    ): Promise<InternalReport> {
-        const reportDto: ReportDto = report.toDto();
-
-        // Convert complaints to internal format
-        const internalComplaints: InternalComplaint[] = await Promise.all(
-            reportDto.complaints.map(async (complaint, index) => {
-                // Process images and memos in parallel for better performance
-                const [imageIds, memoIds] = await Promise.all([
-                    this.processComplaintImages(complaint.images, reportDto.id),
-                    this.processComplaintMemos(complaint.memos, reportDto.id),
-                ]);
-
-                return {
-                    id: complaint.id,
-                    title: complaint.title,
-                    imageIds,
-                    memoIds,
-                    order: index,
-                } as InternalComplaint;
-            }),
-        );
+    ): Promise<ReportDto> {
+        const complaints = await Promise.all(
+            internalReport.complaintIds.map(async (complaintId) =>
+                await complaintsDBService.getComplaint(complaintId)
+            ));
 
         return {
-            ...reportDto,
-            complaints: internalComplaints,
-        } as InternalReport;
+            ...internalReport,
+            complaints: complaints
+                .filter(complaint => complaint !== undefined)
+        };
     }
 
     /**
-     * Process complaint images by saving them to the database
-     * @param images - Array of images to process
-     * @param reportId - ID of the parent report
-     * @returns Array of image IDs
-     */
-    private async processComplaintImages(
-        images: IPicture[],
-        reportId: string
-    ): Promise<number[]> {
-        const imageIds: number[] = [];
-
-        // Save each image and collect its ID
-        for (const image of images) {
-            const imageId = await this.saveImage(image, reportId);
-            imageIds.push(imageId);
-        }
-
-        return imageIds;
-    }
-
-    /**
-     * Process complaint memos by saving them to the database
-     * @param memos - Array of memos to process
-     * @param reportId - ID of the parent report
-     * @returns Array of memo IDs
-     */
-    private async processComplaintMemos(
-        memos: IMemo[],
-        reportId: string
-    ): Promise<number[]> {
-        const memoIds: number[] = [];
-
-        // Save each memo with its order and collect its ID
-        for (let i = 0; i < memos.length; i++) {
-            const memo = memos[i];
-            const memoId = await this.saveMemo(memo, reportId, i);
-            memoIds.push(memoId);
-        }
-
-        return memoIds;
-    }
-
-    /**
-     * Save a new report or update an existing one with separate image storage
+     * Save a new report or update an existing one
      * @param report The report to save
      * @returns Promise with the ID of the saved report
      */
-    async saveReport(report: IReport): Promise<number> {
-        // Make sure the database is initialized
-        if (!this.db) {
-            await this.initialize();
-        }
-
-        // If this is an update, clean up orphaned resources
-        if (report.id) {
-            await this.cleanupOrphanedResources(report);
-        }
-
+    async storeReport(report: ReportDto): Promise<number> {
         // Convert to internal format
-        const internalReport = await this.externalToInternalReport(report);
+        const internalReport = {
+            ...report,
+            complaints: undefined,
+            complaintIds: report.complaints.map((complaint) => complaint.id),
+        }
+
+        delete internalReport.complaints;
 
         return this.saveInternalReport(internalReport);
-    }
-
-    /**
-     * Cleans up orphaned images and memos that are no longer referenced by the report
-     * @param updatedReport - The updated report that will be saved
-     */
-    private async cleanupOrphanedResources(updatedReport: IReport): Promise<void> {
-        try {
-            // Get the current version of the report from the database
-            const currentReport = await this.getById(updatedReport.id);
-            if (!currentReport) {
-                return; // Report doesn't exist yet, nothing to clean up
-            }
-
-            // Extract IDs from current and updated reports
-            const currentImageIds = this.extractImageIds(currentReport);
-            const updatedImageIds = this.extractImageIds(updatedReport);
-            const currentMemoIds = this.extractMemoIds(currentReport);
-            const updatedMemoIds = this.extractMemoIds(updatedReport);
-
-            // Find orphaned resources (in current but not in updated)
-            const orphanedImageIds = currentImageIds.filter(id => !updatedImageIds.includes(id));
-            const orphanedMemoIds = currentMemoIds.filter(id => !updatedMemoIds.includes(id));
-
-            // Delete orphaned resources
-            await Promise.all([
-                this.deleteOrphanedImages(orphanedImageIds),
-                this.deleteOrphanedMemos(orphanedMemoIds)
-            ]);
-        } catch (error) {
-            console.error('Error during cleanup of orphaned resources:', error);
-            // Continue with the save operation even if cleanup fails
-        }
-    }
-
-    /**
-     * Extracts all image IDs from a report
-     * @param report - The report to extract image IDs from
-     * @returns Array of image IDs
-     */
-    private extractImageIds(report: IReport): string[] {
-        const ids: string[] = [];
-
-        report.complaints.forEach(complaint => {
-            complaint.images.forEach(image => {
-                ids.push(image.id);
-            });
-        });
-
-        return ids;
-    }
-
-    /**
-     * Extracts all memo IDs from a report
-     * @param report - The report to extract memo IDs from
-     * @returns Array of memo IDs
-     */
-    private extractMemoIds(report: IReport): string[] {
-        const ids: string[] = [];
-
-        report.complaints.forEach(complaint => {
-            complaint.memos.forEach(memo => {
-                ids.push(memo.id);
-            });
-        });
-
-        return ids;
-    }
-
-    /**
-     * Deletes orphaned images by their IDs
-     * @param imageIds - Array of image IDs to delete
-     */
-    private async deleteOrphanedImages(imageIds: string[]): Promise<void> {
-        if (imageIds.length === 0) {
-            return;
-        }
-
-        const db = await this.getDb();
-
-        return new Promise<void>((resolve, reject) => {
-            const transaction = db.transaction([IMAGES_STORE], 'readwrite');
-            const store = transaction.objectStore(IMAGES_STORE);
-            let completed = 0;
-            let errors = 0;
-
-            // Delete each image one by one
-            imageIds.forEach(id => {
-                const request = store.delete(id);
-
-                request.onsuccess = () => {
-                    completed++;
-                    if (completed + errors === imageIds.length) {
-                        resolve();
-                    }
-                };
-
-                request.onerror = () => {
-                    console.error(`Failed to delete orphaned image ${id}:`, request.error);
-                    errors++;
-                    if (completed + errors === imageIds.length) {
-                        resolve(); // Still resolve to continue with the save operation
-                    }
-                };
-            });
-
-            // Handle empty array case
-            if (imageIds.length === 0) {
-                resolve();
-            }
-        });
-    }
-
-    /**
-     * Deletes orphaned memos by their IDs
-     * @param memoIds - Array of memo IDs to delete
-     */
-    private async deleteOrphanedMemos(memoIds: string[]): Promise<void> {
-        if (memoIds.length === 0) {
-            return;
-        }
-
-        const db = await this.getDb();
-
-        return new Promise<void>((resolve, reject) => {
-            const transaction = db.transaction([MEMOS_STORE], 'readwrite');
-            const store = transaction.objectStore(MEMOS_STORE);
-            let completed = 0;
-            let errors = 0;
-
-            // Delete each memo one by one
-            memoIds.forEach(id => {
-                const request = store.delete(id);
-
-                request.onsuccess = () => {
-                    completed++;
-                    if (completed + errors === memoIds.length) {
-                        resolve();
-                    }
-                };
-
-                request.onerror = () => {
-                    console.error(`Failed to delete orphaned memo ${id}:`, request.error);
-                    errors++;
-                    if (completed + errors === memoIds.length) {
-                        resolve(); // Still resolve to continue with the save operation
-                    }
-                };
-            });
-
-            // Handle empty array case
-            if (memoIds.length === 0) {
-                resolve();
-            }
-        });
     }
 
     /**
@@ -561,9 +78,7 @@ export class ReportsDB {
             const store = transaction.objectStore(REPORTS_STORE);
 
             // Add or update the report
-            const request = internalReport.id
-                ? store.put(internalReport)
-                : store.add(internalReport);
+            const request = store.put(internalReport);
 
             request.onsuccess = () => {
                 // Return the generated ID
@@ -580,7 +95,7 @@ export class ReportsDB {
      * Get all reports from the database
      * @returns Promise with an array of all reports
      */
-    async getAll(): Promise<IReport[]> {
+    async getAll(): Promise<ReportDto[]> {
         // Make sure the database is initialized
         const db = await this.getDb();
 
@@ -594,7 +109,7 @@ export class ReportsDB {
 
             request.onsuccess = async () => {
                 const internalReports = request.result as InternalReport[];
-                const externalReports: IReport[] = [];
+                const externalReports: ReportDto[] = [];
 
                 // Convert each report to external format
                 for (const internalReport of internalReports) {
@@ -613,12 +128,12 @@ export class ReportsDB {
     }
 
     /**
-     * Get a report note by its unique identifier
-     * @param uid - The unique identifier of the report note
-     * @returns The report note with the specified UID
-     * @throws Error if the report note is not found
+     * Get a report by its unique identifier
+     * @param id The unique identifier of the report
+     * @returns The report with the specified ID
+     * @throws Error if the report is not found
      */
-    async getById(id: string): Promise<IReport> {
+    async getById(id: string): Promise<ReportDto> {
         const db = await this.getDb();
 
         try {
@@ -637,7 +152,7 @@ export class ReportsDB {
                         | undefined;
                     if (!internalReport) {
                         reject(
-                            new Error(`Report note with id ${id} not found`),
+                            new Error(`Report with id ${id} not found`),
                         );
                         return;
                     }
@@ -652,7 +167,7 @@ export class ReportsDB {
                 };
             });
         } catch (err) {
-            console.error(`Error getting report note by id ${id}:`, err);
+            console.error(`Error getting report by id ${id}:`, err);
             throw err;
         }
     }
@@ -665,10 +180,14 @@ export class ReportsDB {
     async delete(id: string): Promise<void> {
         const db = await this.getDb();
 
-        // First get the report to find associated images
-        const report = (await this.getById(id)) as IReport;
+        // First get the report to find associated images and memos
+        const report = (await this.getById(id)) as ReportDto;
         if (!report) {
             return; // Nothing to delete
+        }
+
+        for (const complaint of report.complaints) {
+            await complaintsDBService.deleteComplaint(complaint.id);
         }
 
         // Delete the report
@@ -688,80 +207,6 @@ export class ReportsDB {
                 reject(`Failed to delete report: ${request.error}`);
             };
         });
-
-        // Delete associated images
-        await this.deleteImagesByReportId(id);
-
-        // Delete associated memos
-        await this.deleteMemosByReportId(id);
-    }
-
-    /**
-     * Delete all memos associated with a specific report
-     * @param reportId The ID of the report whose memos should be deleted
-     */
-    private async deleteMemosByReportId(reportId: string): Promise<void> {
-        const db = await this.getDb();
-
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [MEMOS_STORE],
-                'readwrite',
-            );
-            const store = transaction.objectStore(MEMOS_STORE);
-            const index = store.index('reportId');
-            const request = index.openCursor(IDBKeyRange.only(reportId));
-
-            request.onsuccess = (event) => {
-                const cursor = (event.target as IDBRequest).result;
-                if (cursor) {
-                    // Delete this memo
-                    cursor.delete();
-                    cursor.continue();
-                } else {
-                    // No more memos to delete
-                    resolve();
-                }
-            };
-
-            request.onerror = () => {
-                reject(`Failed to delete memos: ${request.error}`);
-            };
-        });
-    }
-
-    /**
-     * Delete all images associated with a specific report
-     * @param reportId The ID of the report whose images should be deleted
-     */
-    private async deleteImagesByReportId(reportId: string): Promise<void> {
-        const db = await this.getDb();
-
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [IMAGES_STORE],
-                'readwrite',
-            );
-            const store = transaction.objectStore(IMAGES_STORE);
-            const index = store.index('reportId');
-            const request = index.openCursor(IDBKeyRange.only(reportId));
-
-            request.onsuccess = (event) => {
-                const cursor = (event.target as IDBRequest).result;
-                if (cursor) {
-                    // Delete this image
-                    cursor.delete();
-                    cursor.continue();
-                } else {
-                    // No more images to delete
-                    resolve();
-                }
-            };
-
-            request.onerror = () => {
-                reject(`Failed to delete images: ${request.error}`);
-            };
-        });
     }
 
     /**
@@ -769,7 +214,7 @@ export class ReportsDB {
      * @param searchTerm The term to search for in report names
      * @returns Promise with array of matching reports
      */
-    async searchReportsByName(searchTerm: string): Promise<IReport[]> {
+    async searchReportsByName(searchTerm: string): Promise<ReportDto[]> {
         const allReports = await this.getAll();
         const lowercaseTerm = searchTerm.toLowerCase();
 

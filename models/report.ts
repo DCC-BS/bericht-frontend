@@ -76,7 +76,8 @@ class Report implements IReport {
         return {
             id: this.id,
             name: this.name,
-            customer: this.customer,
+            subtitle1: this.subtitle1,
+            subtitle2: this.subtitle2,
             createdAt: this.createdAt,
             lastModified: this.lastModified,
             complaints: this.complaints.map((complaint) => complaint.toDto()),

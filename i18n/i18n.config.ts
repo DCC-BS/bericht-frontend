@@ -85,7 +85,11 @@ export default defineI18nConfig(() => ({
                 removeMemo: "Remove Memo",
                 removeImage: "Remove Image",
                 noImages: "No images captured yet.",
-                capturedImages: "Captured Images:"
+                capturedImages: "Captured Images:",
+                notFound: "Complaint not found",
+                addRecording: "Add Recording",
+                addText: "Add Text",
+                addImage: "Add Image"
             },
             
             // Speech to text component translations
@@ -199,7 +203,11 @@ export default defineI18nConfig(() => ({
                 removeMemo: "Notiz entfernen",
                 removeImage: "Bild entfernen",
                 noImages: "Noch keine Bilder aufgenommen.",
-                capturedImages: "Aufgenommene Bilder:"
+                capturedImages: "Aufgenommene Bilder:",
+                notFound: "Beschwerde nicht gefunden",
+                addRecording: "Aufnahme hinzufügen",
+                addText: "Text hinzufügen",
+                addImage: "Bild hinzufügen"
             },
             
             // Speech to text component translations
