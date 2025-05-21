@@ -49,11 +49,12 @@ const items = computed<NavigationMenuItem[][]>(() => [
 </script>
 
 <template>
-    <div>
+    <div class="fixed w-full z-50 bg-white shadow-md">
         <UNavigationMenu
             content-orientation="vertical"
             :items="items"
             class="w-full justify-between z-50"
         />
     </div>
+    <div class="h-[60px]" />
 </template>
