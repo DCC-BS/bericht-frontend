@@ -2,7 +2,7 @@ import pwaIcons from "./public/icons.json";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-    compatibilityDate: '2024-11-01',
+    compatibilityDate: "2024-11-01",
     runtimeConfig: {
         public: {
             apiUrl: process.env.API_URL,
@@ -11,34 +11,34 @@ export default defineNuxtConfig({
     // Define app head configuration
     app: {
         head: {
-            titleTemplate: '%s | Berichtgenerator',
+            titleTemplate: "%s | Berichtgenerator",
             htmlAttrs: {
-                lang: 'de',
+                lang: "de",
             },
             meta: [
-                { charset: 'utf-8' },
+                { charset: "utf-8" },
                 {
-                    name: 'viewport',
-                    content: 'width=device-width, initial-scale=1',
+                    name: "viewport",
+                    content: "width=device-width, initial-scale=1",
                 },
                 {
-                    name: 'apple-mobile-web-app-title',
-                    content: 'My Test App',
+                    name: "apple-mobile-web-app-title",
+                    content: "My Test App",
                 },
-                { name: 'application-name', content: 'My Test App' },
-                { name: 'msapplication-config', content: '/browserconfig.xml' },
+                { name: "application-name", content: "My Test App" },
+                { name: "msapplication-config", content: "/browserconfig.xml" },
             ],
         },
     },
     modules: [
-      '@nuxt/ui',
-      '@nuxtjs/i18n',
-      '@dcc-bs/common-ui.bs.js',
-      '@dcc-bs/logger.bs.js',
-      '@dcc-bs/feedback-control.bs.js',
-      '@vite-pwa/nuxt',
-      '@pinia/nuxt',
-      'nuxt-viewport',
+        "@nuxt/ui",
+        "@nuxtjs/i18n",
+        "@dcc-bs/common-ui.bs.js",
+        "@dcc-bs/logger.bs.js",
+        "@dcc-bs/feedback-control.bs.js",
+        "@vite-pwa/nuxt",
+        "@pinia/nuxt",
+        "nuxt-viewport",
     ],
     "feedback-control.bs.js": {
         repo: "Feedback",
@@ -47,9 +47,9 @@ export default defineNuxtConfig({
         githubToken: process.env.GITHUB_TOKEN,
     },
     devtools: { enabled: true },
-    css: ['~/assets/css/main.css'],
+    css: ["~/assets/css/main.css"],
     colorMode: {
-        preference: 'light',
+        preference: "light",
     },
     // localization
     i18n: {
@@ -63,10 +63,10 @@ export default defineNuxtConfig({
                 name: "Deutsch",
             },
         ],
-        defaultLocale: 'de',
-        vueI18n: './i18n.config.ts',
+        defaultLocale: "de",
+        vueI18n: "./i18n.config.ts",
         lazy: true,
-        strategy: 'prefix_except_default',
+        strategy: "prefix_except_default",
     },
     // routeRules: {
     //     '**': { proxy: 'https://robust-nationally-lacewing.ngrok-free.app/' },
@@ -76,7 +76,7 @@ export default defineNuxtConfig({
             exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],
         },
         server: {
-            allowedHosts: ['robust-nationally-lacewing.ngrok-free.app'],
+            allowedHosts: ["robust-nationally-lacewing.ngrok-free.app"],
             headers: {
                 "Cross-Origin-Opener-Policy": "same-origin",
                 "Cross-Origin-Embedder-Policy": "require-corp",
@@ -110,6 +110,12 @@ export default defineNuxtConfig({
     $development: {
         "logger.bs.js": {
             loglevel: "debug",
-        }
-    }
+        },
+        vite: {
+            // Enable source maps for development
+            build: {
+                sourcemap: true,
+            },
+        },
+    },
 });

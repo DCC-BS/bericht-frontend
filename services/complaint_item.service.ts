@@ -1,22 +1,27 @@
 import type { ILogger } from "@dcc-bs/logger.bs.js";
 import type { ComplaintsItemDB } from "./complaints_item_db";
-import { createComplaintItem, type IComplaintItem } from "~/models/compaint_item";
-
+import {
+    createComplaintItem,
+    type IComplaintItem,
+} from "~/models/compaint_item";
+import { KeepAlive } from "vue";
 
 export class ComplaintItemService {
     constructor(
         private readonly db: ComplaintsItemDB,
         private readonly logger: ILogger,
-    ) { }
+    ) {}
 
     async get(complaintItemId: string): Promise<IComplaintItem> {
-        return this.db.getItem(complaintItemId).then((complaintItem) =>
-            createComplaintItem(complaintItem)
-        );
+        return this.db
+            .getItem(complaintItemId)
+            .then((complaintItem) => createComplaintItem(complaintItem));
     }
 
     async put(complaintItem: IComplaintItem): Promise<void> {
-        await this.db.storeItem(complaintItem.toDto());
+        const dto = deepToRaw(complaintItem.toDto());
+        console.log("ComplaintItemService.put", dto);
+        await this.db.storeItem(dto);
     }
 
     async delete(complaintItemId: string): Promise<void> {

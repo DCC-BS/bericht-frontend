@@ -1,4 +1,20 @@
-import { Document, Footer, ImageRun, NumberFormat, Packer, PageNumber, Paragraph, TextRun } from "docx";
+import {
+    Document,
+    Footer,
+    ImageRun,
+    NumberFormat,
+    Packer,
+    PageNumber,
+    Paragraph,
+    TextRun,
+} from "docx";
+import { render } from "vue";
+import type {
+    ComplaintImage,
+    ComplaintRecording,
+    ComplaintText,
+    IComplaintItem,
+} from "~/models/compaint_item";
 import type { IComplaint } from "~/models/complaint";
 import type { IReport } from "~/models/report";
 
@@ -7,7 +23,9 @@ import type { IReport } from "~/models/report";
  * @param imageBlob - The image as a Blob object
  * @returns Promise with the width and height of the image
  */
-async function calculateImageSize(imageBlob: Blob): Promise<{ width: number; height: number }> {
+async function calculateImageSize(
+    imageBlob: Blob,
+): Promise<{ width: number; height: number }> {
     return new Promise((resolve, reject) => {
         // Create an object URL from the blob
         const objectUrl = URL.createObjectURL(imageBlob);
@@ -20,7 +38,7 @@ async function calculateImageSize(imageBlob: Blob): Promise<{ width: number; hei
             // Get dimensions
             const dimensions = {
                 width: img.width,
-                height: img.height
+                height: img.height,
             };
 
             // Clean up the object URL
@@ -53,63 +71,58 @@ function calculateDimensionWithAspectRatio(
     originalWidth: number,
     originalHeight: number,
     targetWidth?: number,
-    targetHeight?: number
+    targetHeight?: number,
 ): { width: number; height: number } {
     // Calculate the aspect ratio
     const aspectRatio = originalWidth / originalHeight;
-    
+
     // Initialize result object
-    let result = { 
-        width: originalWidth, 
-        height: originalHeight 
+    let result = {
+        width: originalWidth,
+        height: originalHeight,
     };
-    
+
     // If target width is provided, calculate the height
     if (targetWidth !== undefined) {
         result = {
             width: targetWidth,
-            height: Math.round(targetWidth / aspectRatio)
+            height: Math.round(targetWidth / aspectRatio),
         };
     }
     // If target height is provided, calculate the width
     else if (targetHeight !== undefined) {
         result = {
             width: Math.round(targetHeight * aspectRatio),
-            height: targetHeight
+            height: targetHeight,
         };
     }
-    
+
     return result;
 }
 
-async function getImageHeight(image: Blob, targetWidth: number): Promise<number> {
+async function getImageHeight(
+    image: Blob,
+    targetWidth: number,
+): Promise<number> {
     const { width, height } = await calculateImageSize(image);
-    const dimensions = calculateDimensionWithAspectRatio(width, height, targetWidth);
+    const dimensions = calculateDimensionWithAspectRatio(
+        width,
+        height,
+        targetWidth,
+    );
     return dimensions.height;
 }
 
 export async function createDoxf(report: IReport) {
-    console.log(report.complaints.map(c => toRaw(c.toDto())));
+    console.log(report.complaints.map((c) => toRaw(c.toDto())));
 
-    const asycComplainParagraphs = report.complaints.map(async (complaint) => {
-        return [
-            new Paragraph({
-                text: complaint.title,
-                heading: "Heading1",
-                keepLines: true,
-                keepNext: true,
-            }),
-            ...(await getImages(complaint)),
-            ...complaint.memos.map((memo) => {
-                return new Paragraph({
-                    text: memo.text,
-                    spacing: { after: 6 * 20 },
-                });
-            }),
-        ];
-    });
+    const asycComplainParagraphs = report.complaints.map(
+        async (complaint) => await renderComplaint(complaint),
+    );
 
-    const complainParagraphs = (await Promise.all(asycComplainParagraphs)).flat();
+    const complainParagraphs = (
+        await Promise.all(asycComplainParagraphs)
+    ).flat();
 
     const doc = new Document({
         sections: [
@@ -149,7 +162,10 @@ export async function createDoxf(report: IReport) {
                         text: `Erstellt am: ${report.createdAt.toLocaleString()}`,
                     }),
                     new Paragraph({
-                        text: `Kunde: ${report.customer}`,
+                        text: `${report.subtitle1}`,
+                    }),
+                    new Paragraph({
+                        text: `${report.subtitle2}`,
                     }),
                     ...complainParagraphs,
                 ],
@@ -160,23 +176,83 @@ export async function createDoxf(report: IReport) {
     return await Packer.toBlob(doc);
 }
 
-async function getImages(complaint: IComplaint) {
-    return Promise.all(
-        complaint.images.map(async (image) => {
-            return new Paragraph({
-                children: [
-                    new ImageRun({
-                        type: "png",
-                        data: await image.image.arrayBuffer(),
-                        transformation: {
-                            width: 600,
-                            height: await getImageHeight(image.image, 600)
-                        },
-                    }),
-                ],
-                alignment: "center",
-                spacing: { after: 12 * 20 }
-            });
+async function renderComplaint(complaint: IComplaint) {
+    return [
+        new Paragraph({
+            text: `${complaint.title}`,
+            heading: "Heading1",
+            keepLines: true,
+            keepNext: true,
         }),
-    );
+        ...(await Promise.all(
+            complaint.items.map((item) => renderComplaintItem(item)),
+        )),
+    ];
 }
+
+async function renderComplaintItem(item: IComplaintItem) {
+    switch (item.$type) {
+        case "text":
+            return renderComplaintText(item as ComplaintText);
+        case "recording":
+            return renderComplaintRecording(item as ComplaintRecording);
+        case "image":
+            return renderComplaintImage(item as ComplaintImage);
+        default:
+            throw new Error("Unknown complaint item type");
+    }
+}
+
+async function renderComplaintText(item: ComplaintText) {
+    return new Paragraph({
+        text: item.text,
+        spacing: { after: 6 * 20 },
+    });
+}
+
+async function renderComplaintRecording(item: ComplaintRecording) {
+    return new Paragraph({
+        text: item.text,
+        spacing: { after: 6 * 20 },
+    });
+}
+
+async function renderComplaintImage(item: ComplaintImage) {
+    const blob = item.image.image;
+
+    return new Paragraph({
+        children: [
+            new ImageRun({
+                type: "png",
+                data: await blob.arrayBuffer(),
+                transformation: {
+                    width: 600,
+                    height: await getImageHeight(blob, 600),
+                },
+            }),
+        ],
+        alignment: "center",
+        spacing: { after: 12 * 20 },
+    });
+}
+
+// async function getImages(complaint: IComplaint) {
+//     return Promise.all(
+//         complaint.images.map(async (image) => {
+//             return new Paragraph({
+//                 children: [
+//                     new ImageRun({
+//                         type: "png",
+//                         data: await image.image.arrayBuffer(),
+//                         transformation: {
+//                             width: 600,
+//                             height: await getImageHeight(image.image, 600),
+//                         },
+//                     }),
+//                 ],
+//                 alignment: "center",
+//                 spacing: { after: 12 * 20 },
+//             });
+//         }),
+//     );
+// }

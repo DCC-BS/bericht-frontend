@@ -10,6 +10,7 @@ interface InputProps {
 const props = defineProps<InputProps>();
 const toast = useToast();
 const { t } = useI18n();
+const isOpen = ref(false);
 
 const to = ref<string>('');
 
@@ -17,7 +18,7 @@ const to = ref<string>('');
  * Sends an email with the report to the specified email address
  */
 async function sendMail() {
-    if(!to.value) {
+    if (!to.value) {
         toast.add({
             title: t('email.validEmail'),
             icon: 'i-heroicons-exclamation-circle',
@@ -26,7 +27,7 @@ async function sendMail() {
         return;
     }
 
-    try{
+    try {
         await props.reportService.generateTitles(props.report);
         await sendEmail(to.value, props.report);
 
@@ -36,7 +37,7 @@ async function sendMail() {
             color: 'success',
         });
     } catch (error) {
-        if(error instanceof Error) {
+        if (error instanceof Error) {
             toast.add({
                 title: error.message,
                 icon: 'i-heroicons-exclamation-circle',
@@ -52,17 +53,33 @@ async function sendMail() {
     }
 }
 
+function openModal() {
+    isOpen.value = true;
+}
+
+defineExpose({
+    openModal,
+});
+
 </script>
 
 <template>
+    <UModal v-model:open="isOpen" class="p-2">
+        <template #content>
+            <UInput v-model="to" type="email" :placeholder="t('email.enterEmail')" class="mb-2 mt-4 w-full" />
+            <UButton @click="sendMail" color="primary" class="w-full flex items-center justify-center gap-2"
+                icon="i-lucide-send">
+                {{ t('email.send') }}
+            </UButton>
+        </template>
+    </UModal>
+
     <div>
-        <UInput v-model="to" type="email" :placeholder="t('email.enterEmail')" class="mb-2 mt-4 w-full" />
-        <UButton @click="sendMail" color="primary" class="w-full flex items-center justify-center gap-2" icon="i-heroicons-paper-airplane">
+        <UButton @click="isOpen = true" color="primary" class="w-full flex items-center justify-center gap-2"
+            icon="i-lucide-send">
             {{ t('email.send') }}
         </UButton>
     </div>
 </template>
 
-<style>
-
-</style>
+<style></style>

@@ -1,5 +1,5 @@
 import type { ComplaintDto } from "~/models/complaint";
-import { type ComplaintItemDto } from "~/models/compaint_item";
+import type { ComplaintItemDto } from "~/models/compaint_item";
 import { databaseService, COMPLAINT_ITEMS_STORE } from "./database_service";
 
 /**

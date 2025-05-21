@@ -6,18 +6,17 @@ export class ReportService {
     constructor(
         private readonly db: ReportsDB,
         private readonly logger: ILogger,
-    ) { }
+        private readonly t: (key: string) => string,
+    ) {}
 
     async getAllReports(): Promise<IReport[]> {
-        return this.db.getAll().then((reports) =>
-            reports.map((report) => createReport(report))
-        );
+        return this.db
+            .getAll()
+            .then((reports) => reports.map((report) => createReport(report)));
     }
 
     async getReport(reportId: string): Promise<IReport> {
-        return this.db.getById(reportId).then((report) =>
-            createReport(report)
-        );
+        return this.db.getById(reportId).then((report) => createReport(report));
     }
 
     async createReport(title: string): Promise<IReport> {
@@ -46,7 +45,8 @@ export class ReportService {
     async generateTitles(report: IReport): Promise<void> {
         let i = 1;
         for (const complaint of report.complaints) {
-            complaint.title = `Beanstandung ${i++}`;
+            const type = this.t(`complaint.${complaint.type}`);
+            complaint.title = `${type} ${i++}`;
 
             // const text = complaint.memos.map((m) => m.text).join(" ");
 

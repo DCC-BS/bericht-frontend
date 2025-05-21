@@ -3,6 +3,7 @@ import type { IReport } from '~/models/report';
 import ComplaintView from '../../../components/ComplaintView.vue';
 import { createComplaint } from '~/models/complaint';
 import Draggable from 'vuedraggable';
+import type { EmailExport } from '#components';
 
 const route = useRoute();
 const toast = useToast();
@@ -13,6 +14,7 @@ const { t } = useI18n();
 
 const reportId = route.params.reportId;
 const currentReport = ref<IReport>();
+const emailExport = ref<InstanceType<typeof EmailExport>>();
 
 if (!reportId || typeof reportId !== 'string') {
     throw new Error('Report ID is required');
@@ -28,18 +30,20 @@ onMounted(() => {
             });
         }
 
+        console.log('Report:', report);
+
         currentReport.value = report;
     });
 });
 
 watch(currentReport, (newValue) => {
-    if (newValue) {        
+    if (newValue) {
         reportService.updateReport(newValue);
     }
 }, { deep: true });
 
 async function onAdd(type: "finding" | "action"): Promise<void> {
-    if(!currentReport.value) {
+    if (!currentReport.value) {
         logger.error('Report not found');
         return;
     }
@@ -54,16 +58,16 @@ async function onAdd(type: "finding" | "action"): Promise<void> {
 }
 
 function onAddClicked(): void {
-    if(!currentReport.value) {
+    if (!currentReport.value) {
         logger.error('Report not found');
         return;
-    }	
+    }
 
     currentReport.value.addComplaint(createComplaint({}));
 }
 
 function saveReport(): void {
-    if(!currentReport.value) {
+    if (!currentReport.value) {
         logger.error('Report not found');
         return;
     }
@@ -76,18 +80,8 @@ function saveReport(): void {
     });
 }
 
-function removeComplaint(id: string): void {
-    if(!currentReport.value) {
-        logger.error('Report not found');
-        return;
-    }
-
-    currentReport.value.removeComplaint(id);
-    saveReport();
-}
-
-async function exportReport(){
-    if(!currentReport.value) {
+async function exportReport() {
+    if (!currentReport.value) {
         logger.error('Report not found');
         return;
     }
@@ -108,20 +102,22 @@ async function exportReport(){
     toast.add({
         title: t('report.exported'),
         icon: 'i-heroicons-check-circle',
-        color: 'success'});
+        color: 'success'
+    });
 }
 </script>
 
 <template>
-    <NavigationMenu
-        backUrl="/"
-        :items="[
-            {
-                icon: 'i-lucide-trash-2',
-                onSelect: () => {},
-            },
-        ]"
-    />
+    <NavigationMenu backUrl="/" :items="[
+        {
+            icon: 'i-lucide-send',
+            onSelect: () => { emailExport?.openModal() },
+        },
+        {
+            icon: 'i-lucide-trash-2',
+            onSelect: () => { },
+        },
+    ]" />
 
     <div v-if="currentReport" class="text-center p-1">
         <div class="bg-gray-400 p-1">
@@ -139,62 +135,38 @@ async function exportReport(){
                 <div class="text-left">{{ currentReport.createdAt.toLocaleDateString('de-CH') }}</div>
                 <div class="text-left font-bold">{{ t('report.updateAt') }}</div>
                 <div class="text-left">{{ currentReport.lastModified.toLocaleDateString('de-CH') }}</div>
-            </div>            
+            </div>
         </div>
 
         <div class="flex flex-col justify-center">
             <div v-if="currentReport.complaints.length === 0" class="text-center py-8">
                 <p>{{ t('report.noComplaints') }}</p>
             </div>
-            
-            <Draggable
-                v-else
-                :list="currentReport.complaints as unknown[]"
-                handle=".drag-handle"
-                item-key="id"
-            >
+
+            <Draggable v-else :list="currentReport.complaints as unknown[]" handle=".drag-handle" item-key="id">
                 <template #item="{ index }">
                     <div class="border-2 border-gray-300 rounded-lg my-2">
                         <div class="flex items-stretch align-imddle justify-stretch self-stretch">
                             <div class="bg-gray-100 drag-handle w-[50px]">
-                                <UIcon
-                                    name="i-heroicons-bars-3"
-                                    size="26"
-                                />
+                                <UIcon name="i-heroicons-bars-3" size="26" />
                             </div>
-                            <div class="w-full">
-                                <ComplaintView v-model="currentReport.complaints[index]" @on-save="saveReport" />
-                            </div>
+                            <a class="w-full"
+                                :href="`/notes/${currentReport.id}/complaints/${currentReport.complaints[index].id}`">
+                                <ComplaintView :complaint="currentReport.complaints[index]" />
+                            </a>
                         </div>
-                        <div class="bg-gray-100 w-ful flex items-center justify-center p-2">
-                                <ConfirmButton @confirm="removeComplaint(currentReport.complaints[index].id)">
-                                    <UIcon
-                                        name="i-heroicons-trash"
-                                        size="26"
-                                        class="cursor-pointer text-red-500"
-                                    />
-                                </ConfirmButton>
-                            </div>
                     </div>
                 </template>
             </Draggable>
 
             <div class="flex flex-col gap-2">
-                <div class="flex gap-2 h-20">
-                    <UButton @click="onAddClicked" class="w-full flex items-center justify-center gap-2" icon="i-lucide-package-search">
-                        {{ t('report.addFinding') }}
-                    </UButton>
-                    <UButton @click="onAddClicked" class="w-full flex items-center justify-center gap-2" icon="i-lucide-gavel">
-                        {{ t('report.addAction') }}
-                    </UButton>
-                </div>
-
                 <div class="m-auto w-2/3">
-                    <EmailExport :report="currentReport" :reportService="reportService" />
+                    <EmailExport :report="currentReport" :reportService="reportService" ref="emailExport" />
                 </div>
 
                 <div class="m-auto mb-5 w-2/3">
-                    <UButton @click="exportReport" class="w-full flex items-center justify-center gap-2" icon="i-heroicons-document-text">
+                    <UButton @click="exportReport" class="w-full flex items-center justify-center gap-2"
+                        icon="i-heroicons-document-text">
                         {{ t('report.export') }}
                     </UButton>
                 </div>
@@ -203,16 +175,18 @@ async function exportReport(){
         <AddButton :buttons="[
             {
                 icon: 'i-lucide-gavel',
+                label: t('complaint.action'),
                 onClick: () => onAdd('action'),
             },
             {
                 icon: 'i-lucide-package-search',
+                label: t('complaint.finding'),
                 onClick: () => onAdd('finding'),
             }
-            ]"/>
+        ]" />
     </div>
     <div v-else class="flex justify-center items-center h-screen">
-        <UIcon name="i-heroicons-arrow-path" class="w-10 h-10 animate-spin text-primary" />
+        <UIcon name="i-lucide-refresh-cw" class="w-10 h-10 animate-spin text-primary" />
         <p class="ml-4">{{ t('report.loading') }}</p>
     </div>
 </template>

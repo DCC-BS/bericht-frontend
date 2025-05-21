@@ -11,7 +11,7 @@ export interface IComplaint {
     title: string;
 
     addItem(item: Omit<ComplaintItemDto, "id" | "order">): IComplaintItem;
-    removeItem(index: number): void;
+    removeItem(id: string): void;
 
     toDto(): ComplaintDto;
 
@@ -59,11 +59,8 @@ class Complaint implements IComplaint {
         return complaintItem;
     }
 
-    removeItem(index: number): void {
-        if (index < 0 || index >= this.items.length) {
-            throw new Error("Index out of bounds");
-        }
-        this.items.splice(index, 1);
+    removeItem(id: string): void {
+        this.items = this.items.filter(item => item.id !== id);
     }
 
     toDto(): ComplaintDto {

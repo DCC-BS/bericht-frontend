@@ -10,7 +10,8 @@ export function useReportService() {
 
     const db = new ReportsDB();
     const logger = useLogger();
-    reportService = new ReportService(db, logger);
+    const { t } = useI18n();
+    reportService = new ReportService(db, logger, t);
 
     return reportService;
 }

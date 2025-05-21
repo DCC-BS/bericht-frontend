@@ -1,4 +1,4 @@
-import { type ReportDto } from "~/models/report";
+import type { ReportDto } from "~/models/report";
 import { complaintsDBService } from "./complaints_db";
 import { databaseService, REPORTS_STORE } from "./database_service";
 
@@ -54,6 +54,7 @@ export class ReportsDB {
             complaintIds: report.complaints.map((complaint) => complaint.id),
         }
 
+        // biome-ignore lint/performance/noDelete: <explanation>
         delete internalReport.complaints;
 
         return this.saveInternalReport(internalReport);
