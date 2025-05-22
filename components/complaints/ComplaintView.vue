@@ -7,6 +7,7 @@ import {
 import type { IComplaint } from "~/models/complaint";
 
 interface Props {
+    reportId: string;
     complaint: IComplaint;
 }
 
@@ -23,8 +24,13 @@ function getBlobUrl(image: Blob): string {
 
 <template>
     <div class="pb-10 w-full">
-        <div class="text-2xl font-bold mb-4">
-            {{ t(`complaint.${props.complaint.type}`) }}
+        <div class="flex items-end justify-between p-1 pr-2">
+            <div class="text-2xl font-bold">
+                {{ t(`complaint.${props.complaint.type}`) }}
+            </div>
+            <ULink :to="`/notes/${props.reportId}/complaints/${props.complaint.id}`">
+                <UIcon name="i-lucide-file-pen-line" class="size-6"></UIcon>
+            </ULink>
         </div>
 
         <div v-for="item in props.complaint.items" class="mb-4">

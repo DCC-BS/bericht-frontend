@@ -9,7 +9,7 @@ export class ComplaintItemService {
     constructor(
         private readonly db: ComplaintsItemDB,
         private readonly logger: ILogger,
-    ) {}
+    ) { }
 
     async get(complaintItemId: string): Promise<IComplaintItem> {
         return this.db
@@ -19,7 +19,6 @@ export class ComplaintItemService {
 
     async put(complaintItem: IComplaintItem): Promise<void> {
         const dto = deepToRaw(complaintItem.toDto());
-        console.log("ComplaintItemService.put", dto);
         await this.db.storeItem(dto);
     }
 

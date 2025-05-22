@@ -18,6 +18,7 @@ export interface IComplaint {
     title: string;
 
     addItem(item: ComplaintItemInput): IComplaintItem;
+    updateItem(item: IComplaintItem): void;
     removeItem(id: string): void;
 
     toDto(): ComplaintDto;
@@ -82,6 +83,15 @@ class Complaint implements IComplaint {
         this.items.push(complaintItem);
         this.items = this.items.sort((a, b) => a.order - b.order);
         return complaintItem;
+    }
+
+    updateItem(item: IComplaintItem): void {
+        const index = this.items.findIndex((x) => x.id === item.id);
+        if (index === -1) {
+            throw new Error("Item not found");
+        }
+
+        this.items[index] = item;
     }
 
     removeItem(id: string): void {

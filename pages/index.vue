@@ -75,7 +75,7 @@ async function deleteReport(id: string): Promise<void> {
 
         <!-- Loading state with centered spinner -->
         <div v-else class="flex flex-col items-center justify-center min-h-[50vh]">
-            <UIcon name="i-heroicons-arrow-path" class="w-10 h-10 animate-spin text-primary" />
+            <UIcon name="i-lucide-refresh-ccw" class="w-10 h-10 animate-spin text-primary" />
             <p class="mt-4 text-gray-600">{{ t('home.creatingReport') }}</p>
         </div>
 

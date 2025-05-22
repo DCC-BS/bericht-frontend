@@ -107,7 +107,7 @@ function deleteSelected(): void {
                 <!-- Delete selected button -->
                 <ConfirmButton v-if="selectedCount > 0" @confirm="deleteSelected" class="flex items-center"
                     :aria-label="$t('reportsTable.deleteSelected')">
-                    <UButton color="error" variant="ghost" icon="i-heroicons-trash" size="sm">
+                    <UButton color="error" variant="ghost" icon="i-lucide-trash-2" size="sm">
                         {{ $t('reportsTable.deleteSelected') }}
                     </UButton>
                 </ConfirmButton>
@@ -147,12 +147,12 @@ function deleteSelected(): void {
 
                     <!-- Action buttons -->
                     <div class="flex items-center justify-end space-x-2 pt-1">
-                        <UButton color="primary" variant="ghost" icon="i-heroicons-eye" size="md"
+                        <UButton color="primary" variant="ghost" icon="i-lucide-file-pen-line" size="md"
                             @click="emit('view-report', report.id)" :aria-label="$t('reportsTable.view')" />
 
                         <ConfirmButton @confirm="emit('delete-report', report.id)" class="flex items-center"
                             :aria-label="$t('reportsTable.delete')">
-                            <UButton color="error" variant="ghost" icon="i-heroicons-trash" size="md" />
+                            <UButton color="error" variant="ghost" icon="i-lucide-trash-2" size="md" />
                         </ConfirmButton>
                     </div>
                 </div>

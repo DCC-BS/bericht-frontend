@@ -1,12 +1,5 @@
 <script lang="ts" setup>
-import {
-    useMouse,
-    useMouseInElement,
-    useMousePressed,
-    useSwipe,
-    useVibrate,
-} from "@vueuse/core";
-import RecordingItem from "~/components/complaints/RecordItem.vue";
+import RecordingItem from "~/components/complaints/items/RecordItem.vue";
 import ImageItem from "~/components/complaints/items/ImageItem.vue";
 import TextItem from "~/components/complaints/items/TextItem.vue";
 import type { IComplaintItem } from "~/models/compaint_item";
@@ -18,6 +11,7 @@ import {
 
 // Define the props interface
 interface Props {
+    complaintId: string;
     item: IComplaintItem;
 }
 
@@ -117,23 +111,19 @@ watch(isSwiping, (swiping) => {
                 <ImageItem :item="props.item" />
             </div>
             <div v-else-if="props.item instanceof ComplaintRecording">
-                <RecordingItem :item="props.item" />
+                <RecordingItem :item="props.item" :complaint-id="props.complaintId" />
             </div>
         </UCard>
         <!-- Background that's revealed when swiping -->
         <div class="absolute rounded-lg left-2 top-0 bottom-0 right-2 -z-10 flex items-center justify-between">
             <!-- Left swipe action (delete) -->
             <div class="flex-1 h-full bg-error flex items-center justify-start p-4 rounded-l-lg">
-                <UIcon
-                    name="i-lucide-trash-2"
-                    class="text-white text-xl transition duration-300 ease-in-out"
+                <UIcon name="i-lucide-trash-2" class="text-white text-xl transition duration-300 ease-in-out"
                     :class="{ 'scale-150': isSwipeThresholdReached, 'scale-100': !isSwipeThresholdReached }" />
             </div>
             <!-- Right swipe action (archive) -->
             <div class="flex-1 h-full bg-error flex items-center justify-end p-4 rounded-r-lg">
-                <UIcon
-                    name="i-lucide-trash-2"
-                    class="text-white text-xl transition duration-300 ease-in-out"
+                <UIcon name="i-lucide-trash-2" class="text-white text-xl transition duration-300 ease-in-out"
                     :class="{ 'scale-150': isSwipeThresholdReached, 'scale-100': !isSwipeThresholdReached }" />
             </div>
         </div>

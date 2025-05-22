@@ -22,7 +22,6 @@ export class ComplaintsItemDB {
             "readwrite",
         );
         const store = transaction.objectStore(COMPLAINT_ITEMS_STORE);
-
         const request = store.put(item);
 
         return new Promise((resolve, reject) => {

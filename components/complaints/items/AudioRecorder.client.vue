@@ -56,6 +56,8 @@ onMounted(async () => {
 
     // Add event listener for handling background/foreground state
     document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    startRecording();
 });
 
 onUnmounted(() => {
@@ -305,7 +307,7 @@ async function startRecording(): Promise<void> {
         recordingInterval.value = setInterval(() => {
             recordingTime.value = Math.floor(
                 (Date.now() - recordingStartTime.value) / 1000 +
-                    elapsedTime.value,
+                elapsedTime.value,
             );
         }, 1000);
     } catch (error) {
@@ -347,48 +349,28 @@ function emitAudio(): void {
 </script>
 
 <template>
-    <div class="p-2 max-w-[500px] mx-auto">
-        <div class="flex justify-center gap-2 mb-2">
-            <UButton
-                v-if="!isRecording && !audioBlob"
-                color="primary"
-                icon="i-heroicons-microphone"
-                :disabled="isLoading"
-                @click="startRecording"
-            >
-                {{ t('audio.startRecording') }}
-            </UButton>
-            <UButton
-                v-if="isRecording"
-                color="secondary"
-                icon="i-heroicons-stop"
-                @click="stopRecording"
-            >
-                {{ t('audio.stopRecording') }}
-            </UButton>
-        </div>
-
+    <div class="absolute bottom-0 left-0 right-0 p-2 m-auto">
         <div v-if="isRecording" class="recording-indicator">
             {{ t('audio.recordingInProgress') }}
             <div class="recording-time">{{ formattedRecordingTime }}</div>
             <div class="audio-visualization">
-                <div
-                    v-for="(value, index) in audioVisualization"
-                    :key="index"
-                    class="bar"
-                    :style="{ height: value + '%' }"
-                />
+                <div v-for="(value, index) in audioVisualization" :key="index" class="bar"
+                    :style="{ height: value + '%' }" />
             </div>
+        </div>
+
+        <div class="flex justify-center gap-2 mb-2">
+            <UButton v-if="isRecording" color="secondary" icon="i-lucide-square" @click="stopRecording" size="xl">
+                {{ t('audio.stopRecording') }}
+            </UButton>
         </div>
 
         <div v-if="errorMessage" class="error-message">
             <p>{{ errorMessage }}</p>
-            <ul
-                v-if="
-                    errorMessage.includes(t('audio.errors.noMicrophoneFound')) ||
-                    errorMessage.includes(t('audio.errors.accessDenied'))
-                "
-            >
+            <ul v-if="
+                errorMessage.includes(t('audio.errors.noMicrophoneFound')) ||
+                errorMessage.includes(t('audio.errors.accessDenied'))
+            ">
                 <li>{{ t('audio.errors.troubleshooting.properlyConnected') }}</li>
                 <li>{{ t('audio.errors.troubleshooting.checkPermissions') }}</li>
                 <li>{{ t('audio.errors.troubleshooting.differentBrowser') }}</li>

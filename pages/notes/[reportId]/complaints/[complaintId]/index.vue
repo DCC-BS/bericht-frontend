@@ -36,7 +36,9 @@ const { removeComplaint } = useComplaintService(reportId);
 
 const deleteModalProps = reactive({
     isOpen: false,
-    message: t("complaint.delete", { type: t(`complaint.${currentComplaint.value?.type}`) }),
+    message: t("complaint.delete", {
+        type: t(`complaint.${currentComplaint.value?.type}`),
+    }),
     onSubmit: () => {
         removeComplaint(complaintId).then(() => {
             navigateTo(`/notes/${reportId}`);
@@ -62,7 +64,7 @@ async function onAdd(type: ComplaintItemType): Promise<void> {
     if (!currentComplaint.value) {
         toast.add({
             title: t("complaint.notFound"),
-            icon: "i-heroicons-exclamation-circle",
+            icon: "i-lucide-circle-alert",
             color: "error",
         });
         return;
@@ -82,7 +84,7 @@ async function addItem(): Promise<void> {
     if (!currentComplaint.value || !itemToAdd.value) {
         toast.add({
             title: t("complaint.notFound"),
-            icon: "i-heroicons-exclamation-circle",
+            icon: "i-lucide-circle-alert",
             color: "error",
         });
         return;
@@ -90,9 +92,6 @@ async function addItem(): Promise<void> {
 
     addComplaintItem(itemToAdd.value);
 
-    // const item = currentComplaint.value.addItem(itemToAdd.value);
-    // await complaintItemService.put(item);
-    // await complaintService.put(currentComplaint.value);
     itemToAdd.value = undefined;
     isModalOpen.value = false;
 }
@@ -153,7 +152,8 @@ async function onTextComposed(text: string) {
             icon="i-lucide-x" />
     </div>
     <div v-else-if="currentComplaint">
-        <ComplaintItem v-for="item in currentComplaint.items" :key="item.id" :item="item" @delete="onDelete(item)">
+        <ComplaintItem v-for="item in currentComplaint.items" :key="item.id" :item="item" :complaint-id="complaintId"
+            @delete="onDelete(item)">
         </ComplaintItem>
         <div v-if="currentComplaint.items.length === 0" class="text-center py-8">
             <p>{{ t('complaint.noItems') }}</p>

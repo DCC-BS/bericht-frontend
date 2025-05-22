@@ -3,12 +3,13 @@ import type { ComplaintRecording } from "~/models/compaint_item";
 import type { TranscriptionResponse } from "~/models/transcription_response";
 
 interface Props {
+    complaintId: string;
     item: ComplaintRecording;
 }
 
 const props = defineProps<Props>();
 const { t } = useI18n();
-const complaintItemService = useComplaintItemService();
+const { updateComplaintItem } = useComplaintItemService(props.complaintId);
 const toast = useToast();
 const isSttLoading = ref(false);
 
@@ -36,7 +37,7 @@ async function speechToText(file: Blob) {
     } catch (error) {
         toast.add({
             title: t("speechToText.error"),
-            icon: "i-heroicons-exclamation-circle",
+            icon: "i-lucide-circle-alert",
             color: "error",
         });
         console.error("Error during speech-to-text conversion:", error);
@@ -46,7 +47,7 @@ async function speechToText(file: Blob) {
 }
 
 async function onChange() {
-    complaintItemService.put(props.item);
+    updateComplaintItem(props.item);
 }
 
 const audioUrl = computed(() => {

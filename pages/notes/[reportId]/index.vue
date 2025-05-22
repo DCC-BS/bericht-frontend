@@ -4,11 +4,14 @@ import { createComplaint } from "~/models/complaint";
 import type { EmailExport } from "#components";
 import ComplaintView from "../../../components/complaints/ComplaintView.vue";
 import type { DeleteModalProps } from "~/models/delte_modal_props";
+import { useMagicKeys } from "@vueuse/core";
 
 const route = useRoute();
 const toast = useToast();
 const logger = useLogger();
 const { t } = useI18n();
+
+const { ctrl, e } = useMagicKeys();
 
 const reportId = route.params.reportId;
 const emailExport = ref<InstanceType<typeof EmailExport>>();
@@ -44,6 +47,12 @@ watch(
     { deep: true },
 );
 
+watch([ctrl, e], ([ctrl, e]) => {
+    if (ctrl && e) {
+        exportReport();
+    }
+});
+
 async function onAdd(type: "finding" | "action"): Promise<void> {
     if (!currentReport.value) {
         logger.error("Report not found");
@@ -51,11 +60,7 @@ async function onAdd(type: "finding" | "action"): Promise<void> {
     }
 
     const complaint = createComplaint({ type });
-    // currentReport.value.addComplaint(complaint);
-
     await addComplaint(complaint);
-    // await updateReport(currentReport.value);
-
     navigateTo(`/notes/${currentReport.value.id}/complaints/${complaint.id}`);
 }
 
@@ -89,7 +94,7 @@ async function exportReport() {
     URL.revokeObjectURL(url);
     toast.add({
         title: t("report.exported"),
-        icon: "i-heroicons-check-circle",
+        icon: "i-lucide-circle-check",
         color: "success",
     });
 }
@@ -110,22 +115,13 @@ async function exportReport() {
     <DeleteModal :options="deleteModalProps" />
 
     <div v-if="currentReport" class="text-center p-1">
-        <div class="bg-gray-400 p-1">
+        <div class="p-1">
             <h1 class="text-xl font-bold mb-2">
                 <UInput v-model="currentReport.name" class="w-full" @blur="saveReport"></UInput>
             </h1>
-            <div class="grid grid-cols-2 gap-1">
-                <div class="text-left font-bold">{{ t('report.subtitle1') }}</div>
-                <UInput v-model="currentReport.subtitle1" class="w-full" @blur="saveReport"></UInput>
 
-                <div class="text-left font-bold">{{ t('report.subtitle2') }}</div>
-                <UInput v-model="currentReport.subtitle2" class="w-full" @blur="saveReport"></UInput>
-
-                <div class="text-left font-bold">{{ t('report.createdAt') }}</div>
-                <div class="text-left">{{ currentReport.createdAt.toLocaleDateString('de-CH') }}</div>
-                <div class="text-left font-bold">{{ t('report.updateAt') }}</div>
-                <div class="text-left">{{ currentReport.lastModified.toLocaleDateString('de-CH') }}</div>
-            </div>
+            <UInput v-model="currentReport.subtitle1" class="w-full pb-1" @blur="saveReport" />
+            <UInput v-model="currentReport.subtitle2" class="w-full pb-1" @blur="saveReport" />
         </div>
 
         <div class="flex flex-col justify-center">
@@ -136,31 +132,17 @@ async function exportReport() {
             <Draggable v-else :list="currentReport.complaints as unknown[]" handle=".drag-handle" item-key="id">
                 <template #item="{ index }">
                     <div class="border-2 border-gray-300 rounded-lg my-2">
-                        <div class="flex items-stretch align-imddle justify-stretch self-stretch">
-                            <div class="bg-gray-100 drag-handle w-[50px]">
-                                <UIcon name="i-heroicons-bars-3" size="26" />
+                        <div class="flex items-stretch align-middle justify-stretch self-stretch">
+                            <div class="bg-gray-100 drag-handle w-[50px] pt-2">
+                                <UIcon name="i-lucide-menu" size="26" />
                             </div>
-                            <a class="w-full"
-                                :href="`/notes/${currentReport.id}/complaints/${currentReport.complaints[index].id}`">
-                                <ComplaintView :complaint="currentReport.complaints[index]" />
-                            </a>
+                            <div class="w-full">
+                                <ComplaintView :report-id="reportId" :complaint="currentReport.complaints[index]" />
+                            </div>
                         </div>
                     </div>
                 </template>
             </Draggable>
-
-            <div class="flex flex-col gap-2">
-                <div class="m-auto w-2/3">
-                    <EmailExport :report="currentReport" :reportService="reportService" ref="emailExport" />
-                </div>
-
-                <div class="m-auto mb-5 w-2/3">
-                    <UButton @click="exportReport" class="w-full flex items-center justify-center gap-2"
-                        icon="i-heroicons-document-text">
-                        {{ t('report.export') }}
-                    </UButton>
-                </div>
-            </div>
         </div>
         <AddButton :buttons="[
             {

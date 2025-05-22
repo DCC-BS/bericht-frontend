@@ -20,7 +20,7 @@ async function sendMail() {
     if (!to.value) {
         toast.add({
             title: t("email.validEmail"),
-            icon: "i-heroicons-exclamation-circle",
+            icon: "i-lucide-circle-alert",
             color: "error",
         });
         return;
@@ -32,20 +32,20 @@ async function sendMail() {
 
         toast.add({
             title: t("email.sent"),
-            icon: "i-heroicons-check-circle",
+            icon: "i-lucide-circle-check",
             color: "success",
         });
     } catch (error) {
         if (error instanceof Error) {
             toast.add({
                 title: error.message,
-                icon: "i-heroicons-exclamation-circle",
+                icon: "i-lucide-circle-alert",
                 color: "error",
             });
         } else {
             toast.add({
                 title: t("email.error"),
-                icon: "i-heroicons-exclamation-circle",
+                icon: "i-lucide-circle-alert",
                 color: "error",
             });
         }

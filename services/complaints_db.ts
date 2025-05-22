@@ -27,13 +27,6 @@ export class ComplaintsDB {
     async storeComplaint(complaint: ComplaintDto): Promise<void> {
         const db = await this.getDb();
 
-        // First store all complaint items using the complaint items service
-        const items = await Promise.all(
-            complaint.items.map(async (item) => {
-                return await complaintsItemDBService.storeItem(item);
-            }),
-        );
-
         // Then store the complaint itself
         const transaction = db.transaction([COMPLAINTS_STORE], "readwrite");
         const store = transaction.objectStore(COMPLAINTS_STORE);
@@ -41,7 +34,7 @@ export class ComplaintsDB {
         const internalComplaint = {
             ...complaint,
             items: undefined,
-            itemIds: items.map((item) => item.id),
+            itemIds: complaint.items.map((item) => item.id),
         } as InternalComplaint & { items: undefined };
 
         // biome-ignore lint/performance/noDelete: <explanation>
