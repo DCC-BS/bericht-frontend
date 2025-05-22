@@ -67,11 +67,6 @@ async function deleteReport(id: string): Promise<void> {
     <!-- Responsive container with adjusted padding for mobile -->
     <UContainer :class="['w-full', isMobile ? 'mt-4 px-2' : 'mt-20']">
         <div v-if="!isCreatingReport" class="w-full">
-            <!-- Action button area with responsive styling -->
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold hidden md:block">{{ t('home.title') || 'Reports' }}</h1>
-            </div>
-
             <!-- Reports table component -->
             <ReportsTable :reports="reports" @view-report="openReport" @delete-report="deleteReport" />
         </div>

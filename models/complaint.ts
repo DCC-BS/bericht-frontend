@@ -1,6 +1,10 @@
 import { createComplaintItem, type ComplaintItemDto, type IComplaintItem } from "./compaint_item";
 
+type MakeOptional<T, K extends keyof T> = Partial<Pick<T, K>> & Omit<T, K>;
+
 export type ComplaintType = "finding" | "action";
+export type ComplaintItemInput = MakeOptional<ComplaintItemDto, "id" | "order">;
+
 
 export interface IComplaint {
     readonly id: string;
@@ -10,7 +14,7 @@ export interface IComplaint {
 
     title: string;
 
-    addItem(item: Omit<ComplaintItemDto, "id" | "order">): IComplaintItem;
+    addItem(item: ComplaintItemInput): IComplaintItem;
     removeItem(id: string): void;
 
     toDto(): ComplaintDto;
@@ -41,7 +45,10 @@ class Complaint implements IComplaint {
         this.id = dto.id ?? generateUUID();
         this.type = dto.type ?? "finding";
         this._title = dto.title ?? '';
-        this.items = dto.items?.map(x => createComplaintItem(x)) ?? [];
+        this.items = dto.items
+            ?.map(x => createComplaintItem(x))
+            .sort((a, b) => a.order - b.order
+            ) ?? [];
         this.order = dto.order ?? 0;
     }
 
@@ -53,14 +60,26 @@ class Complaint implements IComplaint {
         this._title = value;
     }
 
-    addItem(item: Omit<ComplaintItemDto, "id" | "order">): IComplaintItem {
-        const complaintItem = createComplaintItem({ ...item, order: this.items.length, id: generateUUID() });
+    addItem(item: ComplaintItemInput): IComplaintItem {
+        const newItem = { ...item, order: this.items.length, id: generateUUID() };
+
+        if (item.id) {
+            newItem.id = item.id;
+        }
+
+        if (item.order !== undefined) {
+            newItem.order = item.order;
+        }
+
+        const complaintItem = createComplaintItem(newItem);
         this.items.push(complaintItem);
+        this.items = this.items.sort((a, b) => a.order - b.order);
         return complaintItem;
     }
 
     removeItem(id: string): void {
-        this.items = this.items.filter(item => item.id !== id);
+        this.items = this.items
+            .filter(item => item.id !== id);
     }
 
     toDto(): ComplaintDto {

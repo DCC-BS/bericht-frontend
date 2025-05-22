@@ -1,19 +1,20 @@
 <script lang="ts" setup>
-import ComplaintItem from '~/components/complaints/ComplaintItem.vue';
+import ComplaintItem from '~/components/complaints/items/ComplaintItem.vue';
 import type { ComplaintItemDto, ComplaintItemType, IComplaintItem } from '~/models/compaint_item';
-import type { IComplaint } from '~/models/complaint';
+
+import CameraCapture from '~/components/complaints/items/CameraCapture.vue';
+import AudioRecorder from '~/components/complaints/items/AudioRecorder.client.vue';
+import TextCompose from '~/components/complaints/items/TextCompose.vue';
 
 
 const route = useRoute();
 const complaintService = useComplaintService();
-const complaintItemService = useComplaintItemService();
 const toast = useToast();
 const { t } = useI18n();
 
 const reportId = route.params.reportId;
 const complaintId = route.params.complaintId;
 
-const currentComplaint = ref<IComplaint>();
 const isModalOpen = ref(false);
 const itemToAdd = ref<Omit<ComplaintItemDto, "id" | "order">>();
 
@@ -24,6 +25,8 @@ if (!reportId || typeof reportId !== 'string') {
 if (!complaintId || typeof complaintId !== 'string') {
     throw new Error('Complaint ID is required');
 }
+
+const { currentComplaint, addComplaintItem, removeComplaintItem } = useComplaintItemService(complaintId);
 
 onMounted(() => {
     complaintService.get(complaintId).then((complaint) => {
@@ -59,19 +62,8 @@ async function onAdd(type: ComplaintItemType): Promise<void> {
     isModalOpen.value = true;
 }
 
-async function onDelete(item: IComplaintItem): Promise<void> {
-    if (!currentComplaint.value) {
-        toast.add({
-            title: t('complaint.notFound'),
-            icon: 'i-heroicons-exclamation-circle',
-            color: 'error',
-        });
-        return;
-    }
-
-    currentComplaint.value.removeItem(item.id);
-    await complaintItemService.delete(item.id);
-    await complaintService.put(currentComplaint.value);
+function onDelete(item: IComplaintItem) {
+    removeComplaintItem(item);
 }
 
 async function addItem(): Promise<void> {
@@ -83,10 +75,12 @@ async function addItem(): Promise<void> {
         });
         return;
     }
-
-    const item = currentComplaint.value.addItem(itemToAdd.value);
-    await complaintItemService.put(item);
-    await complaintService.put(currentComplaint.value);
+    
+    addComplaintItem(itemToAdd.value);
+    
+    // const item = currentComplaint.value.addItem(itemToAdd.value);
+    // await complaintItemService.put(item);
+    // await complaintService.put(currentComplaint.value);
     itemToAdd.value = undefined;
     isModalOpen.value = false;
 }
@@ -117,6 +111,16 @@ async function onRecordingComplete(recording: Blob) {
     await addItem();
 }
 
+async function onTextComposed(text: string) {
+    if (!itemToAdd.value) {
+        isModalOpen.value = false;
+        return;
+    }
+
+    itemToAdd.value.text = text;
+    await addItem();
+}
+
 </script>
 
 <template>
@@ -130,13 +134,7 @@ async function onRecordingComplete(recording: Blob) {
     <div v-if="isModalOpen" class="w-full h-full p-2">
         <CameraCapture v-if="itemToAdd?.type == 'image'" @photo-captured="onPhotoCaptured" />
         <AudioRecorder v-else-if="itemToAdd?.type == 'recording'" @recording-complete="onRecordingComplete" />
-        <div v-else-if="itemToAdd?.type == 'text'" class="flex flex-col gap-2">
-            <UTextarea v-model="itemToAdd.text" class="w-full mt-2" :rows="3">
-            </UTextarea>
-            <UButton @click="addItem" class="m-auto" variant="soft" color="neutral" size="lg" icon="i-lucide-plus"
-                :label="t('complaintItem.addText')" />
-        </div>
-
+        <TextCompose v-else-if="itemToAdd?.type == 'text'" :text="itemToAdd?.text" @text-composed="onTextComposed" />
 
         <UButton class="absolute bottom-2 right-2" @click="closeModal" variant="soft" color="neutral" size="lg"
             icon="i-lucide-x" />

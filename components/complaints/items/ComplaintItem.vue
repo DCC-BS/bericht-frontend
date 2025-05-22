@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import type { IComplaintItem } from '~/models/compaint_item';
 import { ComplaintImage, ComplaintRecording, ComplaintText } from '~/models/compaint_item';
-import ImageItem from '~/components/complaints/ImageItem.vue';
+import ImageItem from '~/components/complaints/items/ImageItem.vue';
 import RecordingItem from '~/components/complaints/RecordItem.vue';
-import TextItem from '~/components/complaints/TextItem.vue';
-import type { UCard } from '#components';
-import { useSwipe, useVibrate } from '@vueuse/core';
+import TextItem from '~/components/complaints/items/TextItem.vue';
+import { useMouse, useMouseInElement, useMousePressed, useSwipe, useVibrate } from '@vueuse/core';
 
 // Define the props interface
 interface Props {
@@ -19,14 +18,18 @@ const emit = defineEmits<{
 
 // Constants
 const SWIPE_THRESHOLD = 100; // Pixels required to trigger action
+const MIN_SWIPE_THRESHOLD = 5; // Minimum swipe threshold for action
 
 // Component state
 const props = defineProps<Props>();
 const cardRef = ref<HTMLElement>();
-const { isSwiping, direction, lengthX } = useSwipe(cardRef);
-const { vibrate } = useVibrate();
+const { isSwiping, direction, lengthX } = useMouseAndTouchSwipe(cardRef);
 const toast = useToast();
 const isRemoving = ref(false);
+
+const isSwipeThresholdReached = computed(() => {
+    return Math.abs(lengthX.value) > SWIPE_THRESHOLD;
+});
 const cardStyle = ref({
     transform: 'none',
     transition: 'transform 0.3s ease'
@@ -37,15 +40,11 @@ const cardStyle = ref({
  */
 function deleteItem(): void {
     isRemoving.value = true;
-    vibrate(200);
+
+    console.log('Deleting item:', props.item);
+
     // Emit the delete event to parent
     emit('delete', props.item);
-
-    toast.add({
-        title: 'Item deleted',
-        icon: 'i-lucide-trash-2',
-        color: 'error',
-    });
 }
 
 /**
@@ -60,10 +59,15 @@ function resetCardPosition(): void {
 
 // Watch swipe movement and update card position
 watch(lengthX, (newX) => {
-    if (isSwiping.value) {
+    if (isSwiping.value && Math.abs(newX) > MIN_SWIPE_THRESHOLD) {
         cardStyle.value = {
             transform: `translateX(${-newX}px)`,
             transition: 'none'
+        };
+    } else {
+        cardStyle.value = {
+            transform: 'none',
+            transition: 'transform 0.3s ease'
         };
     }
 });
@@ -75,6 +79,8 @@ watch(isSwiping, (swiping) => {
         const absX = Math.abs(lengthX.value);
 
         if (absX > SWIPE_THRESHOLD) {
+            console.log('Threshold reached:', absX, direction.value);
+
             // Threshold reached
             if (direction.value === 'left') {
                 // Delete action
@@ -109,11 +115,17 @@ watch(isSwiping, (swiping) => {
         <div class="absolute rounded-lg left-2 top-0 bottom-0 right-2 -z-10 flex items-center justify-between">
             <!-- Left swipe action (delete) -->
             <div class="flex-1 h-full bg-error flex items-center justify-start p-4 rounded-l-lg">
-                <UIcon name="i-lucide-trash-2" class="text-white text-xl" />
+                <UIcon
+                    name="i-lucide-trash-2"
+                    class="text-white text-xl transition duration-300 ease-in-out"
+                    :class="{ 'scale-150': isSwipeThresholdReached, 'scale-100': !isSwipeThresholdReached }" />
             </div>
             <!-- Right swipe action (archive) -->
             <div class="flex-1 h-full bg-error flex items-center justify-end p-4 rounded-r-lg">
-                <UIcon name="i-lucide-trash-2" class="text-white text-xl" />
+                <UIcon
+                    name="i-lucide-trash-2"
+                    class="text-white text-xl transition duration-300 ease-in-out"
+                    :class="{ 'scale-150': isSwipeThresholdReached, 'scale-100': !isSwipeThresholdReached }" />
             </div>
         </div>
     </div>

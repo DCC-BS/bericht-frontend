@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { IReport } from '~/models/report';
-import ComplaintView from '../../../components/ComplaintView.vue';
+import ComplaintView from '../../../components/complaints/ComplaintView.vue';
 import { createComplaint } from '~/models/complaint';
 import Draggable from 'vuedraggable';
 import type { EmailExport } from '#components';
