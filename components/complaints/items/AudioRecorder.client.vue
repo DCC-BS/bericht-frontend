@@ -165,14 +165,14 @@ async function checkMicrophoneAvailability(): Promise<boolean> {
         );
 
         if (!hasAudioInput) {
-            errorMessage.value = t('audio.errors.noMicrophoneDetected');
+            errorMessage.value = t("audio.errors.noMicrophoneDetected");
             return false;
         }
 
         return true;
     } catch (error) {
         logger.error("Error checking microphone availability:", error);
-        errorMessage.value = t('audio.errors.notCompatible');
+        errorMessage.value = t("audio.errors.notCompatible");
         return false;
     }
 }
@@ -189,26 +189,26 @@ function handleMicrophoneError(error: Error): void {
         error.name === "NotFoundError" ||
         error.name === "DevicesNotFoundError"
     ) {
-        errorMessage.value = t('audio.errors.noMicrophoneFound');
+        errorMessage.value = t("audio.errors.noMicrophoneFound");
     } else if (
         error.name === "NotAllowedError" ||
         error.name === "PermissionDeniedError"
     ) {
-        errorMessage.value = t('audio.errors.accessDenied');
+        errorMessage.value = t("audio.errors.accessDenied");
     } else if (
         error.name === "NotReadableError" ||
         error.name === "TrackStartError"
     ) {
-        errorMessage.value = t('audio.errors.inUse');
+        errorMessage.value = t("audio.errors.inUse");
     } else if (
         error.name === "OverconstrainedError" ||
         error.name === "ConstraintNotSatisfiedError"
     ) {
-        errorMessage.value = t('audio.errors.constraints');
+        errorMessage.value = t("audio.errors.constraints");
     } else if (error.name === "TypeError") {
-        errorMessage.value = t('audio.errors.notCompatible');
+        errorMessage.value = t("audio.errors.notCompatible");
     } else {
-        errorMessage.value = `${t('audio.errors.notCompatible')}: ${error.message}`;
+        errorMessage.value = `${t("audio.errors.notCompatible")}: ${error.message}`;
     }
 
     emit("recording-error", error);

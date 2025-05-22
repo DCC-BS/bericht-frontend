@@ -1,11 +1,11 @@
-import { type ComplaintDto } from "~/models/complaint";
 import type { ComplaintItemDto } from "~/models/compaint_item";
+import type { ComplaintDto } from "~/models/complaint";
 import { complaintsItemDBService } from "./complaints_item_db";
-import { databaseService, COMPLAINTS_STORE } from "./database_service";
+import { COMPLAINTS_STORE, databaseService } from "./database_service";
 
 type InternalComplaint = Omit<ComplaintDto, "items"> & {
     itemIds: string[];
-}
+};
 
 /**
  * Service for managing complaints and memos in IndexedDB
@@ -31,19 +31,20 @@ export class ComplaintsDB {
         const items = await Promise.all(
             complaint.items.map(async (item) => {
                 return await complaintsItemDBService.storeItem(item);
-            })
+            }),
         );
 
         // Then store the complaint itself
-        const transaction = db.transaction([COMPLAINTS_STORE], 'readwrite');
+        const transaction = db.transaction([COMPLAINTS_STORE], "readwrite");
         const store = transaction.objectStore(COMPLAINTS_STORE);
 
         const internalComplaint = {
             ...complaint,
             items: undefined,
-            itemIds: items.map(item => item.id),
+            itemIds: items.map((item) => item.id),
         } as InternalComplaint & { items: undefined };
 
+        // biome-ignore lint/performance/noDelete: <explanation>
         delete internalComplaint.items;
 
         const request = store.put(internalComplaint);
@@ -55,7 +56,7 @@ export class ComplaintsDB {
 
             request.onerror = (event) => {
                 reject(
-                    `Failed to store complaint: ${(event.target as IDBOpenDBRequest).error}`
+                    `Failed to store complaint: ${(event.target as IDBOpenDBRequest).error}`,
                 );
             };
         });
@@ -69,32 +70,38 @@ export class ComplaintsDB {
     async getComplaint(id: string): Promise<ComplaintDto> {
         const db = await this.getDb();
 
-        const transaction = db.transaction([COMPLAINTS_STORE], 'readonly');
+        const transaction = db.transaction([COMPLAINTS_STORE], "readonly");
         const store = transaction.objectStore(COMPLAINTS_STORE);
 
         const request = store.get(id);
 
-        const internalComplaints: InternalComplaint = await new Promise((resolve, reject) => {
-            request.onsuccess = () => {
-                resolve(request.result);
-            };
+        const internalComplaints: InternalComplaint = await new Promise(
+            (resolve, reject) => {
+                request.onsuccess = () => {
+                    resolve(request.result);
+                };
 
-            request.onerror = (event) => {
-                reject(
-                    `Failed to get complaint: ${(event.target as IDBOpenDBRequest).error}`
-                );
-            };
-        });
+                request.onerror = (event) => {
+                    reject(
+                        `Failed to get complaint: ${(event.target as IDBOpenDBRequest).error}`,
+                    );
+                };
+            },
+        );
 
-        const items = await Promise.all(internalComplaints.itemIds.map((id) =>
-            complaintsItemDBService.getItem(id)
-        ));
+        const items = await Promise.all(
+            internalComplaints.itemIds.map((id) =>
+                complaintsItemDBService.getItem(id),
+            ),
+        );
 
         return {
             ...internalComplaints,
-            items: items.filter((item) => item !== undefined) as ComplaintItemDto[],
+            items: items.filter(
+                (item) => item !== undefined,
+            ) as ComplaintItemDto[],
         };
-    }    /**
+    } /**
      * Delete a complaint by its ID along with all its related items
      * @param id The ID of the complaint to delete
      */
@@ -108,12 +115,14 @@ export class ComplaintsDB {
         // Delete all related items
         await Promise.all([
             // Delete all complaint items
-            ...complaint.items.map(item => complaintsItemDBService.deleteItem(item.id))
+            ...complaint.items.map((item) =>
+                complaintsItemDBService.deleteItem(item.id),
+            ),
         ]);
 
         // Delete the complaint itself
         const db = await this.getDb();
-        const transaction = db.transaction([COMPLAINTS_STORE], 'readwrite');
+        const transaction = db.transaction([COMPLAINTS_STORE], "readwrite");
         const store = transaction.objectStore(COMPLAINTS_STORE);
 
         const request = store.delete(id);
@@ -125,7 +134,7 @@ export class ComplaintsDB {
 
             request.onerror = (event) => {
                 reject(
-                    `Failed to delete complaint: ${(event.target as IDBOpenDBRequest).error}`
+                    `Failed to delete complaint: ${(event.target as IDBOpenDBRequest).error}`,
                 );
             };
         });

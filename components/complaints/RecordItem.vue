@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { ComplaintRecording } from '~/models/compaint_item';
-import type { TranscriptionResponse } from '~/models/transcription_response';
+import type { ComplaintRecording } from "~/models/compaint_item";
+import type { TranscriptionResponse } from "~/models/transcription_response";
 
 interface Props {
     item: ComplaintRecording;
@@ -13,8 +13,11 @@ const toast = useToast();
 const isSttLoading = ref(false);
 
 onMounted(() => {
-    if (props.item?.audio && (!props.item.text || props.item.text.length === 0)) {
-        speechToText(props.item.audio)
+    if (
+        props.item?.audio &&
+        (!props.item.text || props.item.text.length === 0)
+    ) {
+        speechToText(props.item.audio);
     }
 });
 
@@ -22,21 +25,21 @@ async function speechToText(file: Blob) {
     isSttLoading.value = true;
     try {
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append("file", file);
 
-        const response = await $fetch<TranscriptionResponse>('/api/stt', {
+        const response = await $fetch<TranscriptionResponse>("/api/stt", {
             body: formData,
-            method: 'POST',
+            method: "POST",
         });
 
         props.item.text = response.text;
     } catch (error) {
         toast.add({
-            title: t('speechToText.error'),
-            icon: 'i-heroicons-exclamation-circle',
-            color: 'error',
+            title: t("speechToText.error"),
+            icon: "i-heroicons-exclamation-circle",
+            color: "error",
         });
-        console.error('Error during speech-to-text conversion:', error);
+        console.error("Error during speech-to-text conversion:", error);
     }
 
     isSttLoading.value = false;
@@ -50,9 +53,8 @@ const audioUrl = computed(() => {
     if (props.item?.audio) {
         return URL.createObjectURL(props.item.audio);
     }
-    return '';
+    return "";
 });
-
 </script>
 
 <template>

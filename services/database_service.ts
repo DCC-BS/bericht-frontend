@@ -4,15 +4,15 @@
  */
 
 // Database constants
-const DB_NAME = 'ReportsDatabase';
+const DB_NAME = "ReportsDatabase";
 // Centralized version control - increment this when changing the database schema
 const DB_VERSION = 2; // Current version
 
 // Store names
-const REPORTS_STORE = 'reports';
-const COMPLAINTS_STORE = 'complaints';
-const COMPLAINT_ITEMS_STORE = 'complaint_items';
-const IMAGES_STORE = 'complaint_images';
+const REPORTS_STORE = "reports";
+const COMPLAINTS_STORE = "complaints";
+const COMPLAINT_ITEMS_STORE = "complaint_items";
+const IMAGES_STORE = "complaint_images";
 
 /**
  * Database service for managing the shared IndexedDB instance
@@ -25,7 +25,7 @@ export class DatabaseService {
     /**
      * Private constructor to enforce the singleton pattern
      */
-    private constructor() { }
+    private constructor() {}
 
     /**
      * Get the singleton instance of the database service
@@ -62,8 +62,10 @@ export class DatabaseService {
     private async initialize(): Promise<IDBDatabase> {
         return new Promise<IDBDatabase>((resolve, reject) => {
             // Check if IndexedDB is available (for SSR compatibility)
-            if (typeof indexedDB === 'undefined') {
-                reject(new Error('IndexedDB is not available in this environment'));
+            if (typeof indexedDB === "undefined") {
+                reject(
+                    new Error("IndexedDB is not available in this environment"),
+                );
                 return;
             }
 
@@ -76,42 +78,56 @@ export class DatabaseService {
                 const oldVersion = event.oldVersion;
                 const newVersion = event.newVersion || DB_VERSION;
 
-                console.log(`Upgrading database from version ${oldVersion} to ${newVersion}...`);
+                console.log(
+                    `Upgrading database from version ${oldVersion} to ${newVersion}...`,
+                );
 
                 // Create reports store if it doesn't exist
                 if (!db.objectStoreNames.contains(REPORTS_STORE)) {
                     const reportsStore = db.createObjectStore(REPORTS_STORE, {
-                        keyPath: 'id',
+                        keyPath: "id",
                         autoIncrement: true,
                     });
-                    reportsStore.createIndex('id', 'id', { unique: true });
+                    reportsStore.createIndex("id", "id", { unique: true });
                 }
 
                 // Create complaints store if it doesn't exist
                 if (!db.objectStoreNames.contains(COMPLAINTS_STORE)) {
-                    const complaintsStore = db.createObjectStore(COMPLAINTS_STORE, {
-                        keyPath: 'id'
+                    const complaintsStore = db.createObjectStore(
+                        COMPLAINTS_STORE,
+                        {
+                            keyPath: "id",
+                        },
+                    );
+                    complaintsStore.createIndex("id", "id", { unique: true });
+                    complaintsStore.createIndex("type", "type", {
+                        unique: false,
                     });
-                    complaintsStore.createIndex('id', 'id', { unique: true });
-                    complaintsStore.createIndex('type', 'type', { unique: false });
                 }
 
                 // Create complaint items store if it doesn't exist
                 if (!db.objectStoreNames.contains(COMPLAINT_ITEMS_STORE)) {
-                    const complaintItemsStore = db.createObjectStore(COMPLAINT_ITEMS_STORE, {
-                        keyPath: 'id'
+                    const complaintItemsStore = db.createObjectStore(
+                        COMPLAINT_ITEMS_STORE,
+                        {
+                            keyPath: "id",
+                        },
+                    );
+                    complaintItemsStore.createIndex("id", "id", {
+                        unique: true,
                     });
-                    complaintItemsStore.createIndex('id', 'id', { unique: true });
                 }
 
                 // Create images store if it doesn't exist
                 if (!db.objectStoreNames.contains(IMAGES_STORE)) {
                     const imagesStore = db.createObjectStore(IMAGES_STORE, {
-                        keyPath: 'id',
+                        keyPath: "id",
                         autoIncrement: true,
                     });
-                    imagesStore.createIndex('reportId', 'reportId', { unique: false });
-                    imagesStore.createIndex('id', 'id', { unique: true });
+                    imagesStore.createIndex("reportId", "reportId", {
+                        unique: false,
+                    });
+                    imagesStore.createIndex("id", "id", { unique: true });
                 }
             };
 
@@ -120,7 +136,9 @@ export class DatabaseService {
                 this.db = (event.target as IDBOpenDBRequest).result;
 
                 // Log successful database connection
-                console.log(`Successfully connected to database ${DB_NAME} v${DB_VERSION}`);
+                console.log(
+                    `Successfully connected to database ${DB_NAME} v${DB_VERSION}`,
+                );
 
                 // Resolve with the database instance
                 resolve(this.db);
@@ -129,7 +147,6 @@ export class DatabaseService {
             // Error handler
             request.onerror = (event) => {
                 const error = (event.target as IDBOpenDBRequest).error;
-                console.error(`Database initialization failed:`, error);
                 reject(`Database initialization failed: ${error}`);
             };
         });
@@ -142,15 +159,15 @@ export class DatabaseService {
      */
     async ensureDatabaseExists(): Promise<boolean> {
         // Check if indexedDB is available (will not be available in SSR)
-        if (typeof indexedDB === 'undefined') {
-            throw new Error('IndexedDB is not available in this environment');
+        if (typeof indexedDB === "undefined") {
+            throw new Error("IndexedDB is not available in this environment");
         }
 
         try {
             await this.getDatabase();
             return true;
         } catch (error) {
-            console.error('Failed to ensure database exists:', error);
+            console.error("Failed to ensure database exists:", error);
             throw error;
         }
     }
@@ -160,4 +177,11 @@ export class DatabaseService {
 export const databaseService = DatabaseService.getInstance();
 
 // Export constants for other services to use
-export { DB_NAME, DB_VERSION, REPORTS_STORE, COMPLAINTS_STORE, COMPLAINT_ITEMS_STORE, IMAGES_STORE };
+export {
+    DB_NAME,
+    DB_VERSION,
+    REPORTS_STORE,
+    COMPLAINTS_STORE,
+    COMPLAINT_ITEMS_STORE,
+    IMAGES_STORE,
+};

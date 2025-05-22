@@ -1,11 +1,14 @@
 <script lang="ts" setup>
-import ComplaintItem from '~/components/complaints/items/ComplaintItem.vue';
-import type { ComplaintItemDto, ComplaintItemType, IComplaintItem } from '~/models/compaint_item';
+import ComplaintItem from "~/components/complaints/items/ComplaintItem.vue";
+import type {
+    ComplaintItemDto,
+    ComplaintItemType,
+    IComplaintItem,
+} from "~/models/compaint_item";
 
-import CameraCapture from '~/components/complaints/items/CameraCapture.vue';
-import AudioRecorder from '~/components/complaints/items/AudioRecorder.client.vue';
-import TextCompose from '~/components/complaints/items/TextCompose.vue';
-
+import AudioRecorder from "~/components/complaints/items/AudioRecorder.client.vue";
+import CameraCapture from "~/components/complaints/items/CameraCapture.vue";
+import TextCompose from "~/components/complaints/items/TextCompose.vue";
 
 const route = useRoute();
 const complaintService = useComplaintService();
@@ -18,23 +21,24 @@ const complaintId = route.params.complaintId;
 const isModalOpen = ref(false);
 const itemToAdd = ref<Omit<ComplaintItemDto, "id" | "order">>();
 
-if (!reportId || typeof reportId !== 'string') {
-    throw new Error('Report ID is required');
+if (!reportId || typeof reportId !== "string") {
+    throw new Error("Report ID is required");
 }
 
-if (!complaintId || typeof complaintId !== 'string') {
-    throw new Error('Complaint ID is required');
+if (!complaintId || typeof complaintId !== "string") {
+    throw new Error("Complaint ID is required");
 }
 
-const { currentComplaint, addComplaintItem, removeComplaintItem } = useComplaintItemService(complaintId);
+const { currentComplaint, addComplaintItem, removeComplaintItem } =
+    useComplaintItemService(complaintId);
 
 onMounted(() => {
     complaintService.get(complaintId).then((complaint) => {
         if (!complaint) {
             toast.add({
-                title: t('complaint.notFound'),
-                icon: 'i-heroicons-exclamation-circle',
-                color: 'error',
+                title: t("complaint.notFound"),
+                icon: "i-heroicons-exclamation-circle",
+                color: "error",
             });
         }
         currentComplaint.value = complaint;
@@ -49,9 +53,9 @@ function closeModal(): void {
 async function onAdd(type: ComplaintItemType): Promise<void> {
     if (!currentComplaint.value) {
         toast.add({
-            title: t('complaint.notFound'),
-            icon: 'i-heroicons-exclamation-circle',
-            color: 'error',
+            title: t("complaint.notFound"),
+            icon: "i-heroicons-exclamation-circle",
+            color: "error",
         });
         return;
     }
@@ -69,15 +73,15 @@ function onDelete(item: IComplaintItem) {
 async function addItem(): Promise<void> {
     if (!currentComplaint.value || !itemToAdd.value) {
         toast.add({
-            title: t('complaint.notFound'),
-            icon: 'i-heroicons-exclamation-circle',
-            color: 'error',
+            title: t("complaint.notFound"),
+            icon: "i-heroicons-exclamation-circle",
+            color: "error",
         });
         return;
     }
-    
+
     addComplaintItem(itemToAdd.value);
-    
+
     // const item = currentComplaint.value.addItem(itemToAdd.value);
     // await complaintItemService.put(item);
     // await complaintService.put(currentComplaint.value);
@@ -95,7 +99,7 @@ async function onPhotoCaptured(photo: Blob) {
     itemToAdd.value.image = {
         image: photo,
         id: generateUUID(),
-    }
+    };
 
     await addItem();
 }
@@ -120,7 +124,6 @@ async function onTextComposed(text: string) {
     itemToAdd.value.text = text;
     await addItem();
 }
-
 </script>
 
 <template>

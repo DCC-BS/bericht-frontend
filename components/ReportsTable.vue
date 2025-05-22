@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { IReport } from '~/models/report';
-import ConfirmButton from '~/components/ConfirmButton.vue';
+import ConfirmButton from "~/components/ConfirmButton.vue";
+import type { IReport } from "~/models/report";
 
 interface InputProps {
     reports: IReport[];
@@ -10,8 +10,8 @@ const props = defineProps<InputProps>();
 
 // Define emit events for CRUD operations
 const emit = defineEmits<{
-    'view-report': [id: string];
-    'delete-report': [id: string];
+    "view-report": [id: string];
+    "delete-report": [id: string];
 }>();
 
 // Selection tracking
@@ -22,17 +22,23 @@ const { t } = useI18n();
 
 // Computed property for sorted reports
 const sortedReports = computed(() => {
-    return [...props.reports].sort((a, b) =>
-        new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime()
+    return [...props.reports].sort(
+        (a, b) =>
+            new Date(b.lastModified).getTime() -
+            new Date(a.lastModified).getTime(),
     );
 });
 
 // Computed property for selected reports count
-const selectedCount = computed(() => Object.values(selectedReports.value).filter(Boolean).length);
+const selectedCount = computed(
+    () => Object.values(selectedReports.value).filter(Boolean).length,
+);
 
 // Computed property for all reports being selected
 const allSelected = computed(() => {
-    return props.reports.length > 0 && selectedCount.value === props.reports.length;
+    return (
+        props.reports.length > 0 && selectedCount.value === props.reports.length
+    );
 });
 
 /**
@@ -42,10 +48,13 @@ function toggleSelectAll(): void {
     if (allSelected.value) {
         selectedReports.value = {};
     } else {
-        selectedReports.value = props.reports.reduce((acc, report, index) => {
-            acc[index] = true;
-            return acc;
-        }, {} as Record<string, boolean>);
+        selectedReports.value = props.reports.reduce(
+            (acc, report, index) => {
+                acc[index] = true;
+                return acc;
+            },
+            {} as Record<string, boolean>,
+        );
     }
 }
 
@@ -53,11 +62,11 @@ function toggleSelectAll(): void {
  * Format date to a readable string
  */
 function formatDate(date: Date | unknown): string {
-    return new Date(date as Date).toLocaleString('de-ch', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour12: false
+    return new Date(date as Date).toLocaleString("de-ch", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour12: false,
     });
 }
 
@@ -76,7 +85,7 @@ function deleteSelected(): void {
 
     for (const idx of rowIdx) {
         const report = props.reports[Number(idx)];
-        emit('delete-report', report.id);
+        emit("delete-report", report.id);
     }
 
     // Clear selections after delete

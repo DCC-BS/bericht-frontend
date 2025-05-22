@@ -21,14 +21,10 @@ export default defineEventHandler(async (event) => {
     formData.append("email_body", body);
 
     // Attempt to make the API request
-    const response = await verboseFetch(
-        `${config.public.apiUrl}/send`,
-        event,
-        {
-            method: "POST",
-            body: formData,
-        },
-    );
+    const response = await verboseFetch(`${config.public.apiUrl}/send`, event, {
+        method: "POST",
+        body: formData,
+    });
 
     return response;
 });

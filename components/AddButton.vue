@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 type ButtonProps = {
     icon: string;
     label?: string;

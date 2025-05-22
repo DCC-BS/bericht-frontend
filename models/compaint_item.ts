@@ -13,11 +13,30 @@ export interface IComplaintItem {
 export function createComplaintItem(dto: ComplaintItemDto): IComplaintItem {
     switch (dto.type) {
         case "recording":
-            return new ComplaintRecording(dto.id, dto.order, dto.audio!, dto.text ?? "");
+            if (!dto.audio) {
+                throw new Error(
+                    "Audio is required for recording complaint item",
+                );
+            }
+
+            return new ComplaintRecording(
+                dto.id,
+                dto.order,
+                dto.audio,
+                dto.text ?? "",
+            );
         case "text":
-            return new ComplaintText(dto.id, dto.order, dto.text!);
+            if (!dto.text) {
+                throw new Error("Text is required for text complaint item");
+            }
+
+            return new ComplaintText(dto.id, dto.order, dto.text);
         case "image":
-            return new ComplaintImage(dto.id, dto.order, dto.image!);
+            if (!dto.image) {
+                throw new Error("Image is required for image complaint item");
+            }
+
+            return new ComplaintImage(dto.id, dto.order, dto.image);
         default:
             throw new Error("Unknown complaint item type");
     }
@@ -29,7 +48,7 @@ export class ComplaintText implements IComplaintItem {
     constructor(
         public readonly id: string,
         public order: number,
-        public text: string
+        public text: string,
     ) {
         this.$type = "text";
     }
@@ -39,7 +58,7 @@ export class ComplaintText implements IComplaintItem {
             id: this.id,
             order: this.order,
             type: this.$type,
-            text: this.text
+            text: this.text,
         };
     }
 }
@@ -51,7 +70,7 @@ export class ComplaintRecording implements IComplaintItem {
         public readonly id: string,
         public order: number,
         public audio: Blob,
-        public text: string
+        public text: string,
     ) {
         this.$type = "recording";
     }
@@ -62,7 +81,7 @@ export class ComplaintRecording implements IComplaintItem {
             order: this.order,
             type: this.$type,
             audio: this.audio,
-            text: this.text
+            text: this.text,
         };
     }
 }
@@ -73,7 +92,7 @@ export class ComplaintImage implements IComplaintItem {
     constructor(
         public readonly id: string,
         public order: number,
-        public image: IPicture
+        public image: IPicture,
     ) {
         this.$type = "image";
     }
@@ -83,7 +102,7 @@ export class ComplaintImage implements IComplaintItem {
             id: this.id,
             order: this.order,
             type: this.$type,
-            image: this.image
+            image: this.image,
         };
     }
 }
@@ -95,4 +114,4 @@ export type ComplaintItemDto = {
     text?: string;
     audio?: Blob;
     image?: PictureDto;
-}
+};

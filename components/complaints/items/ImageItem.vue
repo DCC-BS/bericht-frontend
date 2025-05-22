@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import type { ComplaintImage } from '~/models/compaint_item';
-
+import type { ComplaintImage } from "~/models/compaint_item";
 
 interface Props {
     item: ComplaintImage;
@@ -12,7 +11,7 @@ const imageUrl = computed(() => {
     if (props.item?.image) {
         return URL.createObjectURL(props.item.image.image);
     }
-    return '';
+    return "";
 });
 </script>
 

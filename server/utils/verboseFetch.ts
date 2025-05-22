@@ -1,7 +1,7 @@
-import type { NitroFetchOptions, NitroFetchRequest } from 'nitropack';
-import type { H3Event } from 'h3';
-import { createError } from 'h3'; // Import createError from h3
-export type Methods = 'get' | 'post' | 'put' | 'delete' | 'patch';
+import type { H3Event } from "h3";
+import { createError } from "h3"; // Import createError from h3
+import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
+export type Methods = "get" | "post" | "put" | "delete" | "patch";
 
 // Update the generic type parameters to handle the response type correctly
 export async function verboseFetch<T>(
@@ -31,7 +31,7 @@ export async function verboseFetch<T>(
         // Create a context object with all available error information
         const errorContext = {
             url,
-            method: init?.method ?? 'GET',
+            method: init?.method ?? "GET",
             errorMessage: fetchError.message,
             status: fetchError.response?.status,
             headers: fetchError.response?.headers
@@ -41,12 +41,12 @@ export async function verboseFetch<T>(
         };
 
         // Log all error details in a single structured entry
-        logger.error('API request failed', errorContext);
+        logger.error("API request failed", errorContext);
 
         // Re-throw the error to be handled by Nuxt's error system
         throw createError({
             statusCode: fetchError.response?.status ?? 500,
-            statusMessage: 'Transcription request failed',
+            statusMessage: "Transcription request failed",
             data: fetchError.data,
         });
     }

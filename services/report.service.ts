@@ -1,6 +1,6 @@
 import type { ILogger } from "@dcc-bs/logger.bs.js";
-import type { ReportsDB } from "./reports_db";
 import { type IReport, createReport } from "~/models/report";
+import type { ReportsDB } from "./reports_db";
 
 export class ReportService {
     constructor(

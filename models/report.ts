@@ -1,4 +1,8 @@
-import { createComplaint, type ComplaintDto, type IComplaint } from "./complaint";
+import {
+    type ComplaintDto,
+    type IComplaint,
+    createComplaint,
+} from "./complaint";
 
 export interface IReport {
     readonly id: string;
@@ -25,7 +29,7 @@ export type ReportDto = {
     createdAt: Date;
     lastModified: Date;
     complaints: ComplaintDto[];
-}
+};
 
 export function createReport(dto: Partial<ReportDto>): IReport {
     return new Report(dto);
@@ -44,11 +48,12 @@ class Report implements IReport {
     constructor(dto: Partial<ReportDto>) {
         this.id = dto.id ?? generateUUID();
         this.createdAt = dto.createdAt ?? new Date();
-        this.subtitle1 = dto.subtitle1 ?? '';
-        this.subtitle2 = dto.subtitle2 ?? '';
-        this._name = dto.name ?? `New Report ${this.createdAt.toLocaleString()}`;
+        this.subtitle1 = dto.subtitle1 ?? "";
+        this.subtitle2 = dto.subtitle2 ?? "";
+        this._name =
+            dto.name ?? `New Report ${this.createdAt.toLocaleString()}`;
         this.lastModified = dto.lastModified ?? new Date();
-        this.complaints = dto.complaints?.map(c => createComplaint(c)) ?? [];
+        this.complaints = dto.complaints?.map((c) => createComplaint(c)) ?? [];
     }
 
     get name(): string {

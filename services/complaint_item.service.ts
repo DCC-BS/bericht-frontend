@@ -1,9 +1,9 @@
 import type { ILogger } from "@dcc-bs/logger.bs.js";
-import type { ComplaintsItemDB } from "./complaints_item_db";
 import {
-    createComplaintItem,
     type IComplaintItem,
+    createComplaintItem,
 } from "~/models/compaint_item";
+import type { ComplaintsItemDB } from "./complaints_item_db";
 
 export class ComplaintItemService {
     constructor(

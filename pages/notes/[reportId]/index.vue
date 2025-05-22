@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import type { IReport } from '~/models/report';
-import ComplaintView from '../../../components/complaints/ComplaintView.vue';
-import { createComplaint } from '~/models/complaint';
-import Draggable from 'vuedraggable';
-import type { EmailExport } from '#components';
+import Draggable from "vuedraggable";
+import { createComplaint } from "~/models/complaint";
+import type { IReport } from "~/models/report";
+import type { EmailExport } from "#components";
+import ComplaintView from "../../../components/complaints/ComplaintView.vue";
 
 const route = useRoute();
 const toast = useToast();
@@ -16,35 +16,39 @@ const reportId = route.params.reportId;
 const currentReport = ref<IReport>();
 const emailExport = ref<InstanceType<typeof EmailExport>>();
 
-if (!reportId || typeof reportId !== 'string') {
-    throw new Error('Report ID is required');
+if (!reportId || typeof reportId !== "string") {
+    throw new Error("Report ID is required");
 }
 
 onMounted(() => {
     reportService.getReport(reportId).then((report) => {
         if (!report) {
             toast.add({
-                title: t('report.notFound'),
-                icon: 'i-heroicons-exclamation-circle',
-                color: 'error',
+                title: t("report.notFound"),
+                icon: "i-heroicons-exclamation-circle",
+                color: "error",
             });
         }
 
-        console.log('Report:', report);
+        console.log("Report:", report);
 
         currentReport.value = report;
     });
 });
 
-watch(currentReport, (newValue) => {
-    if (newValue) {
-        reportService.updateReport(newValue);
-    }
-}, { deep: true });
+watch(
+    currentReport,
+    (newValue) => {
+        if (newValue) {
+            reportService.updateReport(newValue);
+        }
+    },
+    { deep: true },
+);
 
 async function onAdd(type: "finding" | "action"): Promise<void> {
     if (!currentReport.value) {
-        logger.error('Report not found');
+        logger.error("Report not found");
         return;
     }
 
@@ -59,7 +63,7 @@ async function onAdd(type: "finding" | "action"): Promise<void> {
 
 function onAddClicked(): void {
     if (!currentReport.value) {
-        logger.error('Report not found');
+        logger.error("Report not found");
         return;
     }
 
@@ -68,21 +72,21 @@ function onAddClicked(): void {
 
 function saveReport(): void {
     if (!currentReport.value) {
-        logger.error('Report not found');
+        logger.error("Report not found");
         return;
     }
 
     reportService.updateReport(currentReport.value);
     toast.add({
-        title: t('report.saved'),
-        icon: 'i-heroicons-check-circle',
-        color: 'success',
+        title: t("report.saved"),
+        icon: "i-heroicons-check-circle",
+        color: "success",
     });
 }
 
 async function exportReport() {
     if (!currentReport.value) {
-        logger.error('Report not found');
+        logger.error("Report not found");
         return;
     }
 
@@ -92,7 +96,7 @@ async function exportReport() {
     const blob = await createDoxf(report);
 
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `${currentReport.value?.name}.docx`;
     document.body.appendChild(a);
@@ -100,9 +104,9 @@ async function exportReport() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast.add({
-        title: t('report.exported'),
-        icon: 'i-heroicons-check-circle',
-        color: 'success'
+        title: t("report.exported"),
+        icon: "i-heroicons-check-circle",
+        color: "success",
     });
 }
 </script>

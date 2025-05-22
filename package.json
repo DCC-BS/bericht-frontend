@@ -36,6 +36,7 @@
         "vuedraggable": "^4.1.0"
     },
     "devDependencies": {
+        "@biomejs/biome": "^1.9.4",
         "@iconify-json/heroicons": "^1.2.2",
         "@iconify-json/lucide": "1.2.44",
         "@types/bun": "1.2.13",

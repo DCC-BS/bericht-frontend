@@ -1,10 +1,13 @@
-import { createComplaintItem, type ComplaintItemDto, type IComplaintItem } from "./compaint_item";
+import {
+    type ComplaintItemDto,
+    type IComplaintItem,
+    createComplaintItem,
+} from "./compaint_item";
 
 type MakeOptional<T, K extends keyof T> = Partial<Pick<T, K>> & Omit<T, K>;
 
 export type ComplaintType = "finding" | "action";
 export type ComplaintItemInput = MakeOptional<ComplaintItemDto, "id" | "order">;
-
 
 export interface IComplaint {
     readonly id: string;
@@ -44,11 +47,11 @@ class Complaint implements IComplaint {
     constructor(dto: Partial<ComplaintDto>) {
         this.id = dto.id ?? generateUUID();
         this.type = dto.type ?? "finding";
-        this._title = dto.title ?? '';
-        this.items = dto.items
-            ?.map(x => createComplaintItem(x))
-            .sort((a, b) => a.order - b.order
-            ) ?? [];
+        this._title = dto.title ?? "";
+        this.items =
+            dto.items
+                ?.map((x) => createComplaintItem(x))
+                .sort((a, b) => a.order - b.order) ?? [];
         this.order = dto.order ?? 0;
     }
 
@@ -61,7 +64,11 @@ class Complaint implements IComplaint {
     }
 
     addItem(item: ComplaintItemInput): IComplaintItem {
-        const newItem = { ...item, order: this.items.length, id: generateUUID() };
+        const newItem = {
+            ...item,
+            order: this.items.length,
+            id: generateUUID(),
+        };
 
         if (item.id) {
             newItem.id = item.id;
@@ -78,15 +85,14 @@ class Complaint implements IComplaint {
     }
 
     removeItem(id: string): void {
-        this.items = this.items
-            .filter(item => item.id !== id);
+        this.items = this.items.filter((item) => item.id !== id);
     }
 
     toDto(): ComplaintDto {
         return {
             id: this.id,
             title: this.title,
-            items: this.items.map(item => item.toDto()),
+            items: this.items.map((item) => item.toDto()),
             type: this.type,
             order: this.order,
         };

@@ -1,4 +1,3 @@
-
 export class Transaction {
     // Using NodeJS.Timeout type for the setTimeout return value
     readonly timeoutId: NodeJS.Timeout;

@@ -3,7 +3,7 @@
 const { t } = useI18n();
 
 // Define emits
-const emit = defineEmits<(e: 'photo-captured', data: Blob) => void>();
+const emit = defineEmits<(e: "photo-captured", data: Blob) => void>();
 
 // State variables
 const isMobile = ref(false);
@@ -23,7 +23,7 @@ onMounted(() => {
     // Check if the device is mobile using userAgent
     isMobile.value =
         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-            navigator.userAgent
+            navigator.userAgent,
         );
 });
 
@@ -48,7 +48,7 @@ function capturePhoto(): void {
  */
 function startCamera(): void {
     // Set the camera facing mode based on the selected camera
-    const facingMode = usingFrontCamera.value ? 'user' : 'environment';
+    const facingMode = usingFrontCamera.value ? "user" : "environment";
 
     // Set loading state to prevent multiple attempts
     isSwitchingCamera.value = true;
@@ -56,15 +56,19 @@ function startCamera(): void {
     // Properly stop any existing stream before starting a new one
     if (currentStream.value) {
         const tracks = currentStream.value.getTracks();
-        tracks.forEach((track) => track.stop());
+
+        for (const track of tracks) {
+            track.stop();
+        }
+
         currentStream.value = null;
     }
 
     // Clear video source before requesting new stream
     const videoElement = document.getElementById(
-        'camera-preview'
+        "camera-preview",
     ) as HTMLVideoElement;
-    if (videoElement && videoElement.srcObject) {
+    if (videoElement?.srcObject) {
         videoElement.srcObject = null;
     }
 
@@ -80,7 +84,7 @@ function startCamera(): void {
 
             // Make sure the video element still exists (user might have navigated away)
             const videoElement = document.getElementById(
-                'camera-preview'
+                "camera-preview",
             ) as HTMLVideoElement;
             if (videoElement) {
                 videoElement.srcObject = stream;
@@ -91,7 +95,7 @@ function startCamera(): void {
                         isSwitchingCamera.value = false;
                     })
                     .catch((err) => {
-                        console.error('Error playing video stream:', err);
+                        console.error("Error playing video stream:", err);
                         isSwitchingCamera.value = false;
                     });
             } else {
@@ -101,16 +105,16 @@ function startCamera(): void {
             }
         })
         .catch((err) => {
-            console.error('Error accessing camera:', err);
+            console.error("Error accessing camera:", err);
             // If back camera fails, try falling back to any available camera
             if (!usingFrontCamera.value) {
-                console.log('Falling back to front camera');
+                console.log("Falling back to front camera");
                 usingFrontCamera.value = true;
                 isSwitchingCamera.value = false;
                 startCamera();
             } else {
                 // Use translated alert message
-                alert(t('camera.permissionsError'));
+                alert(t("camera.permissionsError"));
                 isSwitchingCamera.value = false;
                 showCamera.value = false;
             }
@@ -143,7 +147,7 @@ function handleFileUpload(event: Event): void {
             if (!target.files?.[0]) {
                 return;
             }
-            
+
             capturedBlob.value = target.files[0];
             capturedImage.value = e.target?.result as string;
         };
@@ -155,12 +159,12 @@ function handleFileUpload(event: Event): void {
  * Take photo from video stream on mobile
  */
 function takePhoto(): void {
-    const video = document.getElementById('camera-preview') as HTMLVideoElement;
-    const canvas = document.createElement('canvas');
+    const video = document.getElementById("camera-preview") as HTMLVideoElement;
+    const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas
-        .getContext('2d')
+        .getContext("2d")
         ?.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     // Convert canvas to data URL
@@ -168,8 +172,8 @@ function takePhoto(): void {
         if (blob) {
             capturedBlob.value = blob;
         }
-    }, 'image/jpeg');
-    capturedImage.value = canvas.toDataURL('image/jpeg');
+    }, "image/jpeg");
+    capturedImage.value = canvas.toDataURL("image/jpeg");
 
     // Stop camera stream
     stopCameraStream();
@@ -182,13 +186,17 @@ function stopCameraStream(): void {
     // Only attempt to stop if there's an active stream
     if (currentStream.value) {
         const tracks = currentStream.value.getTracks();
-        tracks.forEach((track) => track.stop());
+
+        for (const track of tracks) {
+            track.stop();
+        }
+
         currentStream.value = null;
     }
 
     // Also clear the video element source
-    const video = document.getElementById('camera-preview') as HTMLVideoElement;
-    if (video && video.srcObject) {
+    const video = document.getElementById("camera-preview") as HTMLVideoElement;
+    if (video?.srcObject) {
         video.srcObject = null;
     }
 
@@ -209,7 +217,7 @@ function retakePhoto(): void {
 function submitPhoto(): void {
     if (capturedBlob.value) {
         // Emit event with captured image to parent component
-        emit('photo-captured', capturedBlob.value);
+        emit("photo-captured", capturedBlob.value);
     }
     capturedImage.value = undefined;
 }

@@ -1,12 +1,12 @@
 import type { ReportDto } from "~/models/report";
 import { complaintsDBService } from "./complaints_db";
-import { databaseService, REPORTS_STORE } from "./database_service";
+import { REPORTS_STORE, databaseService } from "./database_service";
 
 /**
  * Internal report representation for storage
  */
 type InternalReport = Omit<ReportDto, "complaints"> & {
-    complaintIds: string[]
+    complaintIds: string[];
 };
 
 /**
@@ -30,14 +30,17 @@ export class ReportsDB {
         internalReport: InternalReport,
     ): Promise<ReportDto> {
         const complaints = await Promise.all(
-            internalReport.complaintIds.map(async (complaintId) =>
-                await complaintsDBService.getComplaint(complaintId)
-            ));
+            internalReport.complaintIds.map(
+                async (complaintId) =>
+                    await complaintsDBService.getComplaint(complaintId),
+            ),
+        );
 
         return {
             ...internalReport,
-            complaints: complaints
-                .filter(complaint => complaint !== undefined)
+            complaints: complaints.filter(
+                (complaint) => complaint !== undefined,
+            ),
         };
     }
 
@@ -52,7 +55,7 @@ export class ReportsDB {
             ...report,
             complaints: undefined,
             complaintIds: report.complaints.map((complaint) => complaint.id),
-        }
+        };
 
         // biome-ignore lint/performance/noDelete: <explanation>
         delete internalReport.complaints;
@@ -72,10 +75,7 @@ export class ReportsDB {
 
         return new Promise((resolve, reject) => {
             // Start a transaction
-            const transaction = db.transaction(
-                [REPORTS_STORE],
-                'readwrite',
-            );
+            const transaction = db.transaction([REPORTS_STORE], "readwrite");
             const store = transaction.objectStore(REPORTS_STORE);
 
             // Add or update the report
@@ -101,10 +101,7 @@ export class ReportsDB {
         const db = await this.getDb();
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [REPORTS_STORE],
-                'readonly',
-            );
+            const transaction = db.transaction([REPORTS_STORE], "readonly");
             const store = transaction.objectStore(REPORTS_STORE);
             const request = store.getAll();
 
@@ -139,12 +136,9 @@ export class ReportsDB {
 
         try {
             return new Promise((resolve, reject) => {
-                const transaction = db.transaction(
-                    [REPORTS_STORE],
-                    'readonly',
-                );
+                const transaction = db.transaction([REPORTS_STORE], "readonly");
                 const store = transaction.objectStore(REPORTS_STORE);
-                const index = store.index('id');
+                const index = store.index("id");
                 const request = index.get(id);
 
                 request.onsuccess = async () => {
@@ -152,9 +146,7 @@ export class ReportsDB {
                         | InternalReport
                         | undefined;
                     if (!internalReport) {
-                        reject(
-                            new Error(`Report with id ${id} not found`),
-                        );
+                        reject(new Error(`Report with id ${id} not found`));
                         return;
                     }
 
@@ -193,10 +185,7 @@ export class ReportsDB {
 
         // Delete the report
         await new Promise<void>((resolve, reject) => {
-            const transaction = db.transaction(
-                [REPORTS_STORE],
-                'readwrite',
-            );
+            const transaction = db.transaction([REPORTS_STORE], "readwrite");
             const store = transaction.objectStore(REPORTS_STORE);
             const request = store.delete(id);
 

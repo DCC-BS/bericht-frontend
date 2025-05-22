@@ -1,6 +1,10 @@
 <script lang="ts" setup>
-import type { IComplaint } from '~/models/complaint';
-import { ComplaintText, ComplaintImage, ComplaintRecording } from '~/models/compaint_item';
+import {
+    ComplaintImage,
+    ComplaintRecording,
+    ComplaintText,
+} from "~/models/compaint_item";
+import type { IComplaint } from "~/models/complaint";
 
 interface Props {
     complaint: IComplaint;
@@ -15,7 +19,6 @@ const { t } = useI18n();
 function getBlobUrl(image: Blob): string {
     return URL.createObjectURL(image);
 }
-
 </script>
 
 <template>

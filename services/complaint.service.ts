@@ -1,6 +1,6 @@
 import type { ILogger } from "@dcc-bs/logger.bs.js";
+import { type IComplaint, createComplaint } from "~/models/complaint";
 import type { ComplaintsDB } from "./complaints_db";
-import { createComplaint, type IComplaint } from "~/models/complaint";
 
 export class ComplaintService {
     constructor(

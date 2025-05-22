@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { ComplaintText } from '~/models/compaint_item';
+import type { ComplaintText } from "~/models/compaint_item";
 
 const complaintItemService = useComplaintItemService();
 

@@ -1,5 +1,5 @@
 import type { IPicture, PictureDto } from "~/models/pictures";
-import { databaseService, IMAGES_STORE } from "./database_service";
+import { IMAGES_STORE, databaseService } from "./database_service";
 
 /**
  * Image object to be stored in the images store
@@ -33,10 +33,7 @@ export class PicturesDB {
         const db = await this.getDb();
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [IMAGES_STORE],
-                'readwrite',
-            );
+            const transaction = db.transaction([IMAGES_STORE], "readwrite");
             const store = transaction.objectStore(IMAGES_STORE);
 
             const storedImage: StoredImage = {
@@ -67,10 +64,7 @@ export class PicturesDB {
         const db = await this.getDb();
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [IMAGES_STORE],
-                'readonly',
-            );
+            const transaction = db.transaction([IMAGES_STORE], "readonly");
             const store = transaction.objectStore(IMAGES_STORE);
             const request = store.get(id);
 
@@ -93,12 +87,9 @@ export class PicturesDB {
         const db = await this.getDb();
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [IMAGES_STORE],
-                'readwrite',
-            );
+            const transaction = db.transaction([IMAGES_STORE], "readwrite");
             const store = transaction.objectStore(IMAGES_STORE);
-            const index = store.index('reportId');
+            const index = store.index("reportId");
             const request = index.openCursor(IDBKeyRange.only(reportId));
 
             request.onsuccess = (event) => {
@@ -131,13 +122,13 @@ export class PicturesDB {
         const db = await this.getDb();
 
         return new Promise<void>((resolve, reject) => {
-            const transaction = db.transaction([IMAGES_STORE], 'readwrite');
+            const transaction = db.transaction([IMAGES_STORE], "readwrite");
             const store = transaction.objectStore(IMAGES_STORE);
             let completed = 0;
             let errors = 0;
 
             // Delete each image one by one
-            imageIds.forEach(id => {
+            for (const id of imageIds) {
                 const request = store.delete(id);
 
                 request.onsuccess = () => {
@@ -148,13 +139,16 @@ export class PicturesDB {
                 };
 
                 request.onerror = () => {
-                    console.error(`Failed to delete image ${id}:`, request.error);
+                    console.error(
+                        `Failed to delete image ${id}:`,
+                        request.error,
+                    );
                     errors++;
                     if (completed + errors === imageIds.length) {
                         resolve(); // Still resolve to continue with the operation
                     }
                 };
-            });
+            }
 
             // Handle empty array case
             if (imageIds.length === 0) {

@@ -3,8 +3,8 @@
 const { t } = useI18n();
 
 const emit = defineEmits<{
-    (e: 'confirm'): void,
-    (e: 'cancel'): void
+    (e: "confirm"): void;
+    (e: "cancel"): void;
 }>();
 
 let timer: NodeJS.Timeout | null = null;
@@ -25,14 +25,13 @@ watch(isOpen, (newValue) => {
 
 function onCancel(): void {
     isOpen.value = false;
-    emit('cancel');
+    emit("cancel");
 }
 
 function onConfim(): void {
     isOpen.value = false;
-    emit('confirm');
+    emit("confirm");
 }
-
 </script>
 
 <template>

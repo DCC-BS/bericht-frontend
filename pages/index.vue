@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { UButton, UIcon } from '#components';
-import type { IReport } from '~/models/report';
+import type { IReport } from "~/models/report";
+import { UButton, UIcon } from "#components";
 
 /**
  * Reactive references for component state
@@ -24,22 +24,25 @@ function updateMobileState(): void {
 
 onMounted(() => {
     // Fetch all reports
-    reportService.getAllReports().then((data) => {
-        reports.value = data;
-    }).catch((error) => {
-        console.error('Error fetching reports:', error);
-    });
+    reportService
+        .getAllReports()
+        .then((data) => {
+            reports.value = data;
+        })
+        .catch((error) => {
+            console.error("Error fetching reports:", error);
+        });
 
     // Set initial mobile state
     updateMobileState();
 
     // Add event listener for resize
-    window?.addEventListener('resize', updateMobileState);
+    window?.addEventListener("resize", updateMobileState);
 });
 
 onUnmounted(() => {
     // Clean up event listener
-    window?.removeEventListener('resize', updateMobileState);
+    window?.removeEventListener("resize", updateMobileState);
 });
 
 async function createNewReport(): Promise<void> {

@@ -1,6 +1,6 @@
-import type { ComplaintDto } from "~/models/complaint";
 import type { ComplaintItemDto } from "~/models/compaint_item";
-import { databaseService, COMPLAINT_ITEMS_STORE } from "./database_service";
+import type { ComplaintDto } from "~/models/complaint";
+import { COMPLAINT_ITEMS_STORE, databaseService } from "./database_service";
 
 /**
  * Service for managing complaint items in IndexedDB
@@ -17,12 +17,13 @@ export class ComplaintsItemDB {
     async storeItem(item: ComplaintItemDto): Promise<ComplaintItemDto> {
         const db = await this.getDb();
 
-        const transaction = db.transaction([COMPLAINT_ITEMS_STORE], 'readwrite');
+        const transaction = db.transaction(
+            [COMPLAINT_ITEMS_STORE],
+            "readwrite",
+        );
         const store = transaction.objectStore(COMPLAINT_ITEMS_STORE);
 
-        const request = store.put(
-            item,
-        );
+        const request = store.put(item);
 
         return new Promise((resolve, reject) => {
             request.onsuccess = () => {
@@ -40,7 +41,7 @@ export class ComplaintsItemDB {
     async getItem(id: string): Promise<ComplaintItemDto> {
         const db = await this.getDb();
 
-        const transaction = db.transaction([COMPLAINT_ITEMS_STORE], 'readonly');
+        const transaction = db.transaction([COMPLAINT_ITEMS_STORE], "readonly");
         const store = transaction.objectStore(COMPLAINT_ITEMS_STORE);
 
         const request = store.get(id);
@@ -61,7 +62,10 @@ export class ComplaintsItemDB {
     async deleteItem(id: string): Promise<void> {
         const db = await this.getDb();
 
-        const transaction = db.transaction([COMPLAINT_ITEMS_STORE], 'readwrite');
+        const transaction = db.transaction(
+            [COMPLAINT_ITEMS_STORE],
+            "readwrite",
+        );
         const store = transaction.objectStore(COMPLAINT_ITEMS_STORE);
 
         const request = store.delete(id);
@@ -84,20 +88,24 @@ export class ComplaintsItemDB {
      * @param complaint The complaint to extract IDs from
      * @returns Object containing arrays of IDs by type
      */
-    extractItemIds(complaint: ComplaintDto): { imageIds: string[], memoIds: string[], textIds: string[] } {
+    extractItemIds(complaint: ComplaintDto): {
+        imageIds: string[];
+        memoIds: string[];
+        textIds: string[];
+    } {
         const imageIds: string[] = [];
         const memoIds: string[] = [];
         const textIds: string[] = [];
 
-        complaint.items.forEach(item => {
-            if (item.type === 'image') {
+        for (const item of complaint.items) {
+            if (item.type === "image") {
                 imageIds.push(item.id);
-            } else if (item.type === 'recoding') {
+            } else if (item.type === "recoding") {
                 memoIds.push(item.id);
-            } else if (item.type === 'text') {
+            } else if (item.type === "text") {
                 textIds.push(item.id);
             }
-        });
+        }
 
         return { imageIds, memoIds, textIds };
     }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { IReport } from '~/models/report';
-import type { ReportService } from '~/services/report.service';
+import type { IReport } from "~/models/report";
+import type { ReportService } from "~/services/report.service";
 
 interface InputProps {
     report: IReport;
@@ -12,7 +12,7 @@ const toast = useToast();
 const { t } = useI18n();
 const isOpen = ref(false);
 
-const to = ref<string>('');
+const to = ref<string>("");
 
 /**
  * Sends an email with the report to the specified email address
@@ -20,9 +20,9 @@ const to = ref<string>('');
 async function sendMail() {
     if (!to.value) {
         toast.add({
-            title: t('email.validEmail'),
-            icon: 'i-heroicons-exclamation-circle',
-            color: 'error',
+            title: t("email.validEmail"),
+            icon: "i-heroicons-exclamation-circle",
+            color: "error",
         });
         return;
     }
@@ -32,22 +32,22 @@ async function sendMail() {
         await sendEmail(to.value, props.report);
 
         toast.add({
-            title: t('email.sent'),
-            icon: 'i-heroicons-check-circle',
-            color: 'success',
+            title: t("email.sent"),
+            icon: "i-heroicons-check-circle",
+            color: "success",
         });
     } catch (error) {
         if (error instanceof Error) {
             toast.add({
                 title: error.message,
-                icon: 'i-heroicons-exclamation-circle',
-                color: 'error',
+                icon: "i-heroicons-exclamation-circle",
+                color: "error",
             });
         } else {
             toast.add({
-                title: t('email.error'),
-                icon: 'i-heroicons-exclamation-circle',
-                color: 'error',
+                title: t("email.error"),
+                icon: "i-heroicons-exclamation-circle",
+                color: "error",
             });
         }
     }
@@ -60,7 +60,6 @@ function openModal() {
 defineExpose({
     openModal,
 });
-
 </script>
 
 <template>

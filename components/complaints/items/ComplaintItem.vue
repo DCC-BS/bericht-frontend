@@ -1,10 +1,20 @@
 <script lang="ts" setup>
-import type { IComplaintItem } from '~/models/compaint_item';
-import { ComplaintImage, ComplaintRecording, ComplaintText } from '~/models/compaint_item';
-import ImageItem from '~/components/complaints/items/ImageItem.vue';
-import RecordingItem from '~/components/complaints/RecordItem.vue';
-import TextItem from '~/components/complaints/items/TextItem.vue';
-import { useMouse, useMouseInElement, useMousePressed, useSwipe, useVibrate } from '@vueuse/core';
+import {
+    useMouse,
+    useMouseInElement,
+    useMousePressed,
+    useSwipe,
+    useVibrate,
+} from "@vueuse/core";
+import RecordingItem from "~/components/complaints/RecordItem.vue";
+import ImageItem from "~/components/complaints/items/ImageItem.vue";
+import TextItem from "~/components/complaints/items/TextItem.vue";
+import type { IComplaintItem } from "~/models/compaint_item";
+import {
+    ComplaintImage,
+    ComplaintRecording,
+    ComplaintText,
+} from "~/models/compaint_item";
 
 // Define the props interface
 interface Props {
@@ -13,7 +23,7 @@ interface Props {
 
 // Define the emits
 const emit = defineEmits<{
-    'delete': [item: IComplaintItem];
+    delete: [item: IComplaintItem];
 }>();
 
 // Constants
@@ -31,8 +41,8 @@ const isSwipeThresholdReached = computed(() => {
     return Math.abs(lengthX.value) > SWIPE_THRESHOLD;
 });
 const cardStyle = ref({
-    transform: 'none',
-    transition: 'transform 0.3s ease'
+    transform: "none",
+    transition: "transform 0.3s ease",
 });
 
 /**
@@ -41,10 +51,10 @@ const cardStyle = ref({
 function deleteItem(): void {
     isRemoving.value = true;
 
-    console.log('Deleting item:', props.item);
+    console.log("Deleting item:", props.item);
 
     // Emit the delete event to parent
-    emit('delete', props.item);
+    emit("delete", props.item);
 }
 
 /**
@@ -52,8 +62,8 @@ function deleteItem(): void {
  */
 function resetCardPosition(): void {
     cardStyle.value = {
-        transform: 'none',
-        transition: 'transform 0.3s ease'
+        transform: "none",
+        transition: "transform 0.3s ease",
     };
 }
 
@@ -62,12 +72,12 @@ watch(lengthX, (newX) => {
     if (isSwiping.value && Math.abs(newX) > MIN_SWIPE_THRESHOLD) {
         cardStyle.value = {
             transform: `translateX(${-newX}px)`,
-            transition: 'none'
+            transition: "none",
         };
     } else {
         cardStyle.value = {
-            transform: 'none',
-            transition: 'transform 0.3s ease'
+            transform: "none",
+            transition: "transform 0.3s ease",
         };
     }
 });
@@ -79,13 +89,13 @@ watch(isSwiping, (swiping) => {
         const absX = Math.abs(lengthX.value);
 
         if (absX > SWIPE_THRESHOLD) {
-            console.log('Threshold reached:', absX, direction.value);
+            console.log("Threshold reached:", absX, direction.value);
 
             // Threshold reached
-            if (direction.value === 'left') {
+            if (direction.value === "left") {
                 // Delete action
                 deleteItem();
-            } else if (direction.value === 'right') {
+            } else if (direction.value === "right") {
                 deleteItem();
             }
         } else {
@@ -94,7 +104,6 @@ watch(isSwiping, (swiping) => {
         }
     }
 });
-
 </script>
 
 <template>

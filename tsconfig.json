@@ -8,7 +8,5 @@
         "skipDefaultLibCheck": true
     },
     // Explicitly exclude node_modules from TypeScript processing
-    "exclude": [
-        "node_modules"
-    ]
+    "exclude": ["node_modules"]
 }

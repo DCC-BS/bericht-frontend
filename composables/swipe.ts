@@ -1,12 +1,23 @@
-import { useMouse, useMouseInElement, useMousePressed, useSwipe, type MaybeElementRef, type UseSwipeDirection } from "@vueuse/core";
+import {
+    type MaybeElementRef,
+    type UseSwipeDirection,
+    useMouse,
+    useMouseInElement,
+    useMousePressed,
+    useSwipe,
+} from "@vueuse/core";
 
 export function useMouseAndTouchSwipe(target: Ref<HTMLElement | undefined>) {
-    const { isSwiping: touchIsSwiping, direction: touchDirection, lengthX: touchLengthX } = useSwipe(target);
+    const {
+        isSwiping: touchIsSwiping,
+        direction: touchDirection,
+        lengthX: touchLengthX,
+    } = useSwipe(target);
     const { x, isOutside } = useMouseInElement(target, { touch: false });
     const { pressed } = useMousePressed({ touch: false });
 
     const isSwiping = ref(false);
-    const direction = ref<UseSwipeDirection>('none');
+    const direction = ref<UseSwipeDirection>("none");
     const lengthX = ref(0);
 
     const xStart = ref(0);
@@ -29,7 +40,7 @@ export function useMouseAndTouchSwipe(target: Ref<HTMLElement | undefined>) {
         } else {
             isSwiping.value = false;
             await nextTick();
-            direction.value = 'none';
+            direction.value = "none";
             lengthX.value = 0;
         }
     });
@@ -40,10 +51,10 @@ export function useMouseAndTouchSwipe(target: Ref<HTMLElement | undefined>) {
 
             if (lengthX.value > 0) {
                 isSwiping.value = true;
-                direction.value = 'right';
+                direction.value = "right";
             } else if (lengthX.value < 0) {
                 isSwiping.value = true;
-                direction.value = 'left';
+                direction.value = "left";
             }
         }
     });
@@ -52,5 +63,5 @@ export function useMouseAndTouchSwipe(target: Ref<HTMLElement | undefined>) {
         isSwiping,
         direction,
         lengthX,
-    }
+    };
 }

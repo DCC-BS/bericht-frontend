@@ -14,8 +14,7 @@ export class RemoveComplaintItemCommand implements IReversibleCommand {
     constructor(
         public readonly itemToRemove: IComplaintItem,
         public readonly complaintId: string,
-    ) {
-    }
+    ) {}
 }
 
 export class AddComplaintItemCommand implements IReversibleCommand {
@@ -29,6 +28,5 @@ export class AddComplaintItemCommand implements IReversibleCommand {
     constructor(
         public readonly itemToAdd: IComplaintItem,
         public readonly complaintId: string,
-    ) {
-    }
+    ) {}
 }

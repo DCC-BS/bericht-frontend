@@ -1,17 +1,15 @@
 <script lang="ts" setup>
-import type { UTextarea } from '#components';
+import type { UTextarea } from "#components";
 
-const emit = defineEmits<{
-    (e: 'text-composed', text: string): void
-}>();
+const emit = defineEmits<(e: "text-composed", text: string) => void>();
 
 const { t } = useI18n();
-const text = ref<string>('');
+const text = ref<string>("");
 
 function onSubmit() {
     if (text.value) {
-        emit('text-composed', text.value);
-        text.value = '';
+        emit("text-composed", text.value);
+        text.value = "";
     }
 }
 </script>

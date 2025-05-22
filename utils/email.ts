@@ -13,7 +13,7 @@ export async function sendEmail(to: string, report: IReport) {
 
     $fetch("/api/send", {
         method: "POST",
-        body: data
+        body: data,
     });
 }
 
