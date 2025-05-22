@@ -7,7 +7,7 @@ export class ReportService {
         private readonly db: ReportsDB,
         private readonly logger: ILogger,
         private readonly t: (key: string) => string,
-    ) {}
+    ) { }
 
     async getAllReports(): Promise<IReport[]> {
         return this.db
@@ -15,11 +15,11 @@ export class ReportService {
             .then((reports) => reports.map((report) => createReport(report)));
     }
 
-    async getReport(reportId: string): Promise<IReport> {
+    async get(reportId: string): Promise<IReport> {
         return this.db.getById(reportId).then((report) => createReport(report));
     }
 
-    async createReport(title: string): Promise<IReport> {
+    async create(title: string): Promise<IReport> {
         const report = createReport({
             name: title,
         });
@@ -28,7 +28,7 @@ export class ReportService {
         return report;
     }
 
-    async deleteReport(reportId: string): Promise<void> {
+    async delete(reportId: string): Promise<void> {
         const report = await this.db.getById(reportId);
         if (!report) {
             this.logger.error("Report not found");
@@ -38,7 +38,7 @@ export class ReportService {
         await this.db.delete(reportId);
     }
 
-    async updateReport(report: IReport): Promise<void> {
+    async put(report: IReport): Promise<void> {
         await this.db.storeReport(report.toDto());
     }
 

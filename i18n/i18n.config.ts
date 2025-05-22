@@ -36,6 +36,7 @@ export default defineI18nConfig(() => ({
                 saved: "Report saved",
                 export: "Export Report",
                 exported: "Report exported",
+                delete: "Delete report?",
             },
 
             // Email export translations
@@ -102,6 +103,7 @@ export default defineI18nConfig(() => ({
                 addText: "Add Text",
                 addImage: "Add Image",
                 noItems: "No items use to plus button to add items",
+                delete: "delete {type}?",
             },
 
             // Speech to text component translations
@@ -130,6 +132,12 @@ export default defineI18nConfig(() => ({
                 confirmQuestion: "Are you sure?",
                 cancel: "Cancel",
                 confirm: "Confirm",
+            },
+
+            // Delete modal component translations
+            deleteModal: {
+                delete: "Delete",
+                cancel: "Cancel",
             },
         },
 
@@ -166,6 +174,7 @@ export default defineI18nConfig(() => ({
                 saved: "Bericht gespeichert",
                 export: "Bericht exportieren",
                 exported: "Bericht exportiert",
+                delete: "Bericht löschen?",
             },
 
             // Email export translations
@@ -233,6 +242,7 @@ export default defineI18nConfig(() => ({
                 addRecording: "Aufnahme hinzufügen",
                 addText: "Text hinzufügen",
                 addImage: "Bild hinzufügen",
+                delete: "{type} löschen?",
                 noItems:
                     "Keine Elemente, verwenden Sie die Plus-Schaltfläche, um Elemente hinzuzufügen",
             },
@@ -263,6 +273,12 @@ export default defineI18nConfig(() => ({
                 confirmQuestion: "Sind Sie sicher?",
                 cancel: "Abbrechen",
                 confirm: "Bestätigen",
+            },
+
+            // Delete modal component translations
+            deleteModal: {
+                delete: "Löschen",
+                cancel: "Abbrechen",
             },
         },
     },

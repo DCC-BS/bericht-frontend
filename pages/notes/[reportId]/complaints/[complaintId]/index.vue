@@ -9,9 +9,9 @@ import type {
 import AudioRecorder from "~/components/complaints/items/AudioRecorder.client.vue";
 import CameraCapture from "~/components/complaints/items/CameraCapture.vue";
 import TextCompose from "~/components/complaints/items/TextCompose.vue";
+import type { DeleteModalProps } from "~/models/delte_modal_props";
 
 const route = useRoute();
-const complaintService = useComplaintService();
 const toast = useToast();
 const { t } = useI18n();
 
@@ -32,16 +32,24 @@ if (!complaintId || typeof complaintId !== "string") {
 const { currentComplaint, addComplaintItem, removeComplaintItem } =
     useComplaintItemService(complaintId);
 
-onMounted(() => {
-    complaintService.get(complaintId).then((complaint) => {
-        if (!complaint) {
-            toast.add({
-                title: t("complaint.notFound"),
-                icon: "i-heroicons-exclamation-circle",
-                color: "error",
-            });
-        }
-        currentComplaint.value = complaint;
+const { removeComplaint } = useComplaintService(reportId);
+
+const deleteModalProps = reactive({
+    isOpen: false,
+    message: t("complaint.delete", { type: t(`complaint.${currentComplaint.value?.type}`) }),
+    onSubmit: () => {
+        removeComplaint(complaintId).then(() => {
+            navigateTo(`/notes/${reportId}`);
+        });
+    },
+    onCancel: () => {
+        deleteModalProps.isOpen = false;
+    },
+} as DeleteModalProps);
+
+watch(currentComplaint, () => {
+    deleteModalProps.message = t("complaint.delete", {
+        type: t(`complaint.${currentComplaint.value?.type}`),
     });
 });
 
@@ -130,9 +138,11 @@ async function onTextComposed(text: string) {
     <NavigationMenu :backUrl="`/notes/${reportId}`" :items="[
         {
             icon: 'i-lucide-trash-2',
-            onSelect: () => { },
+            onSelect: () => { deleteModalProps.isOpen = true; },
         },
     ]" />
+
+    <DeleteModal :options="deleteModalProps" />
 
     <div v-if="isModalOpen" class="w-full h-full p-2">
         <CameraCapture v-if="itemToAdd?.type == 'image'" @photo-captured="onPhotoCaptured" />

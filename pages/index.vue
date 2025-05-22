@@ -5,7 +5,7 @@ import { UButton, UIcon } from "#components";
 /**
  * Reactive references for component state
  */
-const reportService = useReportService();
+const { getAllReports, createReport, removeReport } = useReportService();
 const { t } = useI18n();
 const isCreatingReport = ref(false);
 const reports = ref<IReport[]>([]);
@@ -24,8 +24,7 @@ function updateMobileState(): void {
 
 onMounted(() => {
     // Fetch all reports
-    reportService
-        .getAllReports()
+    getAllReports()
         .then((data) => {
             reports.value = data;
         })
@@ -51,7 +50,7 @@ async function createNewReport(): Promise<void> {
     }
 
     isCreatingReport.value = true;
-    const report = await reportService.createReport("new Report");
+    const report = await createReport("new Report");
     navigateTo(`/notes/${report.id}`);
     isCreatingReport.value = false;
 }
@@ -61,7 +60,7 @@ function openReport(id: string): void {
 }
 
 async function deleteReport(id: string): Promise<void> {
-    await reportService.deleteReport(id);
+    await removeReport(id);
     reports.value = reports.value.filter((report) => report.id !== id);
 }
 </script>
@@ -81,8 +80,8 @@ async function deleteReport(id: string): Promise<void> {
         </div>
 
         <div class="z-200 fixed bottom-0 right-0 m-4 flex flex-col-reverse items-end gap-2 justify-end">
-            <UButton variant="solid" color="primary" size="xl" trailing-icon="i-lucide-plus" class="rounded-full add-button"
-                @click="createNewReport">
+            <UButton variant="solid" color="primary" size="xl" trailing-icon="i-lucide-plus"
+                class="rounded-full add-button" @click="createNewReport">
                 {{ t('home.createNewReport') }}
             </UButton>
         </div>

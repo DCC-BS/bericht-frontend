@@ -1,46 +1,44 @@
 <script lang="ts" setup>
 import Draggable from "vuedraggable";
 import { createComplaint } from "~/models/complaint";
-import type { IReport } from "~/models/report";
 import type { EmailExport } from "#components";
 import ComplaintView from "../../../components/complaints/ComplaintView.vue";
+import type { DeleteModalProps } from "~/models/delte_modal_props";
 
 const route = useRoute();
 const toast = useToast();
-const reportService = useReportService();
-const complaintService = useComplaintService();
 const logger = useLogger();
 const { t } = useI18n();
 
 const reportId = route.params.reportId;
-const currentReport = ref<IReport>();
 const emailExport = ref<InstanceType<typeof EmailExport>>();
 
 if (!reportId || typeof reportId !== "string") {
     throw new Error("Report ID is required");
 }
 
-onMounted(() => {
-    reportService.getReport(reportId).then((report) => {
-        if (!report) {
-            toast.add({
-                title: t("report.notFound"),
-                icon: "i-heroicons-exclamation-circle",
-                color: "error",
-            });
-        }
+const { currentReport, addComplaint } = useComplaintService(reportId);
+const { updateReport, removeReport } = useReportService();
+const reportService = getReportService();
 
-        console.log("Report:", report);
-
-        currentReport.value = report;
-    });
-});
+const deleteModalProps = reactive({
+    isOpen: false,
+    message: t("report.delete"),
+    onSubmit: () => {
+        removeReport(reportId).then(() => {
+            navigateTo(`/`);
+        });
+    },
+    onCancel: () => {
+        deleteModalProps.isOpen = false;
+    },
+} as DeleteModalProps);
 
 watch(
     currentReport,
     (newValue) => {
         if (newValue) {
-            reportService.updateReport(newValue);
+            updateReport(newValue);
         }
     },
     { deep: true },
@@ -53,21 +51,12 @@ async function onAdd(type: "finding" | "action"): Promise<void> {
     }
 
     const complaint = createComplaint({ type });
-    currentReport.value.addComplaint(complaint);
+    // currentReport.value.addComplaint(complaint);
 
-    await complaintService.put(complaint);
-    await reportService.updateReport(currentReport.value);
+    await addComplaint(complaint);
+    // await updateReport(currentReport.value);
 
     navigateTo(`/notes/${currentReport.value.id}/complaints/${complaint.id}`);
-}
-
-function onAddClicked(): void {
-    if (!currentReport.value) {
-        logger.error("Report not found");
-        return;
-    }
-
-    currentReport.value.addComplaint(createComplaint({}));
 }
 
 function saveReport(): void {
@@ -76,12 +65,7 @@ function saveReport(): void {
         return;
     }
 
-    reportService.updateReport(currentReport.value);
-    toast.add({
-        title: t("report.saved"),
-        icon: "i-heroicons-check-circle",
-        color: "success",
-    });
+    updateReport(currentReport.value);
 }
 
 async function exportReport() {
@@ -119,9 +103,11 @@ async function exportReport() {
         },
         {
             icon: 'i-lucide-trash-2',
-            onSelect: () => { },
+            onSelect: () => { deleteModalProps.isOpen = true },
         },
     ]" />
+
+    <DeleteModal :options="deleteModalProps" />
 
     <div v-if="currentReport" class="text-center p-1">
         <div class="bg-gray-400 p-1">
