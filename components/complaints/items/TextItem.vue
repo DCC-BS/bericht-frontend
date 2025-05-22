@@ -1,17 +1,18 @@
 <script lang="ts" setup>
 import type { ComplaintText } from "~/models/compaint_item";
 
-const complaintItemService = useComplaintItemService();
-
 interface Props {
+    complaintId: string;
     item: ComplaintText;
 }
 
 const props = defineProps<Props>();
 const textArea = shallowRef<HTMLTextAreaElement>();
 
+const { updateComplaintItem } = useComplaintItemService(props.complaintId);
+
 async function onChange() {
-    complaintItemService.put(props.item);
+    updateComplaintItem(props.item);
 }
 </script>
 

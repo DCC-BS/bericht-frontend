@@ -105,7 +105,7 @@ watch(isSwiping, (swiping) => {
         <!-- Card with dynamic styling based on swipe -->
         <UCard class="m-2" ref="cardRef" :style="cardStyle" :class="{ 'opacity-0': isRemoving }">
             <div v-if="props.item instanceof ComplaintText">
-                <TextItem :item="props.item" />
+                <TextItem :item="props.item" :complaint-id="props.complaintId" />
             </div>
             <div v-else-if="props.item instanceof ComplaintImage">
                 <ImageItem :item="props.item" />

@@ -34,6 +34,7 @@ async function speechToText(file: Blob) {
         });
 
         props.item.text = response.text;
+        onChange();
     } catch (error) {
         toast.add({
             title: t("speechToText.error"),
