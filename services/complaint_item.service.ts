@@ -6,31 +6,31 @@ import {
 import type { ComplaintsItemDB } from "./queries/complaints_item_db";
 
 export class ComplaintItemService {
-    static $injectKey = "ComplaintItemService";
+    static $injectKey = "complaintItemService";
 
     constructor(
-        private readonly db: ComplaintsItemDB,
+        private readonly complaintsItemDB: ComplaintsItemDB,
         private readonly logger: ILogger,
     ) {}
 
     async get(complaintItemId: string): Promise<IComplaintItem> {
-        return this.db
+        return this.complaintsItemDB
             .get(complaintItemId)
             .then((complaintItem) => createComplaintItem(complaintItem));
     }
 
     async put(complaintItem: IComplaintItem): Promise<void> {
         const dto = deepToRaw(complaintItem.toDto());
-        await this.db.put(dto);
+        await this.complaintsItemDB.put(dto);
     }
 
     async delete(complaintItemId: string): Promise<void> {
-        const complaintItem = await this.db.get(complaintItemId);
+        const complaintItem = await this.complaintsItemDB.get(complaintItemId);
         if (!complaintItem) {
             this.logger.error("Complaint item not found");
             return;
         }
 
-        await this.db.delete(complaintItemId);
+        await this.complaintsItemDB.delete(complaintItemId);
     }
 }

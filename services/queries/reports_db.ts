@@ -13,7 +13,7 @@ type InternalReport = Omit<ReportDto, "complaints"> & {
  * Service for managing reports in IndexedDB
  */
 export class ReportsDB {
-    static $injectKey = "ReportsDB";
+    static $injectKey = "reportsDB";
 
     constructor(
         private readonly databaseService: DatabaseService,

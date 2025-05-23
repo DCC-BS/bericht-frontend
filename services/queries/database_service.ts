@@ -17,7 +17,7 @@ const COMPLAINT_ITEMS_STORE = "complaint_items";
  * Database service for managing the shared IndexedDB instance
  */
 export class DatabaseService {
-    static $injectKey = "DatabaseService";
+    static $injectKey = "databaseService";
 
     private db: IDBDatabase | null = null;
     private initializationPromise: Promise<IDBDatabase> | null = null;

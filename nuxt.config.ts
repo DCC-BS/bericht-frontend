@@ -37,6 +37,7 @@ export default defineNuxtConfig({
         "@dcc-bs/logger.bs.js",
         "@dcc-bs/feedback-control.bs.js",
         "@dcc-bs/event-system.bs.js",
+        "@dcc-bs/dependency-injection.bs.js",
         "@vite-pwa/nuxt",
         "@pinia/nuxt",
         "nuxt-viewport",

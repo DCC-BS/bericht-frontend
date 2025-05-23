@@ -11,11 +11,11 @@ type InternalComplaint = Omit<ComplaintDto, "items"> & {
  * Service for managing complaints and memos in IndexedDB
  */
 export class ComplaintsDB {
-    static $injectKey = "ComplaintsDB";
+    static $injectKey = "complaintsDB";
 
     constructor(
         private readonly databaseService: DatabaseService,
-        private readonly complaintsItemDb: ComplaintsItemDB,
+        private readonly complaintsItemDB: ComplaintsItemDB,
     ) {}
 
     /**
@@ -91,7 +91,7 @@ export class ComplaintsDB {
 
         const items = await Promise.all(
             internalComplaints.itemIds.map((id) =>
-                this.complaintsItemDb.get(id),
+                this.complaintsItemDB.get(id),
             ),
         );
 

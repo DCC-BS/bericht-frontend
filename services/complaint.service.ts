@@ -4,35 +4,35 @@ import type { ComplaintItemService } from "./complaint_item.service";
 import type { ComplaintsDB } from "./queries/complaints_db";
 
 export class ComplaintService {
-    static $injectKey = "ComplaintService";
+    static $injectKey = "complaintService";
 
     constructor(
-        private readonly db: ComplaintsDB,
-        private readonly itemService: ComplaintItemService,
+        private readonly complaintsDB: ComplaintsDB,
+        private readonly complaintItemService: ComplaintItemService,
         private readonly logger: ILogger,
     ) {}
 
     async get(complaintId: string): Promise<IComplaint> {
-        return this.db
+        return this.complaintsDB
             .get(complaintId)
             .then((complaint) => createComplaint(complaint));
     }
 
     async put(complaint: IComplaint): Promise<void> {
-        await this.db.put(deepToRaw(complaint.toDto()));
+        await this.complaintsDB.put(deepToRaw(complaint.toDto()));
     }
 
     async delete(complaintId: string): Promise<void> {
-        const complaint = await this.db.get(complaintId);
+        const complaint = await this.complaintsDB.get(complaintId);
         if (!complaint) {
             this.logger.error("Complaint not found");
             return;
         }
 
         for (const item of complaint.items) {
-            await this.itemService.delete(item.id);
+            await this.complaintItemService.delete(item.id);
         }
 
-        await this.db.delete(complaintId);
+        await this.complaintsDB.delete(complaintId);
     }
 }

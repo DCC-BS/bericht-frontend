@@ -9,7 +9,7 @@ import {
  * Service for managing complaint items in IndexedDB
  */
 export class ComplaintsItemDB {
-    static $injectKey = "ComplaintsItemDB";
+    static $injectKey = "complaintsItemDB";
 
     constructor(private readonly databaseService: DatabaseService) {}
 
