@@ -6,7 +6,8 @@ export interface ServiceType<T> {
 }
 
 export type ServiceProviderBuilder = {
-    register<T>(target: ServiceType<T>, instance: T): void;
+    registerInstance<T>(target: ServiceType<T>, instance: T): void;
+    register<T>(target: ServiceType<T>): void;
 };
 
 type SetupFunction = (builder: ServiceProviderBuilder) => void;
@@ -14,7 +15,7 @@ type SetupFunction = (builder: ServiceProviderBuilder) => void;
 export class ServiceProvider extends Map<string, unknown> {
     private setupFunction: SetupFunction | undefined = undefined;
 
-    public register<T>(target: ServiceType<T>, instance: T): void {
+    public registerInstance<T>(target: ServiceType<T>, instance: T): void {
         const key = target.$injectKey;
         if (this.has(key)) {
             throw new Error(`Service ${key} already registered`);
@@ -22,14 +23,29 @@ export class ServiceProvider extends Map<string, unknown> {
         this.set(key, instance);
     }
 
-    public resolve<T>(target: ServiceType<T>): T {
-        this.init();
+    public register<T>(target: ServiceType<T>): void {
+        const key = target.$injectKey;
+        if (this.has(key)) {
+            throw new Error(`Service ${key} already registered`);
+        }
 
+        const ctorParamNames = getParamNames(target);
+
+        const injections = ctorParamNames.map((name: string) =>
+            this.resolveNamed(name),
+        );
+        const instance = new target(...injections);
+        this.set(key, instance);
+    }
+
+    public resolve<T>(target: ServiceType<T>): T {
         const key = target.$injectKey;
 
         const ctorParamNames = getParamNames(target);
 
-        const injections = ctorParamNames.map((name: string) => this.get(name));
+        const injections = ctorParamNames.map((name: string) =>
+            this.resolveNamed(name),
+        );
         let instance = this.get(key);
         if (!instance) {
             instance = new target(...injections);
@@ -47,6 +63,14 @@ export class ServiceProvider extends Map<string, unknown> {
         if (this.size === 0 && this.setupFunction) {
             this.setupFunction(this);
         }
+    }
+
+    private resolveNamed<T>(key: string): T {
+        const instance = this.get(key);
+        if (!instance) {
+            throw new Error(`Service ${key} not registered`);
+        }
+        return instance as T;
     }
 }
 
