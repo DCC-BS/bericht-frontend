@@ -307,7 +307,7 @@ async function startRecording(): Promise<void> {
         recordingInterval.value = setInterval(() => {
             recordingTime.value = Math.floor(
                 (Date.now() - recordingStartTime.value) / 1000 +
-                elapsedTime.value,
+                    elapsedTime.value,
             );
         }, 1000);
     } catch (error) {

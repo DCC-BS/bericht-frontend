@@ -1,20 +1,27 @@
 import type { ComplaintItemDto } from "~/models/compaint_item";
 import type { ComplaintDto } from "~/models/complaint";
-import { COMPLAINT_ITEMS_STORE, databaseService } from "./database_service";
+import {
+    COMPLAINT_ITEMS_STORE,
+    type DatabaseService,
+} from "./database_service";
 
 /**
  * Service for managing complaint items in IndexedDB
  */
 export class ComplaintsItemDB {
+    static $injectKey = "ComplaintsItemDB";
+
+    constructor(private readonly databaseService: DatabaseService) {}
+
     /**
      * Get the database instance from the centralized database service
      * @returns Promise resolving to the database instance
      */
     private async getDb(): Promise<IDBDatabase> {
-        return await databaseService.getDatabase();
+        return await this.databaseService.getDatabase();
     }
 
-    async storeItem(item: ComplaintItemDto): Promise<ComplaintItemDto> {
+    async put(item: ComplaintItemDto): Promise<ComplaintItemDto> {
         const db = await this.getDb();
 
         const transaction = db.transaction(
@@ -37,7 +44,7 @@ export class ComplaintsItemDB {
         });
     }
 
-    async getItem(id: string): Promise<ComplaintItemDto> {
+    async get(id: string): Promise<ComplaintItemDto> {
         const db = await this.getDb();
 
         const transaction = db.transaction([COMPLAINT_ITEMS_STORE], "readonly");
@@ -58,7 +65,7 @@ export class ComplaintsItemDB {
         });
     }
 
-    async deleteItem(id: string): Promise<void> {
+    async delete(id: string): Promise<void> {
         const db = await this.getDb();
 
         const transaction = db.transaction(
@@ -87,7 +94,7 @@ export class ComplaintsItemDB {
      * @param complaint The complaint to extract IDs from
      * @returns Object containing arrays of IDs by type
      */
-    extractItemIds(complaint: ComplaintDto): {
+    private extractItemIds(complaint: ComplaintDto): {
         imageIds: string[];
         memoIds: string[];
         textIds: string[];
@@ -99,7 +106,7 @@ export class ComplaintsItemDB {
         for (const item of complaint.items) {
             if (item.type === "image") {
                 imageIds.push(item.id);
-            } else if (item.type === "recoding") {
+            } else if (item.type === "recording") {
                 memoIds.push(item.id);
             } else if (item.type === "text") {
                 textIds.push(item.id);
@@ -114,10 +121,7 @@ export class ComplaintsItemDB {
      * @param items Array of complaint items to sort
      * @returns Sorted array of complaint items
      */
-    sortItemsByOrder<T extends { order: number }>(items: T[]): T[] {
+    private sortItemsByOrder<T extends { order: number }>(items: T[]): T[] {
         return [...items].sort((a, b) => a.order - b.order);
     }
 }
-
-// Export a singleton instance
-export const complaintsItemDBService = new ComplaintsItemDB();

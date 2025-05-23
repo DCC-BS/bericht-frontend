@@ -1,10 +1,11 @@
 <script lang="ts" setup>
+import { useMagicKeys } from "@vueuse/core";
 import Draggable from "vuedraggable";
 import { createComplaint } from "~/models/complaint";
+import type { DeleteModalProps } from "~/models/delte_modal_props";
 import type { EmailExport } from "#components";
 import ComplaintView from "../../../components/complaints/ComplaintView.vue";
-import type { DeleteModalProps } from "~/models/delte_modal_props";
-import { useMagicKeys } from "@vueuse/core";
+import { ReportService } from "~/services/report.service";
 
 const route = useRoute();
 const toast = useToast();
@@ -22,14 +23,14 @@ if (!reportId || typeof reportId !== "string") {
 
 const { currentReport, addComplaint } = useComplaintService(reportId);
 const { updateReport, removeReport } = useReportService();
-const reportService = getReportService();
+const reportService = useService(ReportService);
 
 const deleteModalProps = reactive({
     isOpen: false,
     message: t("report.delete"),
     onSubmit: () => {
         removeReport(reportId).then(() => {
-            navigateTo(`/`);
+            navigateTo("/");
         });
     },
     onCancel: () => {

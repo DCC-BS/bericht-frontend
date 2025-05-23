@@ -1,6 +1,6 @@
 import type { ReportDto } from "~/models/report";
-import { complaintsDBService } from "./complaints_db";
-import { REPORTS_STORE, databaseService } from "./database_service";
+import type { ComplaintsDB } from "./complaints_db";
+import { type DatabaseService, REPORTS_STORE } from "./database_service";
 
 /**
  * Internal report representation for storage
@@ -13,12 +13,19 @@ type InternalReport = Omit<ReportDto, "complaints"> & {
  * Service for managing reports in IndexedDB
  */
 export class ReportsDB {
+    static $injectKey = "ReportsDB";
+
+    constructor(
+        private readonly databaseService: DatabaseService,
+        private readonly complaintsDB: ComplaintsDB,
+    ) {}
+
     /**
      * Get the database instance from the centralized database service
      * @returns Promise resolving to the database instance
      */
     private async getDb(): Promise<IDBDatabase> {
-        return await databaseService.getDatabase();
+        return await this.databaseService.getDatabase();
     }
 
     /**
@@ -31,8 +38,7 @@ export class ReportsDB {
     ): Promise<ReportDto> {
         const complaints = await Promise.all(
             internalReport.complaintIds.map(
-                async (complaintId) =>
-                    await complaintsDBService.getComplaint(complaintId),
+                async (complaintId) => await this.complaintsDB.get(complaintId),
             ),
         );
 
@@ -49,7 +55,7 @@ export class ReportsDB {
      * @param report The report to save
      * @returns Promise with the ID of the saved report
      */
-    async storeReport(report: ReportDto): Promise<number> {
+    async put(report: ReportDto): Promise<number> {
         // Convert to internal format
         const internalReport = {
             ...report,
@@ -131,7 +137,7 @@ export class ReportsDB {
      * @returns The report with the specified ID
      * @throws Error if the report is not found
      */
-    async getById(id: string): Promise<ReportDto> {
+    async get(id: string): Promise<ReportDto> {
         const db = await this.getDb();
 
         try {
@@ -173,16 +179,6 @@ export class ReportsDB {
     async delete(id: string): Promise<void> {
         const db = await this.getDb();
 
-        // First get the report to find associated images and memos
-        const report = (await this.getById(id)) as ReportDto;
-        if (!report) {
-            return; // Nothing to delete
-        }
-
-        for (const complaint of report.complaints) {
-            await complaintsDBService.deleteComplaint(complaint.id);
-        }
-
         // Delete the report
         await new Promise<void>((resolve, reject) => {
             const transaction = db.transaction([REPORTS_STORE], "readwrite");
@@ -198,22 +194,4 @@ export class ReportsDB {
             };
         });
     }
-
-    /**
-     * Search reports by name (partial match)
-     * @param searchTerm The term to search for in report names
-     * @returns Promise with array of matching reports
-     */
-    async searchReportsByName(searchTerm: string): Promise<ReportDto[]> {
-        const allReports = await this.getAll();
-        const lowercaseTerm = searchTerm.toLowerCase();
-
-        // Filter reports by name containing the search term
-        return allReports.filter((report) =>
-            report.name.toLowerCase().includes(lowercaseTerm),
-        );
-    }
 }
-
-// Export a singleton instance
-export const reportsDBService = new ReportsDB();

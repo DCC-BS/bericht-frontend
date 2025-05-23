@@ -1,13 +1,11 @@
 import type { IComplaint } from "~/models/complaint";
 import type { IReport } from "~/models/report";
 import { ComplaintService } from "~/services/complaint.service";
-import { ComplaintsDB } from "~/services/complaints_db";
-
-let complaintService: ComplaintService | undefined = undefined;
+import { ReportService } from "~/services/report.service";
 
 export function useComplaintService(reportId: string) {
-    const reportService = getReportService();
-    const complaintService = getComplaintService();
+    const reportService = useService(ReportService);
+    const complaintService = useService(ComplaintService);
 
     const currentReport = ref<IReport>();
 
@@ -38,16 +36,4 @@ export function useComplaintService(reportId: string) {
     }
 
     return { currentReport, addComplaint, removeComplaint };
-}
-
-export function getComplaintService() {
-    if (complaintService) {
-        return complaintService;
-    }
-
-    const db = new ComplaintsDB();
-    const logger = useLogger();
-    complaintService = new ComplaintService(db, logger);
-
-    return complaintService;
 }

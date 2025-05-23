@@ -12,31 +12,15 @@ const DB_VERSION = 2; // Current version
 const REPORTS_STORE = "reports";
 const COMPLAINTS_STORE = "complaints";
 const COMPLAINT_ITEMS_STORE = "complaint_items";
-const IMAGES_STORE = "complaint_images";
 
 /**
  * Database service for managing the shared IndexedDB instance
  */
 export class DatabaseService {
-    private static instance: DatabaseService;
+    static $injectKey = "DatabaseService";
+
     private db: IDBDatabase | null = null;
     private initializationPromise: Promise<IDBDatabase> | null = null;
-
-    /**
-     * Private constructor to enforce the singleton pattern
-     */
-    private constructor() {}
-
-    /**
-     * Get the singleton instance of the database service
-     * @returns The database service instance
-     */
-    public static getInstance(): DatabaseService {
-        if (!DatabaseService.instance) {
-            DatabaseService.instance = new DatabaseService();
-        }
-        return DatabaseService.instance;
-    }
 
     /**
      * Get the database instance, initializing it if necessary
@@ -117,18 +101,6 @@ export class DatabaseService {
                         unique: true,
                     });
                 }
-
-                // Create images store if it doesn't exist
-                if (!db.objectStoreNames.contains(IMAGES_STORE)) {
-                    const imagesStore = db.createObjectStore(IMAGES_STORE, {
-                        keyPath: "id",
-                        autoIncrement: true,
-                    });
-                    imagesStore.createIndex("reportId", "reportId", {
-                        unique: false,
-                    });
-                    imagesStore.createIndex("id", "id", { unique: true });
-                }
             };
 
             // Success handler
@@ -173,9 +145,6 @@ export class DatabaseService {
     }
 }
 
-// Export a singleton instance
-export const databaseService = DatabaseService.getInstance();
-
 // Export constants for other services to use
 export {
     DB_NAME,
@@ -183,5 +152,4 @@ export {
     REPORTS_STORE,
     COMPLAINTS_STORE,
     COMPLAINT_ITEMS_STORE,
-    IMAGES_STORE,
 };

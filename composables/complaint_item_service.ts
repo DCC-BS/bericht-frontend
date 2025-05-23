@@ -1,16 +1,14 @@
 import type { IComplaintItem } from "~/models/compaint_item";
 import type { ComplaintItemInput, IComplaint } from "~/models/complaint";
 import { Transaction } from "~/models/transaction";
+import { ComplaintService } from "~/services/complaint.service";
 import { ComplaintItemService } from "~/services/complaint_item.service";
-import { ComplaintsItemDB } from "~/services/complaints_item_db";
-
-let service: ComplaintItemService | undefined = undefined;
 
 export function useComplaintItemService(itemid: string) {
     const logger = useLogger();
     const toast = useToast();
-    const complaintItemService = getComplaintItemService();
-    const complaintService = getComplaintService();
+    const complaintItemService = useService(ComplaintItemService);
+    const complaintService = useService(ComplaintService);
 
     const currentComplaint = ref<IComplaint>();
 
@@ -50,6 +48,7 @@ export function useComplaintItemService(itemid: string) {
         currentComplaint.value.removeItem(item.id);
 
         const transaction = new Transaction(
+            // biome-ignore lint/style/noNonNullAssertion: <explanation>
             () => executeRemoveItem(item, currentComplaint.value!.id),
             10_000,
         );
@@ -97,16 +96,4 @@ export function useComplaintItemService(itemid: string) {
         updateComplaintItem: updateItem,
         currentComplaint,
     };
-}
-
-function getComplaintItemService() {
-    if (service) {
-        return service;
-    }
-
-    const db = new ComplaintsItemDB();
-    const logger = useLogger();
-    service = new ComplaintItemService(db, logger);
-
-    return service;
 }

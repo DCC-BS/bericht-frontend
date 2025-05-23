@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { IReport } from "~/models/report";
+import { ReportService } from "~/services/report.service";
 
 interface InputProps {
     report: IReport;
@@ -9,7 +10,7 @@ const props = defineProps<InputProps>();
 const toast = useToast();
 const { t } = useI18n();
 const isOpen = ref(false);
-const reportService = getReportService();
+const reportService = useService(ReportService);
 
 const to = ref<string>("");
 

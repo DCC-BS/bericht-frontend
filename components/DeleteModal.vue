@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { UModal } from "#components";
 import type { DeleteModalProps } from "~/models/delte_modal_props";
+import { UModal } from "#components";
 
 interface Props {
     options: DeleteModalProps;

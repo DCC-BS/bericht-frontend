@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import RecordingItem from "~/components/complaints/items/RecordItem.vue";
 import ImageItem from "~/components/complaints/items/ImageItem.vue";
+import RecordingItem from "~/components/complaints/items/RecordItem.vue";
 import TextItem from "~/components/complaints/items/TextItem.vue";
 import type { IComplaintItem } from "~/models/compaint_item";
 import {

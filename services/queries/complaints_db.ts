@@ -1,7 +1,7 @@
 import type { ComplaintItemDto } from "~/models/compaint_item";
 import type { ComplaintDto } from "~/models/complaint";
-import { complaintsItemDBService } from "./complaints_item_db";
-import { COMPLAINTS_STORE, databaseService } from "./database_service";
+import type { ComplaintsItemDB } from "../queries/complaints_item_db";
+import { COMPLAINTS_STORE, type DatabaseService } from "./database_service";
 
 type InternalComplaint = Omit<ComplaintDto, "items"> & {
     itemIds: string[];
@@ -11,12 +11,19 @@ type InternalComplaint = Omit<ComplaintDto, "items"> & {
  * Service for managing complaints and memos in IndexedDB
  */
 export class ComplaintsDB {
+    static $injectKey = "ComplaintsDB";
+
+    constructor(
+        private readonly databaseService: DatabaseService,
+        private readonly complaintsItemDb: ComplaintsItemDB,
+    ) {}
+
     /**
      * Get the database instance from the centralized database service
      * @returns Promise resolving to the database instance
      */
     private async getDb(): Promise<IDBDatabase> {
-        return await databaseService.getDatabase();
+        return await this.databaseService.getDatabase();
     }
 
     /**
@@ -24,7 +31,7 @@ export class ComplaintsDB {
      * @param complaint The complaint to store
      * @returns Promise resolving to the stored complaint
      */
-    async storeComplaint(complaint: ComplaintDto): Promise<void> {
+    async put(complaint: ComplaintDto): Promise<void> {
         const db = await this.getDb();
 
         // Then store the complaint itself
@@ -60,7 +67,7 @@ export class ComplaintsDB {
      * @param id The ID of the complaint to retrieve
      * @returns Promise resolving to the complaint, or undefined if not found
      */
-    async getComplaint(id: string): Promise<ComplaintDto> {
+    async get(id: string): Promise<ComplaintDto> {
         const db = await this.getDb();
 
         const transaction = db.transaction([COMPLAINTS_STORE], "readonly");
@@ -84,7 +91,7 @@ export class ComplaintsDB {
 
         const items = await Promise.all(
             internalComplaints.itemIds.map((id) =>
-                complaintsItemDBService.getItem(id),
+                this.complaintsItemDb.get(id),
             ),
         );
 
@@ -98,22 +105,7 @@ export class ComplaintsDB {
      * Delete a complaint by its ID along with all its related items
      * @param id The ID of the complaint to delete
      */
-    async deleteComplaint(id: string): Promise<void> {
-        // First, get the complaint to extract item IDs
-        const complaint = await this.getComplaint(id);
-
-        if (!complaint) {
-            return; // Complaint not found, nothing to delete
-        }
-        // Delete all related items
-        await Promise.all([
-            // Delete all complaint items
-            ...complaint.items.map((item) =>
-                complaintsItemDBService.deleteItem(item.id),
-            ),
-        ]);
-
-        // Delete the complaint itself
+    async delete(id: string): Promise<void> {
         const db = await this.getDb();
         const transaction = db.transaction([COMPLAINTS_STORE], "readwrite");
         const store = transaction.objectStore(COMPLAINTS_STORE);
@@ -133,6 +125,3 @@ export class ComplaintsDB {
         });
     }
 }
-
-// Export a singleton instance
-export const complaintsDBService = new ComplaintsDB();

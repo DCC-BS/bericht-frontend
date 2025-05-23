@@ -1,12 +1,9 @@
 import type { IReport } from "~/models/report";
 import { ReportService } from "~/services/report.service";
-import { ReportsDB } from "~/services/reports_db";
-
-let reportService: ReportService | undefined = undefined;
 
 export function useReportService() {
     const logger = useLogger();
-    const reportService = getReportService();
+    const reportService = useService(ReportService);
 
     async function createReport(title: string) {
         return await reportService.create(title);
@@ -25,17 +22,4 @@ export function useReportService() {
     }
 
     return { createReport, removeReport, getAllReports, updateReport };
-}
-
-export function getReportService() {
-    if (reportService) {
-        return reportService;
-    }
-
-    const db = new ReportsDB();
-    const logger = useLogger();
-    const { t } = useI18n();
-    reportService = new ReportService(db, logger, t);
-
-    return reportService;
 }
