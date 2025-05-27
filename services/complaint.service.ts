@@ -1,10 +1,15 @@
 import type { ILogger } from "@dcc-bs/logger.bs.js";
 import { type IComplaint, createComplaint } from "~/models/complaint";
-import type { ComplaintItemService } from "./complaint_item.service";
-import type { ComplaintsDB } from "./queries/complaints_db";
+import { ComplaintItemService } from "./complaint_item.service";
+import { ComplaintsDB } from "./queries/complaints_db";
 
 export class ComplaintService {
     static $injectKey = "complaintService";
+    static $inject = [
+        ComplaintsDB.$injectKey,
+        ComplaintItemService.$injectKey,
+        "logger",
+    ];
 
     constructor(
         private readonly complaintsDB: ComplaintsDB,

@@ -90,7 +90,7 @@ async function addItem(): Promise<void> {
         return;
     }
 
-    addComplaintItem(itemToAdd.value);
+    await addComplaintItem(itemToAdd.value);
 
     itemToAdd.value = undefined;
     isModalOpen.value = false;

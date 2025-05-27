@@ -18,6 +18,7 @@ const COMPLAINT_ITEMS_STORE = "complaint_items";
  */
 export class DatabaseService {
     static $injectKey = "databaseService";
+    static $inject = [];
 
     private db: IDBDatabase | null = null;
     private initializationPromise: Promise<IDBDatabase> | null = null;

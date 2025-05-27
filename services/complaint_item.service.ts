@@ -3,10 +3,11 @@ import {
     type IComplaintItem,
     createComplaintItem,
 } from "~/models/compaint_item";
-import type { ComplaintsItemDB } from "./queries/complaints_item_db";
+import { ComplaintsItemDB } from "./queries/complaints_item_db";
 
 export class ComplaintItemService {
     static $injectKey = "complaintItemService";
+    static $inject = [ComplaintsItemDB.$injectKey, "logger"];
 
     constructor(
         private readonly complaintsItemDB: ComplaintsItemDB,

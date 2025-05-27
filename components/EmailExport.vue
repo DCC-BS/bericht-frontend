@@ -36,6 +36,8 @@ async function sendMail() {
             icon: "i-lucide-circle-check",
             color: "success",
         });
+
+        isOpen.value = false;
     } catch (error) {
         if (error instanceof Error) {
             toast.add({
@@ -72,13 +74,6 @@ defineExpose({
             </UButton>
         </template>
     </UModal>
-
-    <div>
-        <UButton @click="isOpen = true" color="primary" class="w-full flex items-center justify-center gap-2"
-            icon="i-lucide-send">
-            {{ t('email.send') }}
-        </UButton>
-    </div>
 </template>
 
 <style></style>

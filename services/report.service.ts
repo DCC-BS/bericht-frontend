@@ -1,10 +1,16 @@
 import type { ILogger } from "@dcc-bs/logger.bs.js";
 import { type IReport, createReport } from "~/models/report";
-import type { ComplaintService } from "./complaint.service";
-import type { ReportsDB } from "./queries/reports_db";
+import { ComplaintService } from "./complaint.service";
+import { ReportsDB } from "./queries/reports_db";
 
 export class ReportService {
     static $injectKey = "reportService";
+    static $inject = [
+        ReportsDB.$injectKey,
+        ComplaintService.$injectKey,
+        "logger",
+        "translate",
+    ];
 
     constructor(
         private readonly reportsDB: ReportsDB,

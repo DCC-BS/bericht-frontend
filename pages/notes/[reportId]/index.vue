@@ -114,6 +114,7 @@ async function exportReport() {
     ]" />
 
     <DeleteModal :options="deleteModalProps" />
+    <EmailExport v-if="currentReport" ref="emailExport" :report="currentReport" />
 
     <div v-if="currentReport" class="text-center p-1">
         <div class="p-1">

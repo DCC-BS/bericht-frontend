@@ -1,6 +1,6 @@
 import type { ReportDto } from "~/models/report";
-import type { ComplaintsDB } from "./complaints_db";
-import { type DatabaseService, REPORTS_STORE } from "./database_service";
+import { ComplaintsDB } from "./complaints_db";
+import { DatabaseService, REPORTS_STORE } from "./database_service";
 
 /**
  * Internal report representation for storage
@@ -14,6 +14,7 @@ type InternalReport = Omit<ReportDto, "complaints"> & {
  */
 export class ReportsDB {
     static $injectKey = "reportsDB";
+    static $inject = [DatabaseService.$injectKey, ComplaintsDB.$injectKey];
 
     constructor(
         private readonly databaseService: DatabaseService,

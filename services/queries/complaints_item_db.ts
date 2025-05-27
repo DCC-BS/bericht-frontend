@@ -1,15 +1,13 @@
 import type { ComplaintItemDto } from "~/models/compaint_item";
 import type { ComplaintDto } from "~/models/complaint";
-import {
-    COMPLAINT_ITEMS_STORE,
-    type DatabaseService,
-} from "./database_service";
+import { COMPLAINT_ITEMS_STORE, DatabaseService } from "./database_service";
 
 /**
  * Service for managing complaint items in IndexedDB
  */
 export class ComplaintsItemDB {
     static $injectKey = "complaintsItemDB";
+    static $inject = [DatabaseService.$injectKey];
 
     constructor(private readonly databaseService: DatabaseService) {}
 

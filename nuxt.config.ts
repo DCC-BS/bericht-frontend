@@ -84,6 +84,13 @@ export default defineNuxtConfig({
                 "Cross-Origin-Embedder-Policy": "require-corp",
             },
         },
+        build: {
+            minify: "terser",
+            terserOptions: {
+                keep_fnames: true,
+                keep_classnames: true,
+            },
+        },
     },
     pwa: {
         devOptions: {

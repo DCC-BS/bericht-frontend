@@ -13,8 +13,8 @@ export default defineNuxtPlugin((nuxtApp) => {
         const logger = useLogger();
         const { t } = useI18n();
 
-        builder.registerNamedInstance("translate", t);
-        builder.registerNamedInstance("logger", logger);
+        builder.registerInstance("translate", t);
+        builder.registerInstance("logger", logger);
 
         builder.register(DatabaseService);
         builder.register(ComplaintsDB);

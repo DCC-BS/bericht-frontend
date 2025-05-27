@@ -105,6 +105,11 @@ export default defineI18nConfig(() => ({
                 noItems: "No items use to plus button to add items",
                 delete: "delete {type}?",
             },
+            
+            // Complaint item component translations
+            complaintItem: {
+                addText: "Add Text",
+            },
 
             // Speech to text component translations
             speechToText: {
@@ -245,6 +250,11 @@ export default defineI18nConfig(() => ({
                 delete: "{type} löschen?",
                 noItems:
                     "Keine Elemente, verwenden Sie die Plus-Schaltfläche, um Elemente hinzuzufügen",
+            },
+            
+            // Complaint item component translations
+            complaintItem: {
+                addText: "Text hinzufügen",
             },
 
             // Speech to text component translations

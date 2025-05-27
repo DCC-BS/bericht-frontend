@@ -1,7 +1,7 @@
 import type { ComplaintItemDto } from "~/models/compaint_item";
 import type { ComplaintDto } from "~/models/complaint";
-import type { ComplaintsItemDB } from "../queries/complaints_item_db";
-import { COMPLAINTS_STORE, type DatabaseService } from "./database_service";
+import { ComplaintsItemDB } from "../queries/complaints_item_db";
+import { COMPLAINTS_STORE, DatabaseService } from "./database_service";
 
 type InternalComplaint = Omit<ComplaintDto, "items"> & {
     itemIds: string[];
@@ -12,6 +12,7 @@ type InternalComplaint = Omit<ComplaintDto, "items"> & {
  */
 export class ComplaintsDB {
     static $injectKey = "complaintsDB";
+    static $inject = [DatabaseService.$injectKey, ComplaintsItemDB.$injectKey];
 
     constructor(
         private readonly databaseService: DatabaseService,
