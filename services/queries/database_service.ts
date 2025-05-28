@@ -41,6 +41,34 @@ export class DatabaseService {
     }
 
     /**
+     * Deletes the existing IndexedDB database
+     * @returns Promise that resolves when the database is deleted
+     */
+    private async deleteDatabase(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            // Check if IndexedDB is available
+            if (typeof indexedDB === "undefined") {
+                reject(
+                    new Error("IndexedDB is not available in this environment"),
+                );
+                return;
+            }
+
+            const request = indexedDB.deleteDatabase(DB_NAME);
+
+            request.onsuccess = () => {
+                console.log(`Database ${DB_NAME} successfully deleted`);
+                resolve();
+            };
+
+            request.onerror = (event) => {
+                const error = (event.target as IDBOpenDBRequest).error;
+                reject(`Failed to delete database: ${error}`);
+            };
+        });
+    }
+
+    /**
      * Initialize the IndexedDB database with all required object stores
      * @returns Promise that resolves when the database is initialized
      */
@@ -66,6 +94,22 @@ export class DatabaseService {
                 console.log(
                     `Upgrading database from version ${oldVersion} to ${newVersion}...`,
                 );
+
+                // If migrating from version 1, delete all object stores and recreate them
+                // Note: This will delete all data - appropriate for major schema changes
+                if (oldVersion === 1 && newVersion > oldVersion) {
+                    // Get all existing object store names
+                    const storeNames = Array.from(db.objectStoreNames);
+
+                    // Delete all existing object stores
+                    for (const storeName of storeNames) {
+                        db.deleteObjectStore(storeName);
+                    }
+
+                    console.log(
+                        "Deleted all object stores from version 1 database",
+                    );
+                }
 
                 // Create reports store if it doesn't exist
                 if (!db.objectStoreNames.contains(REPORTS_STORE)) {
@@ -104,6 +148,30 @@ export class DatabaseService {
                 }
             };
 
+            // Handle blocked event - this occurs when there are open connections to the database
+            request.onblocked = () => {
+                console.warn(
+                    "Database upgrade was blocked. Please close all other tabs with this site open.",
+                );
+                // Attempt to force close all connections
+                this.forceCloseConnections()
+                    .then(() => {
+                        console.log(
+                            "Attempting to reinitialize after closing connections",
+                        );
+                        this.db = null;
+                        this.initializationPromise = null;
+                        this.initialize().then(resolve).catch(reject);
+                    })
+                    .catch((error) => {
+                        console.error(
+                            "Failed to force close connections:",
+                            error,
+                        );
+                        reject(error);
+                    });
+            };
+
             // Success handler
             request.onsuccess = (event) => {
                 this.db = (event.target as IDBOpenDBRequest).result;
@@ -126,6 +194,21 @@ export class DatabaseService {
     }
 
     /**
+     * Force close all connections to the database
+     * This is used when a database upgrade is blocked
+     * @returns Promise that resolves when all connections are closed
+     */
+    private async forceCloseConnections(): Promise<void> {
+        // If we have an open connection, close it
+        if (this.db) {
+            this.db.close();
+            this.db = null;
+        }
+
+        return Promise.resolve();
+    }
+
+    /**
      * Checks if the database exists, and creates it if it doesn't
      * This is useful when you want to ensure the database is ready before making operations
      * @returns Promise that resolves to true when the database is ready
@@ -141,6 +224,33 @@ export class DatabaseService {
             return true;
         } catch (error) {
             console.error("Failed to ensure database exists:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Force a complete database recreation by deleting and reinitializing
+     * This can be used to handle major schema changes or data corruption
+     * WARNING: This will delete all data in the database
+     * @returns Promise that resolves when the database is reinitialized
+     */
+    async recreateDatabase(): Promise<IDBDatabase> {
+        // Close any existing connections
+        if (this.db) {
+            this.db.close();
+            this.db = null;
+        }
+
+        this.initializationPromise = null;
+
+        try {
+            // Delete the database
+            await this.deleteDatabase();
+
+            // Reinitialize
+            return this.getDatabase();
+        } catch (error) {
+            console.error("Failed to recreate database:", error);
             throw error;
         }
     }
