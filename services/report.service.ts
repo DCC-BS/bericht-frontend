@@ -2,6 +2,8 @@ import type { ILogger } from "@dcc-bs/logger.bs.js";
 import { type IReport, createReport } from "~/models/report";
 import { ComplaintService } from "./complaint.service";
 import { ReportsDB } from "./queries/reports_db";
+import { ComplaintRecording, ComplaintText } from "~/models/compaint_item";
+import type { TitleResponse } from "~/models/title_response";
 
 export class ReportService {
     static $injectKey = "reportService";
@@ -64,20 +66,42 @@ export class ReportService {
             const type = this.translate(`complaint.${complaint.type}`);
             complaint.title = `${type} ${i++}`;
 
-            // const text = complaint.memos.map((m) => m.text).join(" ");
+            const text = complaint.items
+                .map((item) => {
+                    if (item instanceof ComplaintText) {
+                        return item.text;
+                    }
+                    if (item instanceof ComplaintRecording) {
+                        return item.text;
+                    }
+                    return "";
+                })
+                .join("\n");
 
-            // const response = await $fetch<TitleResponse>("/api/title", {
-            //     body: {
-            //         text: text,
-            //     },
-            //     method: "POST",
-            // });
+            if (text.length < 3) {
+                return;
+            }
 
-            // if (response) {
-            //     complaint.title = response.title;
-            // } else {
-            //     this.logger.error("Failed to generate title");
-            // }
+            try {
+                const response = await $fetch<TitleResponse>("/api/title", {
+                    body: {
+                        text: text,
+                    },
+                    method: "POST",
+                });
+
+                if (response) {
+                    complaint.title = `${type}: ${response.title.trim()}`;
+                } else {
+                    this.logger.error("Failed to generate title", response);
+                }
+            } catch (error) {
+                if (error instanceof Error) {
+                    this.logger.error("Error generating title", error.message);
+                } else {
+                    this.logger.error("Error generating title", error);
+                }
+            }
         }
     }
 }

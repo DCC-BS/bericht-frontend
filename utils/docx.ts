@@ -1,4 +1,5 @@
 import {
+    AlignmentType,
     Document,
     Footer,
     ImageRun,
@@ -125,34 +126,23 @@ export async function createDoxf(report: IReport) {
     ).flat();
 
     const doc = new Document({
+        numbering: {
+            config: [
+                {
+                    reference: "complaint-numbering",
+                    levels: [
+                        {
+                            level: 0,
+                            format: NumberFormat.DECIMAL,
+                            text: "%1.",
+                            alignment: AlignmentType.START,
+                        },
+                    ],
+                },
+            ],
+        },
         sections: [
             {
-                // properties: {
-                //     page: {
-                //         pageNumbers: {
-                //             start: 1,
-                //             formatType: NumberFormat.DECIMAL,
-                //         }
-                //     }
-                // },
-                // footers: {
-                //     default: new Footer({
-                //         children: [
-                //             new Paragraph({
-                //                 children: [
-                //                     new TextRun({
-                //                         children: [
-                //                             "Seite ",
-                //                             PageNumber.CURRENT,
-                //                             " von ",
-                //                             PageNumber.TOTAL_PAGES,
-                //                         ]
-                //                     }),
-                //                 ],
-                //             }),
-                //         ]
-                //     })
-                // },
                 children: [
                     new Paragraph({
                         text: report.name,
@@ -181,6 +171,7 @@ async function renderComplaint(complaint: IComplaint) {
         new Paragraph({
             text: `${complaint.title}`,
             heading: "Heading1",
+            numbering: { level: 0, reference: "complaint-numbering" },
             keepLines: true,
             keepNext: true,
         }),

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useLocalStorage } from "@vueuse/core";
 import type { IReport } from "~/models/report";
 import { ReportService } from "~/services/report.service";
 
@@ -12,7 +13,7 @@ const { t } = useI18n();
 const isOpen = ref(false);
 const reportService = useService(ReportService);
 
-const to = ref<string>("");
+const to = useLocalStorage("to-email", "");
 
 /**
  * Sends an email with the report to the specified email address

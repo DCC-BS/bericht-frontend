@@ -13,10 +13,14 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await verboseFetch<TitleResponse>(`${config.public.apiUrl}/title`, event, {
-        method: "POST",
-        body: {
-            text: text,
+    return await verboseFetch<TitleResponse>(
+        `${config.public.apiUrl}/title`,
+        event,
+        {
+            method: "POST",
+            body: {
+                text: text,
+            },
         },
-    });
+    );
 });
