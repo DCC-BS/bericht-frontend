@@ -18,11 +18,13 @@
         "@vueuse/core": "^13.2.0",
         "date-fns": "^4.1.0",
         "docx": "9.5.0",
+        "konva": "^9.3.20",
         "nuxt": "3.17.4",
         "nuxt-viewport": "2.3.1",
         "pinia": "3.0.2",
         "vue": "3.5.14",
         "vue-deepunref": "^1.0.1",
+        "vue-konva": "^3.2.1",
         "vue-router": "4.5.1",
         "vuedraggable": "^4.1.0",
       },
@@ -1635,6 +1637,8 @@
 
     "kolorist": ["kolorist@1.8.0", "", {}, "sha512-Y+60/zizpJ3HRH8DCss+q95yr6145JXZo46OTpFvDZWLfRCE4qChOyk1b26nMaNpfHHgxagk9dXT5OP0Tfe+dQ=="],
 
+    "konva": ["konva@9.3.20", "", {}, "sha512-7XPD/YtgfzC8b1c7z0hhY5TF1IO/pBYNa29zMTA2PeBaqI0n5YplUeo4JRuRcljeAF8lWtW65jePZZF7064c8w=="],
+
     "kuler": ["kuler@2.0.0", "", {}, "sha512-Xq9nH7KlWZmXAtodXDDRE7vs6DU1gTU8zYDHDiWLSip45Egwq3plLHzPn27NgvzL2r1LMPC1vdqh98sQxtqj4A=="],
 
     "lambda-local": ["lambda-local@2.2.0", "", { "dependencies": { "commander": "^10.0.1", "dotenv": "^16.3.1", "winston": "^3.10.0" }, "bin": { "lambda-local": "build/cli.js" } }, "sha512-bPcgpIXbHnVGfI/omZIlgucDqlf4LrsunwoKue5JdZeGybt8L6KyJz2Zu19ffuZwIwLj2NAI2ZyaqNT6/cetcg=="],
@@ -2438,6 +2442,8 @@
     "vue-devtools-stub": ["vue-devtools-stub@0.1.0", "", {}, "sha512-RutnB7X8c5hjq39NceArgXg28WZtZpGc3+J16ljMiYnFhKvd8hITxSWQSQ5bvldxMDU6gG5mkxl1MTQLXckVSQ=="],
 
     "vue-i18n": ["vue-i18n@10.0.7", "", { "dependencies": { "@intlify/core-base": "10.0.7", "@intlify/shared": "10.0.7", "@vue/devtools-api": "^6.5.0" }, "peerDependencies": { "vue": "^3.0.0" } }, "sha512-bKsk0PYwP9gdYF4nqSAT0kDpnLu1gZzlxFl885VH4mHVhEnqP16+/mAU05r1U6NIrc0fGDWP89tZ8GzeJZpe+w=="],
+
+    "vue-konva": ["vue-konva@3.2.1", "", { "peerDependencies": { "konva": ">7", "vue": "^3" } }, "sha512-gLF+VYnlrBfwtaN3NkgzzEqlj9nyCll80VZv2DdvLUM3cisUsdcRJJuMwGTBJOTebcnn6MB22r33IFd2m+m/ig=="],
 
     "vue-router": ["vue-router@4.5.1", "", { "dependencies": { "@vue/devtools-api": "^6.6.4" }, "peerDependencies": { "vue": "^3.2.0" } }, "sha512-ogAF3P97NPm8fJsE4by9dwSYtDwXIY1nFY9T6DyQnGHd1E2Da94w9JIolpe42LJGIl0DwOHBi8TcRPlPGwbTtw=="],
 
