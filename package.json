@@ -26,6 +26,7 @@
         "@pinia/nuxt": "0.11.0",
         "@vite-pwa/nuxt": "1.0.1",
         "@vueuse/core": "^13.2.0",
+        "@vueuse/gesture": "^2.0.0",
         "date-fns": "^4.1.0",
         "docx": "9.5.0",
         "konva": "^9.3.20",

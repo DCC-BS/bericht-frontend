@@ -1,15 +1,13 @@
 <script lang="ts" setup>
-import { isTemplateExpression } from "typescript";
 import type { ComplaintImage } from "~/models/compaint_item";
 
 interface Props {
     item: ComplaintImage;
+    reportId: string;
+    complaintId: string;
 }
 
 const props = defineProps<Props>();
-const { updateComplaintItem } = useComplaintItemService(props.item.id);
-
-const isDrawing = ref(false);
 
 const imageUrl = computed(() => {
     if (props.item?.image) {
@@ -18,34 +16,14 @@ const imageUrl = computed(() => {
     return "";
 });
 
-/**
- * Opens the drawing modal
- */
 function openDrawingModal() {
-    isDrawing.value = true;
-}
+    console.log("Opening drawing modal for item:", `/notes/${props.reportId}/complaints/${props.complaintId}/draw/${props.item.id}`);
 
-async function saveDrawing(image: Blob): Promise<void> {
-    isDrawing.value = false;
-
-    props.item.image.image = image;
-    await updateComplaintItem(props.item);
-}
-
-async function closeDrawingModal(): Promise<void> {
-    isDrawing.value = false;
+    navigateTo(`/notes/${props.reportId}/complaints/${props.complaintId}/draw/${props.item.id}`);
 }
 </script>
 
 <template>
-    <UModal v-bind:open="isDrawing" fullscreen>
-        <template #content>
-            <div>
-                <ImageDraw :src="imageUrl" @save="saveDrawing" @cancel="closeDrawingModal" />
-            </div>
-        </template>
-    </UModal>
-
     <div>
         <div class="relative w-fit h-fit m-auto">
             <img :src="imageUrl" alt="Complaint Image" class="w-auto h-auto rounded-lg shadow-md max-h-[200px]" />

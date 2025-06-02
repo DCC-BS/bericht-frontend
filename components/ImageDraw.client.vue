@@ -4,6 +4,7 @@ import { useImage } from 'vue-konva';
 import type Konva from 'konva';
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import type { Stage } from 'konva/lib/Stage';
+import { usePinch, useDrag } from '@vueuse/gesture';
 
 interface InputProps {
     src: string;
@@ -11,6 +12,119 @@ interface InputProps {
 
 const props = defineProps<InputProps>();
 const emit = defineEmits(['save', 'cancel']);
+
+/**
+ * Handle pinch gesture for zooming
+ * Uses the @vueuse/gesture library for better gesture handling
+ */
+usePinch((state) => {
+    // Extract gesture data
+    const {
+        da, // [d,a] absolute distance and angle of the two pointers
+        origin, // coordinates of the center between the two touch events
+        event,
+        offset,
+        delta
+    } = state;
+
+    // Prevent browser default behaviors
+    event?.preventDefault();
+
+    // Extract distance from da array (first element)
+    const distance = da ? da[0] : 0;
+
+    if (!lastDist.value) {
+        // First interaction - just store the distance
+        lastDist.value = distance;
+        return;
+    }
+
+    // Calculate scale change using direct ratio for more responsive zoom
+    const pinchRatio = distance / lastDist.value;
+
+    // Only apply zoom if there's a significant change
+    if (Math.abs(pinchRatio - 1) > 0.02) {
+        const oldScale = stageScale.value;
+
+        // Apply new scale with proper ratio
+        const newScale = oldScale * pinchRatio;
+
+        // Limit min/max scale
+        const limitedScale = Math.max(0.5, Math.min(newScale, 4));
+
+        // Apply scale
+        stageScale.value = limitedScale;
+
+        // Apply movement to center point if origin is available
+        if (origin) {
+            const stage = stageRef.value?.getStage();
+            if (stage) {
+                // Get pointer position in stage coordinates
+                const pointerPos = {
+                    x: origin[0],
+                    y: origin[1]
+                };
+
+                // Calculate the position difference caused by scaling
+                const mousePointTo = {
+                    x: (pointerPos.x - stagePosition.value.x) / oldScale,
+                    y: (pointerPos.y - stagePosition.value.y) / oldScale
+                };
+
+                // Adjust position to keep pinch center stationary
+                stagePosition.value = {
+                    x: pointerPos.x - mousePointTo.x * limitedScale,
+                    y: pointerPos.y - mousePointTo.y * limitedScale
+                };
+            }
+        }
+    }
+
+    // Update last distance value for next frame
+    lastDist.value = distance;
+
+    // Reset drawing state during pinch operations
+    isDrawing.value = false;
+}, {
+    passive: false,
+    domTarget: window, // Attach to window for more reliable gesture detection
+    eventOptions: { capture: true }
+});
+
+/**
+ * Handle drag gesture for panning the canvas
+ * Uses the @vueuse/gesture library for better gesture handling
+ */
+useDrag(({ active, first, last, delta: [dx, dy] }) => {
+    // Only activate dragging when in pan mode
+    if (tool.value !== 'pan') return;
+
+    // Update dragging state
+    isDragging.value = active;
+    const speed = 1; // Speed multiplier for dragging
+
+    if (first) {
+        // Start of drag - can perform initialization if needed
+        console.log('Drag started');
+    } else if (active) {
+        console.log('Dragging', { dx, dy });
+
+        // During drag - update position
+        stagePosition.value = {
+            x: stagePosition.value.x + dx * speed,
+            y: stagePosition.value.y + dy * speed
+        };
+    }
+
+    if (last) {
+        // End of drag
+        console.log('Drag ended');
+    }
+}, {
+    passive: false,
+    domTarget: window,
+    eventOptions: { capture: true }
+});
 
 type LineType = {
     points: number[];
@@ -73,55 +187,7 @@ const stageRef = ref<{ getStage: () => Stage | null }>();
 const isEdited = ref(false);
 const isSaving = ref(false);
 
-/**
- * Handles pinch zoom gesture on mobile devices
- * @param e Touch event from Konva
- */
-function handlePinchZoom(e: KonvaEventObject<TouchEvent, Stage>): void {
-    e.evt.preventDefault();
-
-    const touch1 = e.evt.touches[0];
-    const touch2 = e.evt.touches[1];
-
-    if (!touch1 || !touch2) return;
-
-    // Calculate center point between two touches
-    const center = {
-        x: (touch1.clientX + touch2.clientX) / 2,
-        y: (touch1.clientY + touch2.clientY) / 2,
-    };
-
-    // Calculate distance between touches
-    const dist = Math.sqrt(
-        (touch2.clientX - touch1.clientX) ** 2 +
-        (touch2.clientY - touch1.clientY) ** 2
-    );
-
-    if (!lastCenter.value) {
-        lastCenter.value = center;
-        lastDist.value = dist;
-        return;
-    }
-
-    // Calculate scale change
-    const scaleBy = 1.01;
-    const oldScale = stageScale.value;
-
-    // New scale based on pinch distance change
-    const newScale = dist > lastDist.value
-        ? oldScale * scaleBy
-        : oldScale / scaleBy;
-
-    // Limit min/max scale
-    const limitedScale = Math.max(0.5, Math.min(newScale, 4));
-
-    // Apply scale
-    stageScale.value = limitedScale;
-
-    // Update last values
-    lastCenter.value = center;
-    lastDist.value = dist;
-}
+// The handlePinchZoom function has been replaced with the usePinch hook implementation
 
 // Update dimensions on window resize
 function handleResize(): void {
@@ -221,10 +287,8 @@ const selectedColor = ref(commonColors[0].value); // Default brush color
 const eraserSize = ref(10); // Size of eraser hitbox in pixels
 const cursorPosition = ref({ x: 0, y: 0 }); // Track cursor position for eraser visual
 
-// Add state tracking for drag operations
+// State tracking for drag operations - used by useDrag hook
 const isDragging = ref(false);
-const dragStartPosition = ref<{ x: number, y: number } | null>(null);
-const dragLastPosition = ref<{ x: number, y: number } | null>(null);
 
 
 /**
@@ -377,9 +441,8 @@ const handleMouseDown = (e: KonvaEventObject<MouseEvent | TouchEvent, Stage>) =>
         return;
     }
 
-    // If in pan mode, use the drag handler instead
+    // If in pan mode, just return - useDrag will handle it
     if (tool.value === 'pan') {
-        handleDragStart(e);
         return;
     }
 
@@ -479,9 +542,8 @@ const handleTouchStart = (e: KonvaEventObject<TouchEvent, Stage>) => {    // Che
         return;
     }
 
-    // Handle pan mode differently from drawing mode
+    // If in pan mode, just return - useDrag will handle it
     if (tool.value === 'pan') {
-        handleDragStart(e);
         return;
     }
 
@@ -492,12 +554,17 @@ const handleTouchStart = (e: KonvaEventObject<TouchEvent, Stage>) => {    // Che
 /**
  * Handle touch move event
  */
+/**
+ * Handle touch move event
+ * Note: Pinch gesture is now handled by the usePinch hook
+ */
 const handleTouchMove = (e: KonvaEventObject<TouchEvent, Stage>) => {
     const touches = e.evt.touches;
 
     if (touches.length >= 2) {
-        // It's a pinch/zoom gesture
-        handlePinchZoom(e);
+        // It's a pinch/zoom gesture - now handled by usePinch hook
+        // Just prevent default drawing behavior
+        isDrawing.value = false;
         return;
     }
 
@@ -506,78 +573,15 @@ const handleTouchMove = (e: KonvaEventObject<TouchEvent, Stage>) => {
 };
 
 /**
- * Handle drag operations for panning the canvas
- * @param e Mouse or touch event from Konva
+ * Toggle between draw mode and pan mode
+ * Using useDrag from @vueuse/gesture for drag operations
  */
-function handleDragMove(e: KonvaEventObject<MouseEvent | TouchEvent, Stage>): void {
-    const stage = e.target.getStage();
-
-    e.evt.preventDefault(); // Prevent default drag behavior
-
-    console.log('handleDragMove', stage, isDragging.value, dragLastPosition.value);
-
-    if (!stage || !isDragging.value || !dragLastPosition.value) return;
-
-    const pointerPos = stage.getPointerPosition();
-
-    if (!pointerPos) return;
-
-    // Calculate the delta movement
-    const dx = pointerPos.x - dragLastPosition.value.x;
-    const dy = pointerPos.y - dragLastPosition.value.y;
-
-    // Update stage position
-    stagePosition.value = {
-        x: stagePosition.value.x + dx,
-        y: stagePosition.value.y + dy
-    };
-
-    console.log(stagePosition.value);
-
-    // Update last position
-    dragLastPosition.value = pointerPos;
-}
-
-/**
- * Start drag operation
- * @param e Mouse or touch event from Konva
- */
-function handleDragStart(e: KonvaEventObject<MouseEvent | TouchEvent, Stage>): void {
-    const stage = e.target.getStage();
-
-    if (!stage || tool.value !== 'pan') return;
-
-    const pointerPos = stage.getPointerPosition();
-
-    if (!pointerPos) return;
-
-    isDrawing.value = false; // Disable drawing when panning
-    isDragging.value = true;
-    dragStartPosition.value = pointerPos;
-    dragLastPosition.value = pointerPos;
-
-    // Change cursor to grabbing
-    // document.body.style.cursor = 'grabbing';
-}
-
-/**
- * End drag operation
- */
-function handleDragEnd(): void {
-    isDragging.value = false;
-    dragStartPosition.value = null;
-    dragLastPosition.value = null;
-
-    // Reset cursor
-    document.body.style.cursor = tool.value === 'pan' ? 'grab' : 'default';
-}
 
 /**
  * Toggle between draw mode and pan mode
  */
 function togglePanMode(): void {
     tool.value = 'pan';
-    document.body.style.cursor = tool.value === 'pan' ? 'grab' : 'default';
 }
 
 /**
@@ -611,9 +615,9 @@ function resetView(): void {
 
 <template>
     <div class="relative">
-        <v-stage :draggable="true" ref="stageRef" :config="stageConfig" @mousedown="handleMouseDown"
-            @mousemove="handleMouseMove" @mouseup="handleMouseUp" @touchstart="handleTouchStart"
-            @touchmove="handleTouchMove" @touchend="handleMouseUp" @dragmove="handleDragMove" @dragend="handleDragEnd">
+        <v-stage ref="stageRef" :config="stageConfig" @mousedown="handleMouseDown" @mousemove="handleMouseMove"
+            @mouseup="handleMouseUp" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
+            @touchend="handleMouseUp">
             <v-layer :config="{
                 scaleX: stageScale,
                 scaleY: stageScale,
@@ -646,17 +650,6 @@ function resetView(): void {
                     listening: false
                 }" />
             </v-layer>
-
-            <!-- Help text when canvas is empty -->
-            <div v-if="lines.length === 0 && !isDrawing"
-                class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div class="bg-white/70 backdrop-blur-sm px-6 py-4 rounded-xl shadow-sm text-center">
-                    <div class="text-xl font-medium text-gray-700 mb-2">Start Drawing</div>
-                    <div class="text-gray-600 max-w-sm">
-                        Use the brush tool to draw on the image. Switch to pan mode to move around.
-                    </div>
-                </div>
-            </div>
         </v-stage>
 
         <!-- Top action bar with Cancel/Done buttons -->

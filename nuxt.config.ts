@@ -8,6 +8,9 @@ export default defineNuxtConfig({
             apiUrl: process.env.API_URL,
         },
     },
+    ui: {
+        colorMode: false,
+    },
     // Define app head configuration
     app: {
         head: {
