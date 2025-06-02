@@ -18,9 +18,6 @@ const isGeneratingTitle = ref(false);
 
 const { updateComplaint } = useComplaintService(props.reportId);
 
-// Import i18n composable
-const { t } = useI18n();
-
 onMounted(() => {
     if (!props.complaint.title) {
         generateTitle();
