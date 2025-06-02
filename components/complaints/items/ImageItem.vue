@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { isTemplateExpression } from "typescript";
 import type { ComplaintImage } from "~/models/compaint_item";
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { updateComplaintItem } = useComplaintItemService(props.item.id);
 
 const isDrawing = ref(false);
 
@@ -23,21 +25,23 @@ function openDrawingModal() {
     isDrawing.value = true;
 }
 
-/**
- * Prevents mouse events from propagating outside the modal
- * @param event - The mouse event
- */
-function preventPropagation(event: MouseEvent): void {
-    // Stop event propagation to prevent interaction with elements beneath the modal
-    event.stopPropagation();
+async function saveDrawing(image: Blob): Promise<void> {
+    isDrawing.value = false;
+
+    props.item.image.image = image;
+    await updateComplaintItem(props.item);
+}
+
+async function closeDrawingModal(): Promise<void> {
+    isDrawing.value = false;
 }
 </script>
 
 <template>
     <UModal v-bind:open="isDrawing" fullscreen>
         <template #content>
-            <div @mousedown="preventPropagation" @mousemove="preventPropagation">
-                <ImageDraw :src="imageUrl" />
+            <div>
+                <ImageDraw :src="imageUrl" @save="saveDrawing" @cancel="closeDrawingModal" />
             </div>
         </template>
     </UModal>
