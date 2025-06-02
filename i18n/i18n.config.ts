@@ -37,6 +37,8 @@ export default defineI18nConfig(() => ({
                 export: "Export Report",
                 exported: "Report exported",
                 delete: "Delete report?",
+                transcribing_recordings: "Transcribing audio recordings...",
+                generating_titles: "Generating complaint titles...",
             },
 
             // Email export translations
@@ -105,7 +107,7 @@ export default defineI18nConfig(() => ({
                 noItems: "No items use to plus button to add items",
                 delete: "delete {type}?",
             },
-            
+
             // Complaint item component translations
             complaintItem: {
                 addText: "Add Text",
@@ -180,6 +182,8 @@ export default defineI18nConfig(() => ({
                 export: "Bericht exportieren",
                 exported: "Bericht exportiert",
                 delete: "Bericht löschen?",
+                transcribing_recordings: "Transkribiere Audioaufnahmen...",
+                generating_titles: "Generiere Beschwerde-Titel...",
             },
 
             // Email export translations
@@ -251,7 +255,7 @@ export default defineI18nConfig(() => ({
                 noItems:
                     "Keine Elemente, verwenden Sie die Plus-Schaltfläche, um Elemente hinzuzufügen",
             },
-            
+
             // Complaint item component translations
             complaintItem: {
                 addText: "Text hinzufügen",

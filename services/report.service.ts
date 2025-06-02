@@ -4,12 +4,16 @@ import { ComplaintService } from "./complaint.service";
 import { ReportsDB } from "./queries/reports_db";
 import { ComplaintRecording, ComplaintText } from "~/models/compaint_item";
 import type { TitleResponse } from "~/models/title_response";
+import { SpeechToTextService } from "./speech_to_text.service";
+import type { Progress } from "~/models/progress";
+import type { IComplaint } from "~/models/complaint";
 
 export class ReportService {
     static $injectKey = "reportService";
     static $inject = [
-        ReportsDB.$injectKey,
-        ComplaintService.$injectKey,
+        ReportsDB,
+        ComplaintService,
+        SpeechToTextService,
         "logger",
         "translate",
     ];
@@ -17,6 +21,7 @@ export class ReportService {
     constructor(
         private readonly reportsDB: ReportsDB,
         private readonly complaintService: ComplaintService,
+        private readonly speechToTextService: SpeechToTextService,
         private readonly logger: ILogger,
         private readonly translate: (key: string) => string,
     ) {}
@@ -60,48 +65,92 @@ export class ReportService {
         await this.reportsDB.put(report.toDto());
     }
 
-    async generateTitles(report: IReport): Promise<void> {
-        let i = 1;
-        for (const complaint of report.complaints) {
-            const type = this.translate(`complaint.${complaint.type}`);
-            complaint.title = `${type} ${i++}`;
+    async trasncribeMissingRecordings(
+        report: IReport,
+        progress: Progress,
+    ): Promise<void> {
+        const missingTranscriptions = report.complaints
+            .flatMap((complaint) => complaint.items)
+            .filter((item) => item instanceof ComplaintRecording && !item.text)
+            .map((item) => item as ComplaintRecording);
 
-            const text = complaint.items
-                .map((item) => {
-                    if (item instanceof ComplaintText) {
-                        return item.text;
-                    }
-                    if (item instanceof ComplaintRecording) {
-                        return item.text;
-                    }
-                    return "";
-                })
-                .join("\n");
+        const n = missingTranscriptions.length;
 
-            if (text.length < 3) {
-                return;
-            }
+        if (n > 0) {
+            progress.update(
+                this.translate("report.transcribing_recordings"),
+                0,
+            );
+        }
 
+        for (const item of missingTranscriptions) {
             try {
-                const response = await $fetch<TitleResponse>("/api/title", {
-                    body: {
-                        text: text,
-                    },
-                    method: "POST",
-                });
-
-                if (response) {
-                    complaint.title = `${type}: ${response.title.trim()}`;
-                } else {
-                    this.logger.error("Failed to generate title", response);
-                }
+                const text = await this.speechToTextService.transcribeAudio(
+                    item.audio,
+                );
+                item.text = text;
             } catch (error) {
-                if (error instanceof Error) {
-                    this.logger.error("Error generating title", error.message);
-                } else {
-                    this.logger.error("Error generating title", error);
-                }
+                this.logger.error("Error transcribing audio", error);
             }
+
+            progress.update(
+                this.translate("report.transcribing_recordings"),
+                (n - missingTranscriptions.length) / n,
+            );
+        }
+    }
+
+    async generateTitle(complaint: IComplaint, index?: number): Promise<void> {
+        const type = this.translate(`complaint.${complaint.type}`);
+        complaint.title = `${type} ${index ? `(${index + 1})` : ""}`;
+
+        const text = complaint.items
+            .map((item) => {
+                if (item instanceof ComplaintText) {
+                    return item.text;
+                }
+                if (item instanceof ComplaintRecording) {
+                    return item.text;
+                }
+                return "";
+            })
+            .join("\n");
+
+        if (text.length < 3) {
+            return;
+        }
+
+        try {
+            const response = await $fetch<TitleResponse>("/api/title", {
+                body: {
+                    text: text,
+                },
+                method: "POST",
+            });
+
+            if (response) {
+                complaint.title = `${type}: ${response.title.trim()}`;
+            } else {
+                this.logger.error("Failed to generate title", response);
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error("Error generating title", error.message);
+            } else {
+                this.logger.error("Error generating title", error);
+            }
+        }
+    }
+
+    async generateTitles(report: IReport, progress: Progress): Promise<void> {
+        let i = 1;
+        const n = report.complaints.length;
+
+        progress.update(this.translate("report.generating_titles"), 0);
+
+        for (const complaint of report.complaints) {
+            await this.generateTitle(complaint, i++);
+            progress.update(this.translate("report.generating_titles"), i / n);
         }
     }
 }
