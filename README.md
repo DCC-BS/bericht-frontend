@@ -11,7 +11,6 @@ Bericht Generator is a modern web application for creating comprehensive reports
 
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/DCC-BS/bericht-frontend)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/DCC-BS/bericht-frontend/ci.yml)
-<!-- [![codecov](https://codecov.io/gh/DCC-BS/bericht-frontend/graph/badge.svg)](https://codecov.io/gh/DCC-BS/bericht-frontend) -->
 [![Checked with Biome](https://img.shields.io/badge/Checked_with-Biome-60a5fa?style=flat&logo=biome)](https://biomejs.dev)
 
 ## Features
