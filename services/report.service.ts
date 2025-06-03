@@ -121,12 +121,12 @@ export class ReportService {
         }
 
         try {
-            const response = await $fetch<TitleResponse>("/api/title", {
+            const response = (await $fetch("/api/title", {
                 body: {
                     text: text,
                 },
                 method: "POST",
-            });
+            })) as TitleResponse;
 
             if (response) {
                 complaint.title = `${type}: ${response.title.trim()}`;

@@ -8,10 +8,10 @@ export class SpeechToTextService {
         const formData = new FormData();
         formData.append("file", audioBlob);
 
-        const response = await $fetch<TranscriptionResponse>("/api/stt", {
+        const response = (await $fetch("/api/stt", {
             body: formData,
             method: "POST",
-        });
+        })) as TranscriptionResponse;
 
         return response.text;
     }
