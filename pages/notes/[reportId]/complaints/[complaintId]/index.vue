@@ -153,7 +153,7 @@ async function onTextComposed(text: string) {
     </div>
     <div v-else-if="currentComplaint">
         <ComplaintItem v-for="item in currentComplaint.items" :key="item.id" :item="item" :complaint-id="complaintId"
-            @delete="onDelete(item)">
+            :report-id="reportId" @delete="onDelete(item)">
         </ComplaintItem>
         <div v-if="currentComplaint.items.length === 0" class="text-center py-8">
             <p>{{ t('complaint.noItems') }}</p>

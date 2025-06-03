@@ -35,5 +35,25 @@ export function useComplaintService(reportId: string) {
         await reportService.put(currentReport.value);
     }
 
-    return { currentReport, addComplaint, removeComplaint };
+    async function updateComplaint(complaint: IComplaint) {
+        if (!currentReport.value) {
+            console.error("Report not found");
+            return;
+        }
+
+        const existingComplaint = currentReport.value.complaints.find(
+            (c) => c.id === complaint.id,
+        );
+
+        if (!existingComplaint) {
+            console.error("Complaint not found in the report");
+            return;
+        }
+
+        Object.assign(existingComplaint, complaint);
+        await complaintService.put(existingComplaint);
+        await reportService.put(currentReport.value);
+    }
+
+    return { currentReport, addComplaint, removeComplaint, updateComplaint };
 }

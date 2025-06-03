@@ -12,6 +12,7 @@ import {
 // Define the props interface
 interface Props {
     complaintId: string;
+    reportId: string;
     item: IComplaintItem;
 }
 
@@ -108,7 +109,7 @@ watch(isSwiping, (swiping) => {
                 <TextItem :item="props.item" :complaint-id="props.complaintId" />
             </div>
             <div v-else-if="props.item instanceof ComplaintImage">
-                <ImageItem :item="props.item" />
+                <ImageItem :item="props.item" :complaint-id="props.complaintId" :report-id="props.reportId" />
             </div>
             <div v-else-if="props.item instanceof ComplaintRecording">
                 <RecordingItem :item="props.item" :complaint-id="props.complaintId" />

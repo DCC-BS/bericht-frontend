@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { ComplaintRecording } from "~/models/compaint_item";
 import type { TranscriptionResponse } from "~/models/transcription_response";
+import { SpeechToTextService } from "~/services/speech_to_text.service";
 
 interface Props {
     complaintId: string;
@@ -10,6 +11,7 @@ interface Props {
 const props = defineProps<Props>();
 const { t } = useI18n();
 const { updateComplaintItem } = useComplaintItemService(props.complaintId);
+const stt = useService(SpeechToTextService);
 const toast = useToast();
 const isSttLoading = ref(false);
 
@@ -25,15 +27,8 @@ onMounted(() => {
 async function speechToText(file: Blob) {
     isSttLoading.value = true;
     try {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const response = await $fetch<TranscriptionResponse>("/api/stt", {
-            body: formData,
-            method: "POST",
-        });
-
-        props.item.text = response.text;
+        const text = await stt.transcribeAudio(file);
+        props.item.text = text;
         onChange();
     } catch (error) {
         toast.add({
@@ -63,7 +58,7 @@ const audioUrl = computed(() => {
     <div>
         <audio controls v-if="audioUrl" class="m-auto">
             <source :src="audioUrl">
-            Your browser does not support the audio element.
+            {{ t('audioElement.browserNotSupported') }}
         </audio>
 
         <UTextarea :loading="isSttLoading" :disabled="isSttLoading" loading-icon="i-lucide-loader"

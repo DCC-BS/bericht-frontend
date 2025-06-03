@@ -6,6 +6,7 @@ import type { DeleteModalProps } from "~/models/delte_modal_props";
 import type { EmailExport } from "#components";
 import ComplaintView from "../../../components/complaints/ComplaintView.vue";
 import { ReportService } from "~/services/report.service";
+import { Progress } from "~/models/progress";
 
 const route = useRoute();
 const toast = useToast();
@@ -80,7 +81,7 @@ async function exportReport() {
         return;
     }
 
-    await reportService.generateTitles(currentReport.value);
+    await reportService.generateTitles(currentReport.value, new Progress());
 
     const report = toRaw(currentReport.value);
     const blob = await createDoxf(report);
