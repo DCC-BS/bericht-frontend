@@ -264,34 +264,36 @@ function handleTouchMove(e: KonvaEventObject<TouchEvent, Stage>): void {
                 aria-label="Clear all drawings" />
         </div>
 
+        <!-- Tool selection - Fixed position above toolbar -->
+        <div class="fixed bottom-20 left-0 right-0 flex justify-center px-4 z-10">
+            <UButtonGroup size="xl">
+                <UButton @click="setTool('brush')" :active="tool === 'brush'" active-color="primary" size="md"
+                    icon="i-lucide-brush" color="neutral" variant="solid" aria-label="Select Brush Tool">
+                    <span class="ml-1 text-sm hidden sm:inline">Brush</span>
+                </UButton>
+                <UButton @click="setTool('eraser')" :active="tool === 'eraser'" active-color="primary" size="md"
+                    icon="i-lucide-eraser" color="neutral" variant="solid" aria-label="Select Eraser Tool">
+                    <span class="ml-1 text-sm hidden sm:inline">Eraser</span>
+                </UButton>
+                <UButton @click="setTool('pan')" :active="tool === 'pan'" active-color="primary" size="md"
+                    icon="i-lucide-hand" color="neutral" variant="solid" aria-label="Toggle Pan Mode">
+                    <span class="ml-1 text-sm hidden sm:inline">Pan</span>
+                </UButton>
+            </UButtonGroup>
+        </div>
+
         <!-- Bottom toolbar -->
         <div
             class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-lg border-t border-gray-200 pb-safe-bottom">
-            <!-- Tool selection -->
-            <div class="flex justify-center -mt-5 px-4">
-                <UButtonGroup size="xl">
-                    <UButton @click="setTool('brush')" :active="tool === 'brush'" active-color="primary" size="md"
-                        icon="i-lucide-brush" color="neutral" variant="solid" aria-label="Select Brush Tool">
-                        <span class="ml-1 text-sm hidden sm:inline">Brush</span>
-                    </UButton>
-                    <UButton @click="setTool('eraser')" :active="tool === 'eraser'" active-color="primary" size="md"
-                        icon="i-lucide-eraser" color="neutral" variant="solid" aria-label="Select Eraser Tool">
-                        <span class="ml-1 text-sm hidden sm:inline">Eraser</span>
-                    </UButton>
-                    <UButton @click="setTool('pan')" :active="tool === 'pan'" active-color="primary" size="md"
-                        icon="i-lucide-hand" color="neutral" variant="solid" aria-label="Toggle Pan Mode">
-                        <span class="ml-1 text-sm hidden sm:inline">Pan</span>
-                    </UButton>
-                </UButtonGroup>
-            </div>
-
-            <div class="flex items-center justify-between px-4 py-3">
+            <!-- Content area with consistent height -->
+            <div class="flex items-center justify-between px-4 py-2 min-h-[80px]">
                 <!-- Color picker for brush tool -->
                 <div v-if="tool === 'brush'" class="w-full">
-                    <div class="flex-1 hide-scrollbar touch-pan-x pb-1 px-2">
-                        <div class="flex gap-3 justify-center min-w-max">
+                    <!-- Horizontal scrollable color picker for mobile -->
+                    <div class="overflow-x-auto hide-scrollbar touch-pan-x py-2">
+                        <div class="flex gap-2 px-2 min-w-max justify-start">
                             <div v-for="color in COMMON_COLORS" :key="color.value"
-                                class="w-10 h-10 rounded-full cursor-pointer border-2 transition-all flex items-center justify-center touch-action-manipulation"
+                                class="w-10 h-10 rounded-full cursor-pointer border-2 transition-all flex items-center justify-center touch-action-manipulation flex-shrink-0"
                                 :class="selectedColor === color.value ? 'border-primary-500 scale-110 shadow-md' : 'border-transparent'"
                                 :style="{ backgroundColor: color.value }" :title="color.label"
                                 @click="selectColor(color.value)" :aria-label="`Select ${color.label} color`"
@@ -300,6 +302,14 @@ function handleTouchMove(e: KonvaEventObject<TouchEvent, Stage>): void {
                                     :class="(color.value === '#FFFFFF' || color.value === '#FFFF00') ? 'text-black' : 'text-white'"
                                     size="sm" />
                             </div>
+                        </div>
+                    </div>
+                    <!-- Small indicator showing current color and scroll hint -->
+                    <div class="flex items-center justify-center mt-1 text-xs text-gray-500">
+                        <div class="flex items-center gap-1">
+                            <div class="w-3 h-3 rounded-full border border-gray-300"
+                                :style="{ backgroundColor: selectedColor }"></div>
+                            <span>Swipe to see more colors</span>
                         </div>
                     </div>
                 </div>
@@ -371,6 +381,17 @@ input[type=range]::-moz-range-thumb {
 }
 
 .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Ensure horizontal scrolling works on mobile */
+.overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
     display: none;
 }
 
