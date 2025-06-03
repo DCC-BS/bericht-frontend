@@ -3,10 +3,10 @@ import { useMagicKeys } from "@vueuse/core";
 import Draggable from "vuedraggable";
 import { createComplaint } from "~/models/complaint";
 import type { DeleteModalProps } from "~/models/delte_modal_props";
+import { Progress } from "~/models/progress";
+import { ReportService } from "~/services/report.service";
 import type { EmailExport } from "#components";
 import ComplaintView from "../../../components/complaints/ComplaintView.vue";
-import { ReportService } from "~/services/report.service";
-import { Progress } from "~/models/progress";
 
 const route = useRoute();
 const toast = useToast();
