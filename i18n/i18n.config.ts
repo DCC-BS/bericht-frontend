@@ -47,6 +47,7 @@ export default defineI18nConfig(() => ({
                 send: "Send Email",
                 validEmail: "Please enter a valid email address",
                 sent: "Email sent successfully",
+                error: "An error occurred while sending the email",
             },
 
             // Camera component translations
@@ -106,6 +107,7 @@ export default defineI18nConfig(() => ({
                 addImage: "Add Image",
                 noItems: "No items use to plus button to add items",
                 delete: "delete {type}?",
+                textPlaceholder: "Enter your text here...",
             },
 
             // Complaint item component translations
@@ -116,6 +118,7 @@ export default defineI18nConfig(() => ({
             // Speech to text component translations
             speechToText: {
                 converting: "Converting speech to text...",
+                error: "Error during speech-to-text conversion",
             },
 
             // Index page translations
@@ -145,6 +148,31 @@ export default defineI18nConfig(() => ({
             deleteModal: {
                 delete: "Delete",
                 cancel: "Cancel",
+            },
+
+            // Audio element translations
+            audioElement: {
+                browserNotSupported: "Your browser does not support the audio element.",
+            },
+
+            // Drawing canvas translations
+            drawing: {
+                clearConfirm: "Clear all drawings?",
+            },
+
+            // Document generation translations
+            document: {
+                createdAt: "Created at:",
+            },
+
+            // Image drawing translations
+            imageDrawing: {
+                discardChanges: "Discard your changes?",
+            },
+
+            // Report creation translations
+            reportCreation: {
+                defaultName: "New Report",
             },
         },
 
@@ -192,6 +220,7 @@ export default defineI18nConfig(() => ({
                 send: "E-Mail senden",
                 validEmail: "Bitte geben Sie eine gültige E-Mail-Adresse ein",
                 sent: "E-Mail erfolgreich gesendet",
+                error: "Beim Senden der E-Mail ist ein Fehler aufgetreten",
             },
 
             // Camera component translations
@@ -254,6 +283,7 @@ export default defineI18nConfig(() => ({
                 delete: "{type} löschen?",
                 noItems:
                     "Keine Elemente, verwenden Sie die Plus-Schaltfläche, um Elemente hinzuzufügen",
+                textPlaceholder: "Geben Sie hier Ihren Text ein...",
             },
 
             // Complaint item component translations
@@ -264,6 +294,7 @@ export default defineI18nConfig(() => ({
             // Speech to text component translations
             speechToText: {
                 converting: "Konvertiere Sprache zu Text...",
+                error: "Fehler bei der Sprache-zu-Text-Konvertierung",
             },
 
             // Index page translations
@@ -293,6 +324,31 @@ export default defineI18nConfig(() => ({
             deleteModal: {
                 delete: "Löschen",
                 cancel: "Abbrechen",
+            },
+
+            // Audio element translations
+            audioElement: {
+                browserNotSupported: "Ihr Browser unterstützt das Audio-Element nicht.",
+            },
+
+            // Drawing canvas translations
+            drawing: {
+                clearConfirm: "Alle Zeichnungen löschen?",
+            },
+
+            // Document generation translations
+            document: {
+                createdAt: "Erstellt am:",
+            },
+
+            // Image drawing translations
+            imageDrawing: {
+                discardChanges: "Änderungen verwerfen?",
+            },
+
+            // Report creation translations
+            reportCreation: {
+                defaultName: "Neuer Bericht",
             },
         },
     },

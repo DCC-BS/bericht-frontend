@@ -14,6 +14,7 @@ interface InputProps {
 
 const props = defineProps<InputProps>();
 const emit = defineEmits(['save', 'cancel']);
+const { t } = useI18n();
 
 // Load image using vue-konva composable
 const [image] = useImage(props.src);
@@ -121,7 +122,7 @@ async function saveDrawing(): Promise<void> {
 function cancelDrawing(): void {
     if (isEdited.value) {
         // Show confirmation dialog if changes were made
-        if (window.confirm('Discard your changes?')) {
+        if (window.confirm(t('imageDrawing.discardChanges'))) {
             emit('cancel');
         }
     } else {

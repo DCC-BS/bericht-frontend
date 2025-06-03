@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue';
+import { ref, type Ref } from "vue";
 
 /**
  * Interface for line drawing data
@@ -11,22 +11,22 @@ export interface LineType {
 /**
  * Type for available drawing tools
  */
-export type ToolType = 'brush' | 'eraser' | 'pan';
+export type ToolType = "brush" | "eraser" | "pan";
 
 /**
  * Array of color objects for the color picker
  * Each color has a value and a label for accessibility
  */
 export const COMMON_COLORS = [
-    { value: '#FF0000', label: 'Red' },
-    { value: '#00FF00', label: 'Green' },
-    { value: '#0000FF', label: 'Blue' },
-    { value: '#FFFF00', label: 'Yellow' },
-    { value: '#FFA500', label: 'Orange' },
-    { value: '#800080', label: 'Purple' },
-    { value: '#FFC0CB', label: 'Pink' },
-    { value: '#000000', label: 'Black' },
-    { value: '#FFFFFF', label: 'White' },
+    { value: "#FF0000", label: "Red" },
+    { value: "#00FF00", label: "Green" },
+    { value: "#0000FF", label: "Blue" },
+    { value: "#FFFF00", label: "Yellow" },
+    { value: "#FFA500", label: "Orange" },
+    { value: "#800080", label: "Purple" },
+    { value: "#FFC0CB", label: "Pink" },
+    { value: "#000000", label: "Black" },
+    { value: "#FFFFFF", label: "White" },
 ];
 
 /**
@@ -34,10 +34,12 @@ export const COMMON_COLORS = [
  */
 export function useImageDrawing(
     stageScale: Ref<number>,
-    stagePosition: Ref<{ x: number; y: number }>
+    stagePosition: Ref<{ x: number; y: number }>,
 ) {
+    const { t } = useI18n();
+
     // Drawing state
-    const tool = ref<ToolType>('brush');
+    const tool = ref<ToolType>("brush");
     const lines = ref<LineType[]>([]);
     const isDrawing = ref(false);
     const selectedColor = ref(COMMON_COLORS[0].value);
@@ -49,9 +51,12 @@ export function useImageDrawing(
      * Calculate the distance between a point and a line segment
      */
     function distanceToLineSegment(
-        px: number, py: number, 
-        x1: number, y1: number, 
-        x2: number, y2: number
+        px: number,
+        py: number,
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number,
     ): number {
         const A = px - x1;
         const B = py - y1;
@@ -89,7 +94,11 @@ export function useImageDrawing(
     /**
      * Check if a point intersects with any line in the drawing
      */
-    function findIntersectedLines(x: number, y: number, eraserDistance: number): number[] {
+    function findIntersectedLines(
+        x: number,
+        y: number,
+        eraserDistance: number,
+    ): number[] {
         const intersectedIndices: number[] = [];
 
         // Check each line for intersection
@@ -118,10 +127,13 @@ export function useImageDrawing(
     /**
      * Get adjusted pointer position based on stage scale and position
      */
-    function getAdjustedPosition(pos: { x: number; y: number }): { x: number; y: number } {
+    function getAdjustedPosition(pos: { x: number; y: number }): {
+        x: number;
+        y: number;
+    } {
         return {
             x: (pos.x - stagePosition.value.x) / stageScale.value,
-            y: (pos.y - stagePosition.value.y) / stageScale.value
+            y: (pos.y - stagePosition.value.y) / stageScale.value,
         };
     }
 
@@ -129,16 +141,16 @@ export function useImageDrawing(
      * Start drawing or erasing operation
      */
     function startDrawing(pos: { x: number; y: number }): void {
-        if (tool.value === 'pan') return;
+        if (tool.value === "pan") return;
 
         isDrawing.value = true;
         const adjustedPos = getAdjustedPosition(pos);
 
-        if (tool.value === 'eraser') {
+        if (tool.value === "eraser") {
             const intersectedLines = findIntersectedLines(
-                adjustedPos.x, 
-                adjustedPos.y, 
-                eraserSize.value / stageScale.value
+                adjustedPos.x,
+                adjustedPos.y,
+                eraserSize.value / stageScale.value,
             );
 
             // Remove intersected lines (in reverse order to avoid index shifting)
@@ -151,9 +163,9 @@ export function useImageDrawing(
             }
         } else {
             // Start a new line for brush tool
-            lines.value.push({ 
-                points: [adjustedPos.x, adjustedPos.y], 
-                color: selectedColor.value 
+            lines.value.push({
+                points: [adjustedPos.x, adjustedPos.y],
+                color: selectedColor.value,
             });
             isEdited.value = true;
         }
@@ -171,11 +183,11 @@ export function useImageDrawing(
         // Exit early if we're not drawing
         if (!isDrawing.value) return;
 
-        if (tool.value === 'eraser') {
+        if (tool.value === "eraser") {
             const intersectedLines = findIntersectedLines(
-                adjustedPos.x, 
-                adjustedPos.y, 
-                eraserSize.value / stageScale.value
+                adjustedPos.x,
+                adjustedPos.y,
+                eraserSize.value / stageScale.value,
             );
 
             // Remove intersected lines (in reverse order to avoid index shifting)
@@ -189,7 +201,10 @@ export function useImageDrawing(
         } else {
             // Continue drawing the current line with brush
             const lastLine = lines.value[lines.value.length - 1];
-            lastLine.points = lastLine.points.concat([adjustedPos.x, adjustedPos.y]);
+            lastLine.points = lastLine.points.concat([
+                adjustedPos.x,
+                adjustedPos.y,
+            ]);
             lines.value.splice(lines.value.length - 1, 1, { ...lastLine });
             isEdited.value = true;
         }
@@ -214,7 +229,7 @@ export function useImageDrawing(
      */
     function clearCanvas(): void {
         if (lines.value.length > 0) {
-            if (window.confirm('Clear all drawings?')) {
+            if (window.confirm(t("drawing.clearConfirm"))) {
                 lines.value = [];
                 isEdited.value = true;
             }
@@ -237,13 +252,13 @@ export function useImageDrawing(
         eraserSize,
         cursorPosition,
         isEdited,
-        
+
         // Methods
         startDrawing,
         continueDrawing,
         endDrawing,
         selectColor,
         clearCanvas,
-        setTool
+        setTool,
     };
 }
