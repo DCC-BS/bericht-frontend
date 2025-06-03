@@ -1,12 +1,12 @@
 import type { ILogger } from "@dcc-bs/logger.bs.js";
+import { ComplaintRecording, ComplaintText } from "~/models/compaint_item";
+import type { IComplaint } from "~/models/complaint";
+import type { Progress } from "~/models/progress";
 import { type IReport, createReport } from "~/models/report";
+import type { TitleResponse } from "~/models/title_response";
 import { ComplaintService } from "./complaint.service";
 import { ReportsDB } from "./queries/reports_db";
-import { ComplaintRecording, ComplaintText } from "~/models/compaint_item";
-import type { TitleResponse } from "~/models/title_response";
 import { SpeechToTextService } from "./speech_to_text.service";
-import type { Progress } from "~/models/progress";
-import type { IComplaint } from "~/models/complaint";
 
 export class ReportService {
     static $injectKey = "reportService";

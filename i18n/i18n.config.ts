@@ -14,6 +14,7 @@ export default defineI18nConfig(() => ({
             // Reports table translations
             reportsTable: {
                 title: "Reports",
+                selectAll: "Select All",
                 reportName: "Report Name",
                 lastModified: "Last Modified",
                 complaints: "Complaints",
@@ -152,7 +153,8 @@ export default defineI18nConfig(() => ({
 
             // Audio element translations
             audioElement: {
-                browserNotSupported: "Your browser does not support the audio element.",
+                browserNotSupported:
+                    "Your browser does not support the audio element.",
             },
 
             // Drawing canvas translations
@@ -187,6 +189,7 @@ export default defineI18nConfig(() => ({
             // Reports table translations
             reportsTable: {
                 title: "Berichte",
+                selectAll: "Alle auswählen",
                 reportName: "Berichtname",
                 lastModified: "Zuletzt geändert",
                 complaints: "Einträge",
@@ -328,7 +331,8 @@ export default defineI18nConfig(() => ({
 
             // Audio element translations
             audioElement: {
-                browserNotSupported: "Ihr Browser unterstützt das Audio-Element nicht.",
+                browserNotSupported:
+                    "Ihr Browser unterstützt das Audio-Element nicht.",
             },
 
             // Drawing canvas translations

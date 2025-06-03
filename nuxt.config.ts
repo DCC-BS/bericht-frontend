@@ -53,9 +53,6 @@ export default defineNuxtConfig({
     },
     devtools: { enabled: true },
     css: ["~/assets/css/main.css"],
-    colorMode: {
-        preference: "light",
-    },
     // localization
     i18n: {
         locales: [
@@ -68,14 +65,14 @@ export default defineNuxtConfig({
                 name: "Deutsch",
             },
         ],
+        bundle: {
+            optimizeTranslationDirective: false,
+        },
         defaultLocale: "de",
         vueI18n: "./i18n.config.ts",
         lazy: true,
         strategy: "prefix_except_default",
     },
-    // routeRules: {
-    //     '**': { proxy: 'https://robust-nationally-lacewing.ngrok-free.app/' },
-    // },
     vite: {
         optimizeDeps: {
             exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],

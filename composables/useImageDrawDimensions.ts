@@ -1,5 +1,5 @@
-import { ref, computed, watch, onMounted, onUnmounted, type Ref } from 'vue';
-import { useWindowSize } from '@vueuse/core';
+import { useWindowSize } from "@vueuse/core";
+import { type Ref, computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 /**
  * Interface for image dimensions configuration
@@ -48,7 +48,7 @@ export function useImageDrawDimensions() {
         height: 0,
         x: 0,
         y: 0,
-        scale: 1
+        scale: 1,
     });
 
     /**
@@ -63,7 +63,8 @@ export function useImageDrawDimensions() {
 
         // Calculate aspect ratio
         const imageRatio = naturalWidth / naturalHeight;
-        const containerRatio = stageConfig.value.width / stageConfig.value.height;
+        const containerRatio =
+            stageConfig.value.width / stageConfig.value.height;
 
         let newWidth = 0;
         let newHeight = 0;
@@ -89,7 +90,7 @@ export function useImageDrawDimensions() {
             height: newHeight,
             x: newX,
             y: newY,
-            scale: 1
+            scale: 1,
         };
     }
 
@@ -110,13 +111,13 @@ export function useImageDrawDimensions() {
 
     // Listen for window resize events
     onMounted(() => {
-        window.addEventListener('resize', handleResize);
+        window.addEventListener("resize", handleResize);
         // Initial size update based on current window size
         handleResize();
     });
 
     onUnmounted(() => {
-        window.removeEventListener('resize', handleResize);
+        window.removeEventListener("resize", handleResize);
     });
 
     return {
@@ -124,6 +125,6 @@ export function useImageDrawDimensions() {
         stageConfig,
         imageDimensions,
         calculateImageDimensions,
-        handleResize
+        handleResize,
     };
 }

@@ -50,7 +50,7 @@ async function createNewReport(): Promise<void> {
     }
 
     isCreatingReport.value = true;
-    const report = await createReport(t('reportCreation.defaultName'));
+    const report = await createReport(t("reportCreation.defaultName"));
     navigateTo(`/notes/${report.id}`);
     isCreatingReport.value = false;
 }

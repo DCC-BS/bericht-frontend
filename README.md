@@ -1,6 +1,11 @@
 # Bericht Generator (Frontend)
 
-![Bericht Generator Screenshot](_imgs/preview_reports.png)
+<div align="center">
+  <img src="_imgs/home.png" alt="Home Screenshot" width="200" style="margin: 10px;"/>
+  <img src="_imgs/report.png" alt="Report Screenshot" width="200" style="margin: 10px;"/>
+  <img src="_imgs/complaint.png" alt="Complaint Screenshot" width="200" style="margin: 10px;"/>
+  <img src="_imgs/draw.png" alt="Draw Screenshot" width="200" style="margin: 10px;"/>
+</div>
 
 Bericht Generator is a modern web application for creating comprehensive reports with multimedia content. Built with Nuxt.js and TypeScript, it provides an intuitive interface for recording complaints, capturing evidence, and generating professional reports. This repository contains only the frontend code; the backend is available separately.
 

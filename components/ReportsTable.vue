@@ -97,18 +97,18 @@ function deleteSelected(): void {
     <div class="flex flex-col gap-4 w-full">
         <!-- Header with title and delete selected button -->
         <div class="flex justify-between items-center flex-wrap gap-2">
-            <h2 class="text-xl font-semibold">{{ $t('reportsTable.title') }}</h2>
+            <h2 class="text-xl font-semibold">{{ t('reportsTable.title') }}</h2>
 
             <div class="flex items-center gap-2 flex-wrap">
                 <!-- Select all checkbox -->
                 <UCheckbox :model-value="allSelected ? true : selectedCount > 0 ? 'indeterminate' : false"
-                    @update:model-value="toggleSelectAll" :aria-label="$t('reportsTable.selectAll')" />
+                    @update:model-value="toggleSelectAll" :aria-label="t('reportsTable.selectAll')" />
 
                 <!-- Delete selected button -->
                 <ConfirmButton v-if="selectedCount > 0" @confirm="deleteSelected" class="flex items-center"
-                    :aria-label="$t('reportsTable.deleteSelected')">
+                    :aria-label="t('reportsTable.deleteSelected')">
                     <UButton color="error" variant="ghost" icon="i-lucide-trash-2" size="sm">
-                        {{ $t('reportsTable.deleteSelected') }}
+                        {{ t('reportsTable.deleteSelected') }}
                     </UButton>
                 </ConfirmButton>
             </div>
@@ -117,7 +117,7 @@ function deleteSelected(): void {
         <!-- Mobile-friendly card view -->
         <div class="w-full space-y-3">
             <div v-if="sortedReports.length === 0" class="p-4 text-center text-muted">
-                {{ $t('reportsTable.noReports') }}
+                {{ t('reportsTable.noReports') }}
             </div>
 
             <div v-for="(report, index) in sortedReports" :key="report.id"
@@ -128,7 +128,7 @@ function deleteSelected(): void {
                         <h3 class="font-medium text-lg truncate max-w-[70%] cursor-help">{{ report.name }}</h3>
 
                         <UCheckbox v-model="selectedReports[index]"
-                            :aria-label="`${$t('reportsTable.selectReport')} ${report.name}`" />
+                            :aria-label="`${t('reportsTable.selectReport')} ${report.name}`" />
                     </div>
 
                     <!-- Date and complaints count -->
@@ -140,7 +140,7 @@ function deleteSelected(): void {
 
                         <div class="flex items-center">
                             <UBadge class="capitalize" variant="subtle" color="info">
-                                {{ $t('reportsTable.complaints') }}: {{ getComplaintCount(report) }}
+                                {{ t('reportsTable.complaints') }}: {{ getComplaintCount(report) }}
                             </UBadge>
                         </div>
                     </div>
@@ -148,10 +148,10 @@ function deleteSelected(): void {
                     <!-- Action buttons -->
                     <div class="flex items-center justify-end space-x-2 pt-1">
                         <UButton color="primary" variant="ghost" icon="i-lucide-file-pen-line" size="md"
-                            @click="emit('view-report', report.id)" :aria-label="$t('reportsTable.view')" />
+                            @click="emit('view-report', report.id)" :aria-label="t('reportsTable.view')" />
 
                         <ConfirmButton @confirm="emit('delete-report', report.id)" class="flex items-center"
-                            :aria-label="$t('reportsTable.delete')">
+                            :aria-label="t('reportsTable.delete')">
                             <UButton color="error" variant="ghost" icon="i-lucide-trash-2" size="md" />
                         </ConfirmButton>
                     </div>
@@ -160,7 +160,7 @@ function deleteSelected(): void {
 
             <!-- Summary footer -->
             <div v-if="props.reports.length > 0" class="px-4 py-3.5 border-t border-accented text-sm text-muted">
-                {{ $t('reportsTable.reportsSelected', [selectedCount, props.reports.length]) }}
+                {{ t('reportsTable.reportsSelected', [selectedCount, props.reports.length]) }}
             </div>
         </div>
     </div>

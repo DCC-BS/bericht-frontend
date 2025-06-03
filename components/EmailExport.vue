@@ -78,8 +78,6 @@ async function sendMail() {
     }
 }
 
-
-
 function openModal() {
     isOpen.value = true;
 }

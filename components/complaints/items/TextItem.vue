@@ -8,6 +8,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const textArea = shallowRef<HTMLTextAreaElement>();
+const { t } = useI18n();
 
 const { updateComplaintItem } = useComplaintItemService(props.complaintId);
 
@@ -18,7 +19,7 @@ async function onChange() {
 
 <template>
     <div>
-        <UTextarea v-model="props.item.text" @blur="onChange" :placeholder="$t('complaint.textPlaceholder')"
+        <UTextarea v-model="props.item.text" @blur="onChange" :placeholder="t('complaint.textPlaceholder')"
             class="w-full mt-2" :rows="3" ref="textArea">
         </UTextarea>
     </div>

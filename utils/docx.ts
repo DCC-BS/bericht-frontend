@@ -120,7 +120,10 @@ async function getImageHeight(
  * @param createdAtLabel - Optional label for "Created at" (defaults to German)
  * @returns Promise<Blob> containing the DOCX document
  */
-export async function createDoxf(report: IReport, createdAtLabel = "Erstellt am"): Promise<Blob> {
+export async function createDoxf(
+    report: IReport,
+    createdAtLabel = "Erstellt am",
+): Promise<Blob> {
     console.log(report.complaints.map((c) => toRaw(c.toDto())));
 
     const asycComplainParagraphs = report.complaints.map(

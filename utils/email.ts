@@ -6,7 +6,11 @@ import type { IReport } from "~/models/report";
  * @param report - Report to send
  * @param createdAtLabel - Optional label for "Created at" text
  */
-export async function sendEmail(to: string, report: IReport, createdAtLabel?: string): Promise<void> {
+export async function sendEmail(
+    to: string,
+    report: IReport,
+    createdAtLabel?: string,
+): Promise<void> {
     const docx = await createDoxf(report, createdAtLabel);
 
     // downloadBlob(docx, `${report.name}.docx`);

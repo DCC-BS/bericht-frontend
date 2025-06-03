@@ -1,26 +1,27 @@
 <script setup lang="ts">
-import type { KonvaEventObject } from 'konva/lib/Node';
-import { useImage } from 'vue-konva';
-import type Konva from 'konva';
-import { ref, computed, watch } from 'vue';
-import type { Stage } from 'konva/lib/Stage';
-import { useImageDrawGestures } from '~/composables/useImageDrawGestures';
-import { useImageDrawDimensions } from '~/composables/useImageDrawDimensions';
-import { useImageDrawing, COMMON_COLORS } from '~/composables/useImageDrawing';
+import type Konva from "konva";
+import type { KonvaEventObject } from "konva/lib/Node";
+import type { Stage } from "konva/lib/Stage";
+import { computed, ref, watch } from "vue";
+import { useImage } from "vue-konva";
+import { useImageDrawDimensions } from "~/composables/useImageDrawDimensions";
+import { useImageDrawGestures } from "~/composables/useImageDrawGestures";
+import { COMMON_COLORS, useImageDrawing } from "~/composables/useImageDrawing";
 
 interface InputProps {
     src: string;
 }
 
 const props = defineProps<InputProps>();
-const emit = defineEmits(['save', 'cancel']);
+const emit = defineEmits(["save", "cancel"]);
 const { t } = useI18n();
 
 // Load image using vue-konva composable
 const [image] = useImage(props.src);
 
 // Initialize composables for different concerns
-const { stageConfig, imageDimensions, calculateImageDimensions } = useImageDrawDimensions();
+const { stageConfig, imageDimensions, calculateImageDimensions } =
+    useImageDrawDimensions();
 
 // State for zoom and pan functionality
 const stageScale = ref(1);
@@ -41,7 +42,7 @@ const {
     endDrawing,
     selectColor,
     clearCanvas,
-    setTool
+    setTool,
 } = useImageDrawing(stageScale, stagePosition);
 
 // Initialize gesture handling
@@ -50,18 +51,22 @@ const { resetView, zoomIn, zoomOut } = useImageDrawGestures(
     stagePosition,
     tool,
     isDrawing,
-    stageRef
+    stageRef,
 );
 
 // State for saving
 const isSaving = ref(false);
 
 // Calculate image dimensions when image loads or on resize
-watch(image, (newImage) => {
-    if (newImage) {
-        calculateImageDimensions(newImage);
-    }
-}, { immediate: true });
+watch(
+    image,
+    (newImage) => {
+        if (newImage) {
+            calculateImageDimensions(newImage);
+        }
+    },
+    { immediate: true },
+);
 
 // Computed configuration for the image in Konva
 const imageConfig = computed<Konva.ImageConfig>(() => ({
@@ -69,7 +74,7 @@ const imageConfig = computed<Konva.ImageConfig>(() => ({
     width: imageDimensions.value.width,
     height: imageDimensions.value.height,
     x: imageDimensions.value.x,
-    y: imageDimensions.value.y
+    y: imageDimensions.value.y,
 }));
 
 /**
@@ -89,11 +94,11 @@ async function exportToPng(): Promise<Blob | undefined> {
         }
 
         stage.toBlob({
-            mimeType: 'image/png',
+            mimeType: "image/png",
             pixelRatio: window.devicePixelRatio || 2, // Use device pixel ratio for better quality,
             callback: (blob: Blob | null) => {
                 resolve(blob ?? undefined);
-            }
+            },
         });
     });
 }
@@ -107,10 +112,10 @@ async function saveDrawing(): Promise<void> {
     try {
         const blob = await exportToPng();
         if (blob) {
-            emit('save', blob);
+            emit("save", blob);
         }
     } catch (error) {
-        console.error('Error exporting image:', error);
+        console.error("Error exporting image:", error);
     } finally {
         isSaving.value = false;
     }
@@ -122,18 +127,20 @@ async function saveDrawing(): Promise<void> {
 function cancelDrawing(): void {
     if (isEdited.value) {
         // Show confirmation dialog if changes were made
-        if (window.confirm(t('imageDrawing.discardChanges'))) {
-            emit('cancel');
+        if (window.confirm(t("imageDrawing.discardChanges"))) {
+            emit("cancel");
         }
     } else {
-        emit('cancel');
+        emit("cancel");
     }
 }
 
 /**
  * Handle mouse/touch down events for drawing
  */
-function handleMouseDown(e: KonvaEventObject<MouseEvent | TouchEvent, Stage>): void {
+function handleMouseDown(
+    e: KonvaEventObject<MouseEvent | TouchEvent, Stage>,
+): void {
     const stage = e.target.getStage();
     if (!stage) return;
 
@@ -147,7 +154,9 @@ function handleMouseDown(e: KonvaEventObject<MouseEvent | TouchEvent, Stage>): v
 /**
  * Handle mouse/touch move events for drawing
  */
-function handleMouseMove(e: KonvaEventObject<MouseEvent | TouchEvent, Stage>): void {
+function handleMouseMove(
+    e: KonvaEventObject<MouseEvent | TouchEvent, Stage>,
+): void {
     const stage = e.target.getStage();
     if (!stage) return;
 
