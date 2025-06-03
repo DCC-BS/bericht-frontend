@@ -9,7 +9,6 @@
 
 Bericht Generator is a modern web application for creating comprehensive reports with multimedia content. Built with Nuxt.js and TypeScript, it provides an intuitive interface for recording complaints, capturing evidence, and generating professional reports. This repository contains only the frontend code; the backend is available separately.
 
-![GitHub package.json version](https://img.shields.io/github/package-json/v/DCC-BS/bericht-frontend)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/DCC-BS/bericht-frontend/ci.yml)
 [![Checked with Biome](https://img.shields.io/badge/Checked_with-Biome-60a5fa?style=flat&logo=biome)](https://biomejs.dev)
 
