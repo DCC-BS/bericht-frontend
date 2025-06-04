@@ -58,7 +58,7 @@ const audioUrl = computed(() => {
     <div>
         <audio controls v-if="audioUrl" class="m-auto">
             <source :src="audioUrl">
-            Your browser does not support the audio element.
+            {{ t('audioElement.browserNotSupported') }}
         </audio>
 
         <UTextarea :loading="isSttLoading" :disabled="isSttLoading" loading-icon="i-lucide-loader"

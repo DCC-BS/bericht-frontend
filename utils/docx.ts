@@ -114,7 +114,13 @@ async function getImageHeight(
     return dimensions.height;
 }
 
-export async function createDoxf(report: IReport) {
+/**
+ * Create a DOCX document from a report
+ * @param report - The report to convert to DOCX
+ * @param createdAtLabel - Optional label for "Created at" (defaults to German)
+ * @returns Promise<Blob> containing the DOCX document
+ */
+export async function createDoxf(report: IReport, createdAtLabel = "Erstellt am"): Promise<Blob> {
     console.log(report.complaints.map((c) => toRaw(c.toDto())));
 
     const asycComplainParagraphs = report.complaints.map(
@@ -149,7 +155,7 @@ export async function createDoxf(report: IReport) {
                         heading: "Title",
                     }),
                     new Paragraph({
-                        text: `Erstellt am: ${report.createdAt.toLocaleString()}`,
+                        text: `${createdAtLabel}: ${report.createdAt.toLocaleString()}`,
                     }),
                     new Paragraph({
                         text: `${report.subtitle1}`,
