@@ -50,7 +50,7 @@ async function sendMail() {
         await reportService.trasncribeMissingRecordings(props.report, progress);
         isTranscribing = false;
         await reportService.generateTitles(props.report, progress);
-        await sendEmail(to.value, props.report, t("document.createdAt"));
+        await sendEmail(to.value, props.report);
 
         toast.add({
             title: t("email.sent"),
