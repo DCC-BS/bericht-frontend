@@ -149,7 +149,10 @@ export class ReportService {
         progress.update(this.translate("report.generating_titles"), 0);
 
         for (const complaint of report.complaints) {
-            await this.generateTitle(complaint, i++);
+            if (!complaint.title.includes(":")) {
+                await this.generateTitle(complaint, i++);
+            }
+
             progress.update(this.translate("report.generating_titles"), i / n);
         }
     }

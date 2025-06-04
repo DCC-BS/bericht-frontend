@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
     const subject = inputFormData.get("subject") as string;
     const body = inputFormData.get("body") as string;
     const to = inputFormData.get("to") as string;
+    const fileName = inputFormData.get("file_name") as string;
 
     if (!fileContent) {
         throw createError({
@@ -19,6 +20,7 @@ export default defineEventHandler(async (event) => {
     formData.append("to_email", to);
     formData.append("subject", subject);
     formData.append("email_body", body);
+    formData.append("file_name", fileName);
 
     // Attempt to make the API request
     const response = await verboseFetch(`${config.public.apiUrl}/send`, event, {
