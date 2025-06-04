@@ -17,11 +17,6 @@ const imageUrl = computed(() => {
 });
 
 function openDrawingModal() {
-    console.log(
-        "Opening drawing modal for item:",
-        `/notes/${props.reportId}/complaints/${props.complaintId}/draw/${props.item.id}`,
-    );
-
     navigateTo(
         `/notes/${props.reportId}/complaints/${props.complaintId}/draw/${props.item.id}`,
     );
