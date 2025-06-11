@@ -1,5 +1,6 @@
 import { ComplaintService } from "~/services/complaint.service";
 import { ComplaintItemService } from "~/services/complaint_item.service";
+import { MapService } from "~/services/map.service";
 import { NotificationService } from "~/services/notification.service";
 import { ComplaintsDB } from "~/services/queries/complaints_db";
 import { ComplaintsItemDB } from "~/services/queries/complaints_item_db";
@@ -31,6 +32,8 @@ export default defineNuxtPlugin((nuxtApp) => {
 
         builder.register(SpeechToTextService);
         builder.register(NotificationService);
+
+        builder.register(MapService);
     });
 
     nuxtApp.provide("serviceOrchestrator", orchestrator);

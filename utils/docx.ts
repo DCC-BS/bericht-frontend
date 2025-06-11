@@ -1,15 +1,11 @@
 import {
     AlignmentType,
     Document,
-    Footer,
     ImageRun,
     NumberFormat,
     Packer,
-    PageNumber,
     Paragraph,
-    TextRun,
 } from "docx";
-import { render } from "vue";
 import type {
     ComplaintImage,
     ComplaintRecording,
@@ -165,6 +161,10 @@ export async function createDoxf(
                     }),
                     new Paragraph({
                         text: `${report.subtitle2}`,
+                    }),
+                    new Paragraph({
+                        text: `Standort: ${formatAddress(report.location)}`,
+                        spacing: { after: 12 * 20 },
                     }),
                     ...complainParagraphs,
                 ],

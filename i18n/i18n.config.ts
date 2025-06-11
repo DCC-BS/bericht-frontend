@@ -176,6 +176,18 @@ export default defineI18nConfig(() => ({
             reportCreation: {
                 defaultName: "New Report",
             },
+
+            // Map view translations
+            map: {
+                getGpsPosition: "Get GPS Position",
+                done: "Done",
+                locatingGpsPosition: "Locating GPS Position",
+                allowLocationAccess:
+                    "Please allow location access to get your current position",
+                geolocationNotSupported:
+                    "Geolocation is not supported or coordinates are not available.",
+                address: "Address",
+            },
         },
 
         de: {
@@ -202,6 +214,7 @@ export default defineI18nConfig(() => ({
 
             report: {
                 title: "Titel",
+                location: "Standort",
                 customer: "Kunde",
                 updateAt: "Aktualisiert am",
                 createdAt: "Erstellt am",
@@ -353,6 +366,18 @@ export default defineI18nConfig(() => ({
             // Report creation translations
             reportCreation: {
                 defaultName: "Neuer Bericht",
+            },
+
+            // Map view translations
+            map: {
+                getGpsPosition: "GPS-Position abrufen",
+                done: "Fertig",
+                locatingGpsPosition: "GPS-Position wird ermittelt",
+                allowLocationAccess:
+                    "Bitte erlauben Sie den Standortzugriff, um Ihre aktuelle Position zu erhalten",
+                geolocationNotSupported:
+                    "Geolokalisierung wird nicht unterstützt oder Koordinaten sind nicht verfügbar.",
+                address: "Adresse",
             },
         },
     },

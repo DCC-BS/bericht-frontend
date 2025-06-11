@@ -3,12 +3,14 @@ import {
     type IComplaint,
     createComplaint,
 } from "./complaint";
+import type { MapAdress } from "./map";
 
 export interface IReport {
     readonly id: string;
     name: string;
     subtitle1: string;
     subtitle2: string;
+    location?: MapAdress;
 
     readonly createdAt: Date;
     readonly lastModified: Date;
@@ -29,6 +31,7 @@ export type ReportDto = {
     createdAt: Date;
     lastModified: Date;
     complaints: ComplaintDto[];
+    location?: MapAdress;
 };
 
 export function createReport(dto: Partial<ReportDto>): IReport {
@@ -41,6 +44,7 @@ class Report implements IReport {
     complaints: IComplaint[];
     subtitle1: string;
     subtitle2: string;
+    location?: MapAdress;
 
     private _name: string;
     lastModified: Date;
@@ -54,6 +58,7 @@ class Report implements IReport {
             dto.name ?? `New Report ${this.createdAt.toLocaleString()}`;
         this.lastModified = dto.lastModified ?? new Date();
         this.complaints = dto.complaints?.map((c) => createComplaint(c)) ?? [];
+        this.location = dto.location;
     }
 
     get name(): string {
@@ -86,6 +91,7 @@ class Report implements IReport {
             createdAt: this.createdAt,
             lastModified: this.lastModified,
             complaints: this.complaints.map((complaint) => complaint.toDto()),
+            location: { ...this.location } as MapAdress,
         };
     }
 }

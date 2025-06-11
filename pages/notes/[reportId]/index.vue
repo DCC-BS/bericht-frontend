@@ -44,6 +44,8 @@ watch(
     (newValue) => {
         if (newValue) {
             updateReport(newValue);
+
+            console.log("Current report updated:", newValue);
         }
     },
     { deep: true },
@@ -125,6 +127,19 @@ async function exportReport() {
 
             <UInput v-model="currentReport.subtitle1" class="w-full pb-1" @blur="saveReport" />
             <UInput v-model="currentReport.subtitle2" class="w-full pb-1" @blur="saveReport" />
+        </div>
+
+        <div>
+            <UModal fullscreen :title="t('report.location')">
+                <div class="flex items-center justify-center gap-2">
+                    <span>{{ formatAddress(currentReport.location) }}</span>
+                    <UButton icon="i-lucide-locate-fixed" size="sm"></UButton>
+                </div>
+
+                <template #body>
+                    <MapView v-model="currentReport.location"></MapView>
+                </template>
+            </UModal>
         </div>
 
         <div class="flex flex-col justify-center">
