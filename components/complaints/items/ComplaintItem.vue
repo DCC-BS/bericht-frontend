@@ -29,7 +29,6 @@ const MIN_SWIPE_THRESHOLD = 5; // Minimum swipe threshold for action
 const props = defineProps<Props>();
 const cardRef = ref<HTMLElement>();
 const { isSwiping, direction, lengthX } = useMouseAndTouchSwipe(cardRef);
-const toast = useToast();
 const isRemoving = ref(false);
 
 const isSwipeThresholdReached = computed(() => {
@@ -45,8 +44,6 @@ const cardStyle = ref({
  */
 function deleteItem(): void {
     isRemoving.value = true;
-
-    console.log("Deleting item:", props.item);
 
     // Emit the delete event to parent
     emit("delete", props.item);

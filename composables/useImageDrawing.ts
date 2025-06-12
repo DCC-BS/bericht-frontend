@@ -30,11 +30,23 @@ export const COMMON_COLORS = [
 ];
 
 /**
+ * Interface for image dimensions
+ */
+interface ImageDimensions {
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+    scale: number;
+}
+
+/**
  * Composable for handling drawing logic in the image drawing component
  */
 export function useImageDrawing(
     stageScale: Ref<number>,
     stagePosition: Ref<{ x: number; y: number }>,
+    imageDimensions: Ref<ImageDimensions>,
 ) {
     const { t } = useI18n();
 
@@ -125,6 +137,19 @@ export function useImageDrawing(
     }
 
     /**
+     * Check if a point is within the image boundaries
+     */
+    function isPointWithinImage(x: number, y: number): boolean {
+        const imgDims = imageDimensions.value;
+        return (
+            x >= imgDims.x &&
+            x <= imgDims.x + imgDims.width &&
+            y >= imgDims.y &&
+            y <= imgDims.y + imgDims.height
+        );
+    }
+
+    /**
      * Get adjusted pointer position based on stage scale and position
      */
     function getAdjustedPosition(pos: { x: number; y: number }): {
@@ -143,8 +168,17 @@ export function useImageDrawing(
     function startDrawing(pos: { x: number; y: number }): void {
         if (tool.value === "pan") return;
 
-        isDrawing.value = true;
         const adjustedPos = getAdjustedPosition(pos);
+
+        // Check if the point is within image boundaries for brush tool
+        if (
+            tool.value === "brush" &&
+            !isPointWithinImage(adjustedPos.x, adjustedPos.y)
+        ) {
+            return;
+        }
+
+        isDrawing.value = true;
 
         if (tool.value === "eraser") {
             const intersectedLines = findIntersectedLines(
@@ -182,6 +216,16 @@ export function useImageDrawing(
 
         // Exit early if we're not drawing
         if (!isDrawing.value) return;
+
+        // Check if the point is within image boundaries for brush tool
+        if (
+            tool.value === "brush" &&
+            !isPointWithinImage(adjustedPos.x, adjustedPos.y)
+        ) {
+            // End drawing if we go outside the image bounds
+            endDrawing();
+            return;
+        }
 
         if (tool.value === "eraser") {
             const intersectedLines = findIntersectedLines(

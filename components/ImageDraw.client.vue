@@ -43,7 +43,7 @@ const {
     selectColor,
     clearCanvas,
     setTool,
-} = useImageDrawing(stageScale, stagePosition);
+} = useImageDrawing(stageScale, stagePosition, imageDimensions);
 
 // Initialize gesture handling
 const { resetView, zoomIn, zoomOut } = useImageDrawGestures(
@@ -79,6 +79,7 @@ const imageConfig = computed<Konva.ImageConfig>(() => ({
 
 /**
  * Convert SVG from Konva stage to PNG image
+ * Only exports the area containing the actual image and drawings
  * @returns Promise that resolves with the data URL of the PNG image
  */
 async function exportToPng(): Promise<Blob | undefined> {
@@ -93,9 +94,30 @@ async function exportToPng(): Promise<Blob | undefined> {
             return resolve(undefined);
         }
 
+        // Get the image dimensions to crop the export to only include the image area
+        const imageConfig = imageDimensions.value;
+        
+        // Calculate the actual bounds considering zoom and pan
+        const scaleX = stageScale.value;
+        const scaleY = stageScale.value;
+        const offsetX = stagePosition.value.x;
+        const offsetY = stagePosition.value.y;
+
+        // Calculate the image bounds in stage coordinates
+        const imageBounds = {
+            x: (imageConfig.x * scaleX) + offsetX,
+            y: (imageConfig.y * scaleY) + offsetY,
+            width: imageConfig.width * scaleX,
+            height: imageConfig.height * scaleY
+        };
+
         stage.toBlob({
             mimeType: "image/png",
-            pixelRatio: window.devicePixelRatio || 2, // Use device pixel ratio for better quality,
+            pixelRatio: window.devicePixelRatio || 2, // Use device pixel ratio for better quality
+            x: imageBounds.x,
+            y: imageBounds.y,
+            width: imageBounds.width,
+            height: imageBounds.height,
             callback: (blob: Blob | null) => {
                 resolve(blob ?? undefined);
             },

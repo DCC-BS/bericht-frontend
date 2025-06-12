@@ -10,6 +10,15 @@ export function useComplaintItemService(itemid: string) {
     const complaintItemService = useService(ComplaintItemService);
     const complaintService = useService(ComplaintService);
 
+    const transactions = [] as Transaction[];
+
+    onUnmounted(() => {
+        for (const transaction of transactions) {
+            transaction.submit();
+        }
+        transactions.length = 0; // Clear the transactions array
+    });
+
     const currentComplaint = ref<IComplaint>();
 
     complaintService.get(itemid).then((complaint) => {
@@ -51,7 +60,10 @@ export function useComplaintItemService(itemid: string) {
             // biome-ignore lint/style/noNonNullAssertion: <explanation>
             () => executeRemoveItem(item, currentComplaint.value!.id),
             10_000,
+            (t: Transaction) => transactions.splice(transactions.indexOf(t), 1),
         );
+
+        transactions.push(transaction);
 
         toast.add({
             title: "Item deleted",

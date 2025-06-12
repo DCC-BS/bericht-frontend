@@ -5,9 +5,11 @@ export class Transaction {
     constructor(
         public readonly action: () => Promise<void>,
         public readonly timeout: number = 10000,
+        public readonly onComplete?: (t: Transaction) => void,
     ) {
         this.timeoutId = setTimeout(() => {
             this.action();
+            this.onComplete?.(this);
         }, this.timeout);
     }
 
@@ -18,5 +20,6 @@ export class Transaction {
     submit(): void {
         this.cancel();
         this.action();
+        this.onComplete?.(this);
     }
 }

@@ -47,8 +47,9 @@ function getBlobUrl(image: Blob): string {
         <div class="flex items-start justify-between p-1 pr-2">
             <div v-if="!isGeneratingTitle"
                 class="w-full pr-2 flex text-2xl font-bold gap-2 justify-stretch items-center">
-                <UTextarea autoresize :rows="1" v-model="props.complaint.title" class="grow" @blur="updateComplaint(props.complaint)" />
-                <UButton @click="generateTitle"  class="h-fit" size="xs" icon="i-lucide-refresh-ccw-dot"></UButton>
+                <UTextarea autoresize :rows="1" v-model="props.complaint.title" class="grow"
+                    @blur="updateComplaint(props.complaint)" />
+                <UButton @click="generateTitle" class="h-fit" size="xs" icon="i-lucide-refresh-ccw-dot"></UButton>
             </div>
             <div v-else class="text-2xl font-bold">
                 <UIcon name="i-lucide-loader" class="animate-spin" />
