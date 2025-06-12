@@ -127,7 +127,11 @@ async function exportReport() {
             <UInput v-model="currentReport.subtitle2" class="w-full pb-1" @blur="saveReport" />
         </div>
 
-        <div>
+        <!-- Location -->
+        <div class="flex justify-start items-center gap-2 m-2">
+            <div class="font-bold">
+                {{ t('report.location') }}
+            </div>
             <UModal fullscreen :title="t('report.location')">
                 <div class="flex items-center justify-center gap-2">
                     <span>{{ formatAddress(currentReport.location) }}</span>

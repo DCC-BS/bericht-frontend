@@ -215,9 +215,9 @@ function onLatLngUpdate(latLng: { lat: number; lng: number }) {
                 {{ t('map.getGpsPosition') }}
             </UButton>
 
-            <UButton>
+            <!-- <UButton>
                 {{ t('map.done') }}
-            </UButton>
+            </UButton> -->
         </div>
     </div>
 </template>
