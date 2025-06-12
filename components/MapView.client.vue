@@ -103,13 +103,23 @@ function updateAddress(): void {
 
 async function updateCoordinates() {
     isLoading.value = true;
-    const coords = await mapService.getGeoLocation();
+    try {
+        const coords = await mapService.getGeoLocation();
 
-    latitude.value = coords.latitude;
-    longitude.value = coords.longitude;
+        latitude.value = coords.latitude;
+        longitude.value = coords.longitude;
 
-    updateAddress();
-    isLoading.value = false;
+        updateAddress();
+    } catch (error) {
+        console.error("Error getting geolocation:", error);
+
+        // Reset coordinates to default values if geolocation fails
+        latitude.value = Number.POSITIVE_INFINITY;
+        longitude.value = Number.POSITIVE_INFINITY;
+    } finally {
+        // Ensure loading state is reset
+        isLoading.value = false;
+    }
 }
 
 function onLatLngUpdate(latLng: { lat: number; lng: number }) {
@@ -131,19 +141,25 @@ function onLatLngUpdate(latLng: { lat: number; lng: number }) {
                     <div class="w-32 h-32 rounded-full border-2 border-blue-400 animate-ping opacity-20"></div>
                 </div>
                 <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="w-24 h-24 rounded-full border-2 border-blue-500 animate-ping opacity-40 animation-delay-150"></div>
+                    <div
+                        class="w-24 h-24 rounded-full border-2 border-blue-500 animate-ping opacity-40 animation-delay-150">
+                    </div>
                 </div>
                 <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="w-16 h-16 rounded-full border-2 border-blue-600 animate-ping opacity-60 animation-delay-300"></div>
+                    <div
+                        class="w-16 h-16 rounded-full border-2 border-blue-600 animate-ping opacity-60 animation-delay-300">
+                    </div>
                 </div>
-                
+
                 <!-- GPS Icon -->
-                <div class="relative w-20 h-20 mx-auto flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 rounded-full shadow-lg">
+                <div
+                    class="relative w-20 h-20 mx-auto flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 rounded-full shadow-lg">
                     <svg class="w-10 h-10 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+                        <path
+                            d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" />
                     </svg>
                 </div>
-                
+
                 <!-- Orbiting satellites -->
                 <div class="absolute inset-0 flex items-center justify-center">
                     <div class="w-40 h-40 animate-spin-slow">
@@ -163,7 +179,7 @@ function onLatLngUpdate(latLng: { lat: number; lng: number }) {
                 </div>
             </div>
         </div>
-        
+
         <!-- Loading Text with Typing Animation -->
         <div class="text-lg font-medium text-gray-700 mb-2">
             <span class="inline-block animate-pulse">{{ t('map.locatingGpsPosition') }}</span>
@@ -171,7 +187,7 @@ function onLatLngUpdate(latLng: { lat: number; lng: number }) {
             <span class="animate-bounce inline-block animation-delay-200">.</span>
             <span class="animate-bounce inline-block animation-delay-400">.</span>
         </div>
-        
+
         <!-- Status Text -->
         <p class="text-sm text-gray-500 max-w-xs">
             {{ t('map.allowLocationAccess') }}
@@ -186,28 +202,16 @@ function onLatLngUpdate(latLng: { lat: number; lng: number }) {
                 <p>{{ t('map.address') }}: {{ addressString }}</p>
             </div>
 
-            <LMap
-                class="w-full"
-                :style="{ height: '400px' }"
-                :zoom="20"
-                :center="[latitude, longitude]">
-                <LTileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    layer-type="base"
-                    name="Farbig">
+            <LMap class="w-full" :style="{ height: '400px' }" :zoom="20" :center="[latitude, longitude]">
+                <LTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" layer-type="base" name="Farbig">
                 </LTileLayer>
-                <LMarker
-                    @update:latLng="onLatLngUpdate"
-                    draggable
-                    :lat-lng="[latitude, longitude]">
+                <LMarker @update:latLng="onLatLngUpdate" draggable :lat-lng="[latitude, longitude]">
                 </LMarker>
             </LMap>
         </div>
 
         <div class="flex justify-center w-full gap-2">
-            <UButton
-                color="secondary"
-                @click="updateCoordinates">
+            <UButton color="secondary" @click="updateCoordinates">
                 {{ t('map.getGpsPosition') }}
             </UButton>
 
@@ -253,6 +257,7 @@ function onLatLngUpdate(latLng: { lat: number; lng: number }) {
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -265,10 +270,13 @@ function onLatLngUpdate(latLng: { lat: number; lng: number }) {
 
 /* Enhanced pulse animation */
 @keyframes enhanced-pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 1;
         transform: scale(1);
     }
+
     50% {
         opacity: 0.5;
         transform: scale(1.05);

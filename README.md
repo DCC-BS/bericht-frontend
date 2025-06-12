@@ -18,6 +18,7 @@ Bericht Generator is a modern web application for creating comprehensive reports
 - **Image Capture**: Take photos and annotate them with drawing tools
 - **Text Composition**: Create detailed text-based complaint entries
 - **Interactive Drawing**: Annotate images with brush tools, colors, and eraser functionality
+- **Location & GPS Integration**: Capture precise location data with interactive maps and automatic GPS positioning
 - **Report Management**: Organize complaints into structured reports
 - **Document Export**: Generate DOCX documents and email exports
 - **Drag & Drop Interface**: Reorder complaint items within reports
@@ -29,6 +30,7 @@ Bericht Generator is a modern web application for creating comprehensive reports
 - **Frontend**: [Nuxt.js](https://nuxt.com/) with TypeScript and Composition API
 - **UI Framework**: [Nuxt UI](https://ui.nuxt.com/)
 - **Drawing Engine**: [Konva.js](https://konvajs.org/) with Vue Konva
+- **Maps & Location**: [Leaflet](https://leafletjs.com/) with OpenStreetMap and Nominatim for geocoding
 - **Audio Processing**: MediaRecorder API with FFmpeg for format conversion
 - **Package Manager**: [Bun](https://bun.sh/)
 - **Internationalization**: Nuxt I18n
@@ -146,11 +148,20 @@ docker run -p 3000:3000 bericht-frontend
 - Color picker with preset colors
 - Touch-optimized interface for mobile devices
 
+### Location & GPS Features
+- Automatic GPS positioning with animated loading states
+- Interactive map with draggable markers for precise location adjustment
+- Reverse geocoding to convert coordinates to readable addresses
+- OpenStreetMap integration with tile layer support
+- Debounced API calls to prevent rate limiting
+- Cross-platform geolocation support with error handling
+
 ### Report Generation
 - Drag and drop reordering of complaint items
 - Export to DOCX format with embedded images
 - Email export functionality
 - Structured complaint organization
+- Location data included in reports
 
 ## Browser Support
 
@@ -158,6 +169,8 @@ docker run -p 3000:3000 bericht-frontend
 - MediaRecorder API for audio recording
 - Canvas API for drawing functionality
 - Touch events for mobile interaction
+- HTML5 Geolocation API for GPS positioning
+- WebGL support for map rendering
 
 ## License
 

@@ -44,8 +44,6 @@ watch(
     (newValue) => {
         if (newValue) {
             updateReport(newValue);
-
-            console.log("Current report updated:", newValue);
         }
     },
     { deep: true },

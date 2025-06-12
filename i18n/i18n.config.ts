@@ -15,6 +15,7 @@ export default defineI18nConfig(() => ({
             reportsTable: {
                 title: "Reports",
                 selectAll: "Select All",
+                selectReport: "Select report",
                 reportName: "Report Name",
                 lastModified: "Last Modified",
                 complaints: "Complaints",
@@ -202,6 +203,7 @@ export default defineI18nConfig(() => ({
             reportsTable: {
                 title: "Berichte",
                 selectAll: "Alle auswählen",
+                selectReport: "Bericht auswählen",
                 reportName: "Berichtname",
                 lastModified: "Zuletzt geändert",
                 complaints: "Einträge",
