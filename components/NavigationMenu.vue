@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { NavigationMenuItem } from "#ui/components/NavigationMenu.vue";
+import { useOnline } from "@vueuse/core";
 
 interface InputProps {
     backUrl: string;
@@ -15,15 +16,11 @@ const { t } = useI18n();
 
 const { locale, locales } = useI18n();
 const switchLocalePath = useSwitchLocalePath();
-const router = useRouter();
+const isOnline = useOnline();
 
 const availableLocales = computed(() => {
     return locales.value.filter((i) => i.code !== locale.value);
 });
-
-function goBack(): void {
-    router.back();
-}
 
 // Navigation menu items
 const items = computed<NavigationMenuItem[][]>(() => [
@@ -34,7 +31,11 @@ const items = computed<NavigationMenuItem[][]>(() => [
             to: props.backUrl,
         },
     ],
-    [],
+    [
+        {
+            slot: "onlinestatus",
+        }
+    ],
     [
         ...props.items,
         {
@@ -50,11 +51,16 @@ const items = computed<NavigationMenuItem[][]>(() => [
 
 <template>
     <div class="fixed w-full z-50 bg-white shadow-md">
-        <UNavigationMenu
-            content-orientation="vertical"
-            :items="items"
-            class="w-full justify-between z-50"
-        />
+        <UNavigationMenu content-orientation="vertical" :items="items" class="w-full justify-between z-50">
+            <template #onlinestatus-label>
+                <UTooltip :text="isOnline ? t('navigation.online') : t('navigation.offline')">
+                    <UIcon name="i-lucide-wifi" class="size-5" :class="{
+                        'text-green-500': isOnline,
+                        'text-red-500': !isOnline,
+                    }" />
+                </UTooltip>
+            </template>
+        </UNavigationMenu>
     </div>
-    <div class="h-[60px]" />
+    <div class=" h-[60px]" />
 </template>
