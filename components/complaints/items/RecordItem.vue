@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useOnline } from "@vueuse/core";
 import type { ComplaintRecording } from "~/models/compaint_item";
 import type { TranscriptionResponse } from "~/models/transcription_response";
 import { SpeechToTextService } from "~/services/speech_to_text.service";
@@ -14,9 +15,11 @@ const { updateComplaintItem } = useComplaintItemService(props.complaintId);
 const stt = useService(SpeechToTextService);
 const toast = useToast();
 const isSttLoading = ref(false);
+const isOnline = useOnline();
 
 onMounted(() => {
     if (
+        isOnline.value &&
         props.item?.audio &&
         (!props.item.text || props.item.text.length === 0)
     ) {
@@ -62,7 +65,7 @@ const audioUrl = computed(() => {
         </audio>
 
         <UTextarea :loading="isSttLoading" :disabled="isSttLoading" loading-icon="i-lucide-loader"
-            v-model="props.item.text" @blur="onChange"
+            v-model="props.item.text" @blur="onChange" :icon="isOnline ? undefined : 'i-lucide-wifi-off'"
             :placeholder="isSttLoading ? t('speechToText.converting') : t('complaint.textPlaceholder')"
             class="w-full mt-2" :rows="3">
         </UTextarea>

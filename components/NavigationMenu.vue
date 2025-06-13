@@ -54,13 +54,15 @@ const items = computed<NavigationMenuItem[][]>(() => [
         <UNavigationMenu content-orientation="vertical" :items="items" class="w-full justify-between z-50">
             <template #onlinestatus-label>
                 <UTooltip :text="isOnline ? t('navigation.online') : t('navigation.offline')">
-                    <UIcon name="i-lucide-wifi" class="size-5" :class="{
+                    <UIcon :name="isOnline ? 'i-lucide-wifi' : 'i-lucide-wifi-off'" class="size-5" :class="{
                         'text-green-500': isOnline,
                         'text-red-500': !isOnline,
                     }" />
                 </UTooltip>
             </template>
         </UNavigationMenu>
+
+        <UIcon name="i-lucide-wifi-off" class="hidden"></UIcon>
     </div>
     <div class=" h-[60px]" />
 </template>

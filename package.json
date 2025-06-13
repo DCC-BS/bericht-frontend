@@ -42,7 +42,7 @@
     },
     "devDependencies": {
         "@biomejs/biome": "^1.9.4",
-        "@iconify-json/lucide": "1.2.45",
+        "@iconify-json/lucide": "^1.2.48",
         "@types/bun": "1.2.15",
         "biome": "^0.3.3",
         "jiti": "^2.4.2",
