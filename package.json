@@ -43,7 +43,7 @@
     "devDependencies": {
         "@biomejs/biome": "^2.0.0",
         "@iconify-json/lucide": "^1.2.48",
-        "@types/bun": "1.2.19",
+        "@types/bun": "1.2.20",
         "biome": "^0.3.3",
         "jiti": "^2.4.2",
         "sass": "1.90.0",
