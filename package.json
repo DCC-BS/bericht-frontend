@@ -34,7 +34,7 @@
         "nuxt": "3.18.1",
         "nuxt-viewport": "2.3.1",
         "pinia": "3.0.3",
-        "vue": "3.5.18",
+        "vue": "3.5.19",
         "vue-deepunref": "^1.0.1",
         "vue-konva": "^3.2.1",
         "vue-router": "4.5.1",
