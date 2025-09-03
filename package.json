@@ -49,6 +49,6 @@
         "sass": "1.92.0",
         "sass-loader": "^16.0.5",
         "typescript": "5.9.2",
-        "vue-tsc": "^2.2.10"
+        "vue-tsc": "^3.0.0"
     }
 }
