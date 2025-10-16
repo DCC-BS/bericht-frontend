@@ -27,7 +27,7 @@
         "vue": "3.5.22",
         "vue-deepunref": "^1.0.1",
         "vue-konva": "^3.2.1",
-        "vue-router": "4.6.2",
+        "vue-router": "4.6.3",
         "vuedraggable": "^4.1.0",
       },
       "devDependencies": {
@@ -2358,7 +2358,7 @@
 
     "vue-konva": ["vue-konva@3.2.1", "", { "peerDependencies": { "konva": ">7", "vue": "^3" } }, "sha512-gLF+VYnlrBfwtaN3NkgzzEqlj9nyCll80VZv2DdvLUM3cisUsdcRJJuMwGTBJOTebcnn6MB22r33IFd2m+m/ig=="],
 
-    "vue-router": ["vue-router@4.6.2", "", { "dependencies": { "@vue/devtools-api": "^6.6.4" }, "peerDependencies": { "vue": "^3.5.0" } }, "sha512-my83mxQKXyCms9EegBXZldehOihxBjgSjZqrZwgg4vBacNGl0oBCO+xT//wgOYpLV1RW93ZfqxrjTozd+82nbA=="],
+    "vue-router": ["vue-router@4.6.3", "", { "dependencies": { "@vue/devtools-api": "^6.6.4" }, "peerDependencies": { "vue": "^3.5.0" } }, "sha512-ARBedLm9YlbvQomnmq91Os7ck6efydTSpRP3nuOKCvgJOHNrhRoJDSKtee8kcL1Vf7nz6U+PMBL+hTvR3bTVQg=="],
 
     "vue-tsc": ["vue-tsc@2.2.10", "", { "dependencies": { "@volar/typescript": "~2.4.11", "@vue/language-core": "2.2.10" }, "peerDependencies": { "typescript": ">=5.0.0" }, "bin": { "vue-tsc": "./bin/vue-tsc.js" } }, "sha512-jWZ1xSaNbabEV3whpIDMbjVSVawjAyW+x1n3JeGQo7S0uv2n9F/JMgWW90tGWNFRKya4YwKMZgCtr0vRAM7DeQ=="],
 
