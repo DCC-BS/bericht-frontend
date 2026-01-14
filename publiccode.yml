@@ -1,0 +1,37 @@
+publiccodeYmlVersion: 0.5.0
+name: Berichtgenerator Frontend
+url: https://github.com/DCC-BS/bericht-frontend
+softwareVersion: 0.1.2
+releaseDate: 2025-08-21
+platforms:
+  - web
+developmentStatus: beta
+softwareType: standalone/web
+organisation:
+  name: DCC Data Competence Center - Statistisches Amt Kanton Basel-Stadt
+description:
+  en:
+    localisedName: Berichtgenerator
+    shortDescription: "Bericht Generator is a modern web application for creating comprehensive reports with multimedia content."
+    longDescription: Bericht Generator is a modern web application for creating comprehensive reports with multimedia content. Built with Nuxt.js and TypeScript, it provides an intuitive interface for recording complaints, capturing evidence, and generating professional reports. 
+    documentation: https://dcc-bs.github.io/documentation/
+    apiDocumentation: https://dcc-bs.github.io/documentation/
+    features:
+      - LLM
+      - PWA
+    screenshots:
+      - https://github.com/DCC-BS/bericht-frontend/blob/main/_imgs/report.png
+      - https://github.com/DCC-BS/bericht-frontend/blob/main/_imgs/draw.png
+legal:
+  license: MIT-0
+maintenance:
+  type: internal
+  contacts:
+    - name: Data Competence Center
+      email: dcc@bs.ch
+      affiliation: Statistisches Amt Kanton Basel-Stadt
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - en
+    - de-CH
